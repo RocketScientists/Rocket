@@ -29,5 +29,5 @@ for dirpath, _, _ in os.walk(locale_folder):
                 print("Duplicated string: %s" % s.attrib['name'])
                 customized_root.remove(s)
 
-        with open(os.path.join(dirpath, customized_strings_file), 'w') as f:
+        with open(os.path.join(dirpath, customized_strings_file), 'wb') as f:
             f.write(etree.tostring(customized_root, pretty_print=True, encoding='utf-8', xml_declaration=True))

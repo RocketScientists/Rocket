@@ -77,8 +77,13 @@ class DefaultBrowserPreferenceViewModel(private val defaultBrowserRepository: De
                 }
             }
             else -> {
-                openUrlTutorialDialog.call()
-                TelemetryWrapper.showSetDefaultByLinkMessage()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    openDefaultAppsSettingsTutorialDialog.call()
+                    TelemetryWrapper.showSetDefaultBySettingsMessage()
+                } else {
+                    openUrlTutorialDialog.call()
+                    TelemetryWrapper.showSetDefaultByLinkMessage()
+                }
             }
         }
     }

@@ -53,6 +53,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginTop="4dp"
-        tools:src="@drawable/go_to_system_default_apps_step_2" />
+        android:visibility="gone" />
 
 </LinearLayout>

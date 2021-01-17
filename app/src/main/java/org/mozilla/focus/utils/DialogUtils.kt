@@ -316,7 +316,7 @@ object DialogUtils {
             firstStepImageWidth = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_image_width),
             firstStepImageHeight = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_flow_1_step_1_image_height),
             secondStepDescription = secondStepDescription,
-            secondStepImageDefaultResId = R.drawable.go_to_system_default_apps_step_2,
+            secondStepImageDefaultResId = 0, // TODO: Ask designer to have Rocket specific tutorial images
             secondStepImageUrl = viewModel.uiModel.value?.flow1TutorialStep2ImageUrl ?: "",
             secondStepImageWidth = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_image_width),
             secondStepImageHeight = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_flow_1_step_2_image_height),
@@ -361,7 +361,7 @@ object DialogUtils {
             firstStepImageWidth = 0,
             firstStepImageHeight = 0,
             secondStepDescription = secondStepDescription,
-            secondStepImageDefaultResId = R.drawable.open_external_step,
+            secondStepImageDefaultResId = 0, // TODO: Ask designer to have Rocket specific tutorial images
             secondStepImageUrl = viewModel.uiModel.value?.flow2TutorialStep2ImageUrl ?: "",
             secondStepImageWidth = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_image_width),
             secondStepImageHeight = context.resources.getDimensionPixelSize(R.dimen.set_default_browser_tutorial_flow_2_step_2_image_height),

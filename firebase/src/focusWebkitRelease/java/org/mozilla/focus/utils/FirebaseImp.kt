@@ -86,29 +86,30 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
     }
 
     override fun enableAnalytics(context: Context, enable: Boolean) {
-
         FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(enable)
     }
 
     // This need to be run in worker thread since FirebaseRemoteConfigSettings has IO access
     override fun enableRemoteConfig(context: Context, callback: Callback) {
-
         remoteConfig = FirebaseRemoteConfig.getInstance()
-        val configSettings = FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(developerMode).build()
-        remoteConfig.setConfigSettings(configSettings)
+        val configSettings = FirebaseRemoteConfigSettings.Builder().also {
+            if (developerMode) {
+                it.minimumFetchIntervalInSeconds = 0
+            }
+        }.build()
+
+        remoteConfig.setConfigSettingsAsync(configSettings)
         if (remoteConfigDefault.size > 0) {
-            remoteConfig.setDefaults(remoteConfigDefault)
+            remoteConfig.setDefaultsAsync(remoteConfigDefault)
         }
         // If app is using developer mode, cacheExpiration is set to 0, so each fetch will
         // retrieve values from the service.
-        if (remoteConfig.info.configSettings.isDeveloperModeEnabled) {
-            remoteConfigCacheExpirationInSeconds = 0
-        }
+        remoteConfigCacheExpirationInSeconds = remoteConfig.info.configSettings.minimumFetchIntervalInSeconds
 
         remoteConfig.fetch(remoteConfigCacheExpirationInSeconds).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "Firebase RemoteConfig Fetch Successfully ")
-                remoteConfig.activateFetched()
+                remoteConfig.activate()
                 callback.onRemoteConfigFetched()
             } else {
                 Log.d(TAG, "Firebase RemoteConfig Fetch Failed: ${task.exception}")
@@ -149,7 +150,7 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
             if (task.isSuccessful) {
                 Log.d(TAG, "Firebase RemoteConfig Fetch Successfully ")
                 callback(true, null)
-                remoteConfig.activateFetched()
+                remoteConfig.activate()
             } else {
                 Log.d(TAG, "Firebase RemoteConfig Fetch Failed: ${task.exception}")
                 callback(false, task.exception)

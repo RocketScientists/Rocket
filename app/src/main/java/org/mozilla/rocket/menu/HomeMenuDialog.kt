@@ -11,7 +11,6 @@ import android.widget.ScrollView
 import android.widget.Toast
 import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import dagger.Lazy
 import kotlinx.android.synthetic.main.bottom_sheet_home_menu.view.add_top_sites_red_dot
@@ -149,10 +148,12 @@ class HomeMenuDialog : LifecycleBottomSheetDialog {
             chromeViewModel.isNightMode.observe(this@HomeMenuDialog, Observer { nightModeSettings ->
                 night_mode_switch.isChecked = nightModeSettings.isEnabled
             })
-            menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this@HomeMenuDialog, Observer {
-                btn_private_browsing.isVisible = it
-                menu_smart_shopping_search.isVisible = !it
-            })
+            // Temporally disable the shopping search
+            // since the shopping site configuration is not ready
+//            menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this@HomeMenuDialog, Observer {
+//                btn_private_browsing.isVisible = it
+//                menu_smart_shopping_search.isVisible = !it
+//            })
             chromeViewModel.isPrivateBrowsingActive.observe(this@HomeMenuDialog, Observer {
                 img_private_mode.isActivated = it
             })

@@ -28,6 +28,7 @@ class DownloadInfo {
                 field = fileName
             }
         }
+        get() = field?.replace("\\p{C}", "")
     var mediaUri: String? = ""
         set(mediaUri) {
             if (!TextUtils.isEmpty(mediaUri)) {

@@ -122,6 +122,7 @@ internal class TabsSessionModel(
         fun stopMonitorSessionChange() {
             this.tabTrayObserver = null
             stopMonitorSessionManager()
+            stopMonitorSession()
         }
 
         override fun onSessionCountChanged(count: Int) {

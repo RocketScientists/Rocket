@@ -12,14 +12,15 @@ import android.webkit.WebChromeClient
 import org.mozilla.focus.BuildConfig
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
-import org.mozilla.rocket.tabs.SessionManager.Observer
 import org.mozilla.rocket.tabs.TabViewClient
 import org.mozilla.rocket.tabs.TabViewEngineSession
 import java.util.ArrayList
 
-internal class TabsSessionModel(private val sessionManager: SessionManager) : TabTrayContract.Model {
-    private var modelObserver: SessionModelObserver? = null
+internal class TabsSessionModel(
+    private val sessionManager: SessionManager
+) : TabTrayContract.Model {
 
+    private val adapter: SessionModelObserverAdapter = SessionModelObserverAdapter(sessionManager)
     private val tabs = ArrayList<Session>()
 
     override fun loadTabs(listener: TabTrayContract.Model.OnLoadCompleteListener?) {
@@ -70,74 +71,106 @@ internal class TabsSessionModel(private val sessionManager: SessionManager) : Ta
     }
 
     override fun subscribe(observer: TabTrayContract.Model.Observer) {
-        if (this.modelObserver == null) {
-            this.modelObserver = object : SessionModelObserver() {
-                override fun updateFailingUrl(url: String?, updateFromError: Boolean) {
-                    // do nothing
-                }
-
-                override fun handleExternalUrl(url: String?): Boolean {
-                    // do nothing
-                    return false
-                }
-
-                override fun onShowFileChooser(
-                    es: TabViewEngineSession,
-                    filePathCallback: ValueCallback<Array<Uri>>?,
-                    fileChooserParams: WebChromeClient.FileChooserParams?
-                ): Boolean {
-                    // do nothing
-                    return false
-                }
-
-                override fun onTabModelChanged(session: Session) {
-                    observer.onTabUpdate(session)
-                }
-
-                override fun onSessionCountChanged(count: Int) {
-                    observer.onUpdate(sessionManager.getTabs())
-                }
-
-                override fun onHttpAuthRequest(
-                    callback: TabViewClient.HttpAuthCallback,
-                    host: String?,
-                    realm: String?
-                ) {
-                    // do nothing
-                }
-            }
-        }
-        sessionManager.register(this.modelObserver as Observer)
+        this.adapter.startMonitorSessionChange(observer)
     }
 
     override fun unsubscribe() {
-        if (modelObserver != null) {
-            sessionManager.unregister(modelObserver as Observer)
-            modelObserver = null
-        }
+        adapter.stopMonitorSessionChange()
     }
 
-    private abstract class SessionModelObserver : SessionManager.Observer, Session.Observer {
-        var session: Session? = null
+    /**
+     * A class to monitor changes of tab/session content, and deliver the change to TabTray's
+     * observer for subsequent actions
+     *
+     *                 events
+     * SessionManager ------->                              TabModelChange
+     *        Session -------> SessionModelObserverAdapter  ------------->  TabTrayObserver
+     *        Session ------->                              ------------->
+     *        Session                                      SessionCountChange
+     */
+    private class SessionModelObserverAdapter(
+        val sessionManager: SessionManager
+    ) : SessionManager.Observer, Session.Observer {
+
+        var tabTrayObserver: TabTrayContract.Model.Observer? = null
+        var monitoringSession: Session? = null
 
         override fun onUrlChanged(session: Session, url: String?) {
-            session.let { onTabModelChanged(it) }
+            onTabModelChanged(session)
         }
 
         override fun onTitleChanged(session: Session, title: String?) {
-            session.let { onTabModelChanged(it) }
+            onTabModelChanged(session)
         }
 
         override fun onReceivedIcon(icon: Bitmap?) {
-            session?.let { onTabModelChanged(it) }
+            val session = monitoringSession ?: return
+            onTabModelChanged(session)
         }
 
         override fun onFocusChanged(session: Session?, factor: SessionManager.Factor) {
-            this.session?.let { it.unregister(this) }
-            this.session = session
-            this.session?.let { it.register(this) }
+            stopMonitorSession()
+            // monitor next session, if any
+            session?.let { startMonitorSession(it) }
         }
 
-        internal abstract fun onTabModelChanged(session: Session)
+        fun startMonitorSessionChange(observer: TabTrayContract.Model.Observer) {
+            this.tabTrayObserver = observer
+            startMonitorSessionManager()
+        }
+
+        fun stopMonitorSessionChange() {
+            this.tabTrayObserver = null
+            stopMonitorSessionManager()
+        }
+
+        override fun onSessionCountChanged(count: Int) {
+            tabTrayObserver?.onUpdate(sessionManager.getTabs())
+        }
+
+        /**
+         * Be called, if the content of a tab/session is changed
+         */
+        fun onTabModelChanged(session: Session) {
+            tabTrayObserver?.onTabUpdate(session)
+        }
+
+        private fun startMonitorSessionManager() {
+            sessionManager.register(this as SessionManager.Observer)
+        }
+
+        private fun stopMonitorSessionManager() {
+            sessionManager.unregister(this as SessionManager.Observer)
+        }
+
+        private fun startMonitorSession(session: Session) {
+            this.monitoringSession = session
+                .also { session.register(this) }
+        }
+
+        private fun stopMonitorSession() {
+            this.monitoringSession?.unregister(this)
+            this.monitoringSession = null
+        }
+
+        // empty
+        override fun onShowFileChooser(
+            es: TabViewEngineSession,
+            filePathCallback: ValueCallback<Array<Uri>>?,
+            fileChooserParams: WebChromeClient.FileChooserParams?
+        ): Boolean = false
+
+        // empty
+        override fun updateFailingUrl(url: String?, updateFromError: Boolean) = Unit
+
+        // empty
+        override fun handleExternalUrl(url: String?): Boolean = false
+
+        // empty
+        override fun onHttpAuthRequest(
+            callback: TabViewClient.HttpAuthCallback,
+            host: String?,
+            realm: String?
+        ) = Unit
     }
 }

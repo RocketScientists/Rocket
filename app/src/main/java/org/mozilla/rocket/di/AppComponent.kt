@@ -22,7 +22,6 @@ import dagger.Component
 import org.mozilla.focus.activity.EditBookmarkActivity
 import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.fragment.BookmarksFragment
-import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.focus.fragment.DownloadsFragment
 import org.mozilla.focus.history.BrowsingHistoryFragment
 import org.mozilla.focus.persistence.TabsDatabase
@@ -30,6 +29,7 @@ import org.mozilla.focus.persistence.di.TabsModule
 import org.mozilla.focus.tabs.tabtray.TabTrayFragment
 import org.mozilla.focus.urlinput.UrlInputFragment
 import org.mozilla.focus.widget.DefaultBrowserPreference
+import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.di.ChromeModule
 import org.mozilla.rocket.content.common.ui.ContentTabActivity

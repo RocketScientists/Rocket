@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.rocket.sessions
+package org.mozilla.rocket.browser
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -15,7 +15,6 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import com.google.android.material.snackbar.Snackbar
 import org.mozilla.focus.R
-import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager

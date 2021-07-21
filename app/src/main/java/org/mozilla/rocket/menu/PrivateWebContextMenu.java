@@ -29,8 +29,8 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.mozilla.focus.R;
 import org.mozilla.focus.download.GetImgHeaderTask;
-import org.mozilla.focus.fragment.BrowserFragment;
 import org.mozilla.focus.telemetry.TelemetryWrapper;
+import org.mozilla.rocket.browser.BrowserFragment;
 import org.mozilla.rocket.tabs.Session;
 import org.mozilla.rocket.tabs.SessionManager;
 import org.mozilla.rocket.tabs.TabView;

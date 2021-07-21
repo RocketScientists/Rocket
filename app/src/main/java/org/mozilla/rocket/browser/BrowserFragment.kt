@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.fragment
+package org.mozilla.rocket.browser
 
 import android.Manifest
 import android.app.Activity
@@ -44,6 +44,7 @@ import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.databinding.FragmentBrowserBinding
+import org.mozilla.focus.fragment.ScreenCaptureDialogFragment
 import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
@@ -80,8 +81,6 @@ import org.mozilla.rocket.extension.switchFrom
 import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
 import org.mozilla.rocket.permission.GeolocationPermissionController
-import org.mozilla.rocket.sessions.SessionManagerObserver
-import org.mozilla.rocket.sessions.SessionObserver
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity.Companion.getStartIntent
 import org.mozilla.rocket.shopping.search.ui.adapter.ShoppingSiteItem
 import org.mozilla.rocket.tabs.SessionManager

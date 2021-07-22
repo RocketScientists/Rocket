@@ -49,7 +49,6 @@ import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
 import org.mozilla.focus.screenshot.CaptureRunnable
-import org.mozilla.focus.screenshot.CaptureRunnable.CaptureStateListener
 import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
@@ -141,9 +140,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     private var loadStateListenerWeakReference = WeakReference<LoadStateListener?>(null)
 
     var fullscreenCallback: FullscreenCallback? = null
-
-    @set:VisibleForTesting
-    var captureStateListener: CaptureStateListener? = null
 
     // pending action for file-choosing
     var fileChooseAction: FileChooseAction? = null

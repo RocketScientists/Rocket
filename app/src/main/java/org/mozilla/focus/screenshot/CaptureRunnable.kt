@@ -64,8 +64,6 @@ class CaptureRunnable(
         val context = refContext.get() ?: return
         val browserFragment = refBrowserFragment.get()
 
-        browserFragment?.captureStateListener?.onPromptScreenshotResult()
-
         val eventHistory = Settings.getInstance(context).eventHistory
         val isNotShowMyShot = eventHistory.contains(Settings.Event.ShowMyShotOnBoardingDialog)
         if (browserFragment != null && success && isNotShowMyShot) {
@@ -76,9 +74,5 @@ class CaptureRunnable(
 
         val toastMsgId = if (success) R.string.screenshot_saved else R.string.screenshot_failed
         Toast.makeText(context, toastMsgId, Toast.LENGTH_SHORT).show()
-    }
-
-    interface CaptureStateListener {
-        fun onPromptScreenshotResult()
     }
 }

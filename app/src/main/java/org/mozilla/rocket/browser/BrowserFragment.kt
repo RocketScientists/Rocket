@@ -14,7 +14,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.os.Parcelable
 import android.text.TextUtils
 import android.util.DisplayMetrics
@@ -44,11 +43,9 @@ import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.databinding.FragmentBrowserBinding
-import org.mozilla.focus.fragment.ScreenCaptureDialogFragment
 import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
-import org.mozilla.focus.screenshot.CaptureRunnable
 import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
@@ -77,7 +74,6 @@ import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownload
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.switchFrom
-import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
 import org.mozilla.rocket.permission.GeolocationPermissionController
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity.Companion.getStartIntent
@@ -149,6 +145,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
+    private val captureCtrl = CaptureController(this)
+
     // getUrl() is used for things like sharing the current URL. We could try to use the webview,
     // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
     // URL for error pages. The URL we show in the toolbar is (A) always correct and (B) what the
@@ -193,9 +191,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                     ACTION_DOWNLOAD -> maybeQueueDownload(params)
                     ACTION_PICK_FILE -> fileChooseAction?.startChooserActivity()
                     ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
-                    ACTION_CAPTURE -> showLoadingAndCapture(params as ScreenCaptureTelemetryData)
+                    ACTION_CAPTURE -> startCapture(params)
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
+            }
+
+            private fun startCapture(params: Parcelable?) {
+                captureCtrl.startCapture(telemetryData = params as? ScreenCaptureTelemetryData)
             }
 
             private fun maybeQueueDownload(params: Parcelable?) {
@@ -226,7 +228,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
             }
 
             private fun actionCaptureGranted(telemetryData: ScreenCaptureTelemetryData) {
-                setPendingScreenCaptureTask(telemetryData)
+                captureCtrl.setPendingScreenCaptureTask(telemetryData)
             }
 
             private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
@@ -359,10 +361,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     override fun onResume() {
         sessionManager.resume()
         super.onResume()
-        if (hasPendingScreenCaptureTask) {
-            showLoadingAndCapture(pendingScreenCaptureTelemetryData)
-            clearPendingScreenCaptureTask()
-        }
+        captureCtrl.onResume()
     }
 
     override fun onPause() {
@@ -836,44 +835,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     @VisibleForTesting
     fun setIsLoadingListener(listener: LoadStateListener?) {
         loadStateListenerWeakReference = WeakReference(listener)
-    }
-
-    private fun setPendingScreenCaptureTask(telemetryData: ScreenCaptureTelemetryData) {
-        hasPendingScreenCaptureTask = true
-        pendingScreenCaptureTelemetryData = telemetryData
-    }
-
-    private fun clearPendingScreenCaptureTask() {
-        hasPendingScreenCaptureTask = false
-        pendingScreenCaptureTelemetryData = null
-    }
-
-    private fun showLoadingAndCapture(telemetryData: ScreenCaptureTelemetryData?) {
-        if (!isResumed) {
-            return
-        }
-        val context = context ?: return
-        clearPendingScreenCaptureTask()
-        val capturingFragment = ScreenCaptureDialogFragment.newInstance()
-        val portraitState = portraitStateModel
-        if (portraitState != null) {
-            portraitState.request(PortraitComponent.ScreenCapture)
-            capturingFragment.addOnDismissListener {
-                portraitState.cancelRequest(PortraitComponent.ScreenCapture)
-            }
-        }
-        capturingFragment.show(childFragmentManager, "capturingFragment")
-        // Post delay to wait for Dialog to show
-        Handler().postDelayed(
-            CaptureRunnable(
-                context,
-                this,
-                capturingFragment,
-                requireActivity().findViewById(R.id.container),
-                telemetryData
-            ),
-            CAPTURE_WAIT_INTERVAL.toLong()
-        )
     }
 
     fun updateIsLoading(isLoading: Boolean) {

@@ -90,7 +90,7 @@ import javax.inject.Inject
 /**
  * Fragment for displaying the browser UI.
  */
-class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, BackKeyHandleable {
+class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable {
 
     @Inject
     lateinit var downloadIndicatorViewModelCreator: Lazy<DownloadIndicatorViewModel>
@@ -140,8 +140,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     // pending action for file-choosing
     var fileChooseAction: FileChooseAction? = null
     lateinit var permissionHandler: PermissionHandler
-    private var hasPendingScreenCaptureTask = false
-    private var pendingScreenCaptureTelemetryData: ScreenCaptureTelemetryData? = null
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
@@ -191,13 +189,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                     ACTION_DOWNLOAD -> maybeQueueDownload(params)
                     ACTION_PICK_FILE -> fileChooseAction?.startChooserActivity()
                     ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
-                    ACTION_CAPTURE -> startCapture(params)
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
-            }
-
-            private fun startCapture(params: Parcelable?) {
-                captureCtrl.startCapture(telemetryData = params as? ScreenCaptureTelemetryData)
             }
 
             private fun maybeQueueDownload(params: Parcelable?) {
@@ -227,16 +220,11 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                 fileChooseAction?.startChooserActivity()
             }
 
-            private fun actionCaptureGranted(telemetryData: ScreenCaptureTelemetryData) {
-                captureCtrl.setPendingScreenCaptureTask(telemetryData)
-            }
-
             private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
                 when (actionId) {
                     ACTION_DOWNLOAD -> actionDownloadGranted(params)
                     ACTION_PICK_FILE -> actionPickFileGranted()
                     ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
-                    ACTION_CAPTURE -> actionCaptureGranted(params as ScreenCaptureTelemetryData)
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -261,7 +249,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                     }
                     ACTION_GEO_LOCATION -> geolocationController.rejectGeoRequest(false)
                     ACTION_DOWNLOAD -> Unit
-                    ACTION_CAPTURE -> Unit
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -279,8 +266,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                 return when (actionId) {
                     ACTION_GEO_LOCATION -> R.string.permission_toast_location
                     ACTION_DOWNLOAD,
-                    ACTION_PICK_FILE,
-                    ACTION_CAPTURE -> R.string.permission_toast_storage
+                    ACTION_PICK_FILE
+                    -> R.string.permission_toast_storage
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
@@ -290,14 +277,14 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
                     ACTION_GEO_LOCATION -> R.string.permission_toast_location_deny
                     ACTION_DOWNLOAD,
                     ACTION_PICK_FILE,
-                    ACTION_CAPTURE -> R.string.permission_toast_storage_deny
+                    -> R.string.permission_toast_storage_deny
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
 
             override fun requestPermissions(actionId: Int) {
                 val permission = when (actionId) {
-                    ACTION_DOWNLOAD, ACTION_CAPTURE -> Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ACTION_DOWNLOAD -> Manifest.permission.WRITE_EXTERNAL_STORAGE
                     ACTION_PICK_FILE -> Manifest.permission.READ_EXTERNAL_STORAGE
                     ACTION_GEO_LOCATION -> Manifest.permission.ACCESS_FINE_LOCATION
                     else -> throw IllegalArgumentException("Unknown Action")
@@ -318,6 +305,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         bottomBarViewModel = getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = getActivityViewModel(chromeViewModelCreator)
         shoppingSearchPromptMessageViewModel = getActivityViewModel(promptMessageViewModelCreator)
+        lifecycle.addObserver(captureCtrl)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -361,7 +349,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
     override fun onResume() {
         sessionManager.resume()
         super.onResume()
-        captureCtrl.onResume()
     }
 
     override fun onPause() {
@@ -421,12 +408,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
             setJavaScriptBlockingEnabled(enabled)
         }
         chromeViewModel.doScreenshot.observeOnViewLifecycle { telemetryData ->
-            permissionHandler.tryAction(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                ACTION_CAPTURE,
-                telemetryData
-            )
+            startCapture(telemetryData)
         }
 
         chromeViewModel.refreshOrStop.observeOnViewLifecycle {
@@ -718,6 +700,15 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         }
     }
 
+    private fun startCapture(params: Parcelable?) {
+        val currentTab = sessionManager.focusSession ?: return
+        val currentWebView = currentTab.engineSession?.tabView as? WebView ?: return
+        captureCtrl.capture(this, currentWebView, params as? ScreenCaptureTelemetryData) {
+            // My shot on boarding didn't show before and capture is succeed, skip to show toast
+            checkToShowMyShotOnBoarding()
+        }
+    }
+
     private fun updateVideoContainerWithLayoutParams(params: FrameLayout.LayoutParams) {
         val videoContainer = binding?.videoContainer ?: return
         val fullscreenContentView = videoContainer.getChildAt(0) ?: return
@@ -980,20 +971,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         sessionManager.focusSession?.engineSession?.tabView?.stopLoading()
     }
 
-    fun capturePage(callback: ScreenshotCallback): Boolean {
-        val currentTab = sessionManager.focusSession ?: return false
-        // Failed to get WebView
-        val current = currentTab.engineSession?.tabView
-        if (current == null || current !is WebView) {
-            return false
-        }
-        val webView = current as WebView
-        val content = getPageBitmap(webView) ?: return false
-        // Failed to capture
-        callback.onCaptureComplete(current.title, current.url, content)
-        return true
-    }
-
     fun dismissAllMenus() {
         dismissWebContextMenu()
         geolocationController.dismissDialog()
@@ -1054,7 +1031,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         findInPage.hide()
     }
 
-    fun checkToShowMyShotOnBoarding() {
+    private fun checkToShowMyShotOnBoarding() {
         chromeViewModel.checkToShowMyShotOnBoarding()
     }
 
@@ -1089,10 +1066,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         fun isLoadingChanged(isLoading: Boolean)
     }
 
-    interface ScreenshotCallback {
-        fun onCaptureComplete(title: String?, url: String?, bitmap: Bitmap?)
-    }
-
     companion object {
         /**
          * Custom data that is passed when calling [SessionManager.addTab]
@@ -1107,7 +1080,5 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, LifecycleOwner, Ba
         const val ACTION_DOWNLOAD = 0
         const val ACTION_PICK_FILE = 1
         const val ACTION_GEO_LOCATION = 2
-        const val ACTION_CAPTURE = 3
-        const val CAPTURE_WAIT_INTERVAL = 150
     }
 }

@@ -1,44 +1,71 @@
 package org.mozilla.focus.screenshot
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.text.TextUtils
-import android.view.View
-import android.widget.Toast
-import org.mozilla.focus.R
+import android.util.DisplayMetrics
+import android.webkit.WebView
 import org.mozilla.focus.fragment.ScreenCaptureDialogFragment
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.Settings
-import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import java.lang.ref.WeakReference
 
 class CaptureRunnable(
-    context: Context,
-    browserFragment: BrowserFragment,
+    activity: Activity,
+    webView: WebView,
     screenCaptureDialogFragment: ScreenCaptureDialogFragment,
-    container: View,
-    telemetryData: ScreenCaptureTelemetryData?
-) : ScreenshotCaptureTask(context, telemetryData), Runnable, BrowserFragment.ScreenshotCallback {
-    private val refContext = WeakReference(context)
-    private val refBrowserFragment = WeakReference(browserFragment)
+    telemetryData: ScreenCaptureTelemetryData?,
+    captureResultCallback: CaptureResultCallback?
+) : ScreenshotCaptureTask(activity, telemetryData), Runnable {
+    private val refActivity = WeakReference(activity)
+    private val refWebView = WeakReference(webView)
     private val refScreenCaptureDialogFragment = WeakReference(screenCaptureDialogFragment)
-    private val refContainerView = WeakReference(container)
+    private val refCallback = WeakReference(captureResultCallback)
 
     override fun run() {
-        val browserFragment = refBrowserFragment.get() ?: return
-        if (browserFragment.capturePage(this)) {
+        val activity = refActivity.get() ?: return
+        val webView = refWebView.get() ?: return
+        if (capturePage(activity, webView)) {
             //  onCaptureComplete called
         } else {
             //  Capture failed
             val screenCaptureDialogFragment = refScreenCaptureDialogFragment.get()
             screenCaptureDialogFragment?.dismiss()
-            promptScreenshotResult(false)
+            refCallback.get()?.onCaptureResult(false)
         }
     }
 
-    override fun onCaptureComplete(title: String?, url: String?, bitmap: Bitmap?) {
-        val context = refContext.get() ?: return
+    private fun capturePage(activity: Activity, webView: WebView): Boolean {
+        val content = getPageBitmap(activity, webView) ?: return false // Failed to capture
+        val title = webView.title ?: "Empty title"
+        val url = webView.url ?: "Empty url"
+        onCaptureComplete(title, url, content)
+        return true
+    }
+
+    private fun getPageBitmap(activity: Activity, webView: WebView): Bitmap? {
+        val displayMetrics = DisplayMetrics()
+        activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return try {
+            val height = (webView.contentHeight * displayMetrics.density).toInt()
+            val bitmap = Bitmap.createBitmap(webView.width, height, Bitmap.Config.RGB_565)
+            val canvas = Canvas(bitmap)
+            webView.draw(canvas)
+            bitmap
+            // OOM may occur, even if OOMError is not thrown, operations during Bitmap creation may
+            // throw other Exceptions such as NPE when the bitmap is very large.
+        } catch (ex: Exception) {
+            null
+        } catch (ex: OutOfMemoryError) {
+            null
+        }
+    }
+
+    private fun onCaptureComplete(title: String, url: String, bitmap: Bitmap?) {
+        refCallback.get()?.onCaptureResult(true)
+        // pass bitmap to ScreenshotCaptureTask for saving image
         execute(title, url, bitmap)
     }
 
@@ -50,9 +77,10 @@ class CaptureRunnable(
         }
         val captureSuccess = !TextUtils.isEmpty(path)
         if (captureSuccess) {
-            Settings.getInstance(refContext.get()).setHasUnreadMyShot(true)
+            Settings.getInstance(refActivity.get()).setHasUnreadMyShot(true)
         }
-        promptScreenshotResult(captureSuccess)
+
+        refCallback.get()?.onCaptureResult(captureSuccess)
         if (TextUtils.isEmpty(path)) {
             screenCaptureDialogFragment.dismiss()
         } else {
@@ -60,19 +88,7 @@ class CaptureRunnable(
         }
     }
 
-    private fun promptScreenshotResult(success: Boolean) {
-        val context = refContext.get() ?: return
-        val browserFragment = refBrowserFragment.get()
-
-        val eventHistory = Settings.getInstance(context).eventHistory
-        val isNotShowMyShot = eventHistory.contains(Settings.Event.ShowMyShotOnBoardingDialog)
-        if (browserFragment != null && success && isNotShowMyShot) {
-            // My shot on boarding didn't show before and capture is succeed, skip to show toast
-            browserFragment.checkToShowMyShotOnBoarding()
-            return
-        }
-
-        val toastMsgId = if (success) R.string.screenshot_saved else R.string.screenshot_failed
-        Toast.makeText(context, toastMsgId, Toast.LENGTH_SHORT).show()
+    fun interface CaptureResultCallback {
+        fun onCaptureResult(success: Boolean)
     }
 }

@@ -6,6 +6,7 @@
      we definitely need to keep this FrameLayout (i.e. we can't <merge> here). -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -69,7 +70,7 @@
                     android:background="@drawable/image_viewer_btn_bg_selector"
                     android:scaleType="centerInside"
                     android:src="@drawable/action_openinbrowser"
-                    android:tint="@color/image_view_btn_tint_color_selector" />
+                    app:tint="@color/image_view_btn_tint_color_selector" />
 
                 <View
                     android:layout_width="0dp"
@@ -83,7 +84,7 @@
                     android:background="@drawable/image_viewer_btn_bg_selector"
                     android:scaleType="centerInside"
                     android:src="@drawable/action_edit"
-                    android:tint="@color/image_view_btn_tint_color_selector" />
+                    app:tint="@color/image_view_btn_tint_color_selector" />
 
                 <View
                     android:layout_width="0dp"
@@ -97,7 +98,7 @@
                     android:background="@drawable/image_viewer_btn_bg_selector"
                     android:scaleType="centerInside"
                     android:src="@drawable/action_share"
-                    android:tint="@color/image_view_btn_tint_color_selector" />
+                    app:tint="@color/image_view_btn_tint_color_selector" />
 
                 <View
                     android:layout_width="0dp"
@@ -111,7 +112,7 @@
                     android:background="@drawable/image_viewer_btn_bg_selector"
                     android:scaleType="centerInside"
                     android:src="@drawable/action_info"
-                    android:tint="@color/image_view_btn_tint_color_selector" />
+                    app:tint="@color/image_view_btn_tint_color_selector" />
 
                 <View
                     android:layout_width="0dp"
@@ -125,7 +126,7 @@
                     android:background="@drawable/image_viewer_btn_bg_selector"
                     android:scaleType="centerInside"
                     android:src="@drawable/menu_delete"
-                    android:tint="@color/image_view_btn_tint_color_selector" />
+                    app:tint="@color/image_view_btn_tint_color_selector" />
 
                 <View
                     android:layout_width="0dp"

@@ -157,7 +157,7 @@ class UrlInputFragment :
         binding.awesomeBar.addProviders(
 
             FrecensySuggestionProvider(
-                context = activity!!.applicationContext,
+                context = requireActivity().applicationContext,
                 switchToTabIcon = iconTab,
                 bookmarkRepository = bookmarkRepo,
                 historyRepository = historyRepo,

@@ -25,6 +25,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:src="@drawable/notify_download"
-        android:tint="@color/paletteWhite100"
+        app:tint="@color/paletteWhite100"
         android:visibility="gone" />
 </RelativeLayout>

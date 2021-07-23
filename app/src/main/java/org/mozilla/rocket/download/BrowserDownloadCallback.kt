@@ -3,8 +3,8 @@ package org.mozilla.rocket.download
 import android.Manifest
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.permissionhandler.PermissionHandler
+import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.tabs.web.Download
 
 class BrowserDownloadCallback(

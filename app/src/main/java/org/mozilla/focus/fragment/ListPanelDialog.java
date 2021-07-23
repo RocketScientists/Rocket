@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -243,7 +245,21 @@ public class ListPanelDialog extends DialogFragment {
     }
 
     private void showPanelFragment(PanelFragment panelFragment) {
-        getChildFragmentManager().beginTransaction().replace(R.id.main_content, panelFragment).commit();
+        // FragmentTransaction.replace does not work since we upgrade appcompat to 1.3.1
+        // perhaps the timing of creating View and adding View are changed
+        // and the NestedScrollView (R.id.main_content) might have 2 views in a short time, which
+        // cause a exception.
+        // As a workaround, let's remove previous fragment then adding new fragment step by step.
+
+        // getChildFragmentManager().beginTransaction().replace(R.id.main_content, panelFragment).commit();
+        final String tag = "MAIN_CONTENT_FRAGMENT";
+        FragmentManager mgr = getChildFragmentManager();
+        Fragment prevFrg = mgr.findFragmentByTag(tag);
+        if (prevFrg != null) {
+            mgr.beginTransaction().remove(prevFrg).commit();
+        }
+
+        mgr.beginTransaction().add(R.id.main_content, panelFragment, tag).commit();
     }
 
     private void toggleSelectedItem() {

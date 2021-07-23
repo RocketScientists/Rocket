@@ -48,7 +48,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:tint="@color/menu_tab_icon"
+                        app:tint="@color/menu_tab_icon"
                         android:src="@drawable/menu_my_shots_states"/>
 
                 </FrameLayout>
@@ -71,7 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:tint="@color/menu_tab_icon"
+                        app:tint="@color/menu_tab_icon"
                         android:src="@drawable/ic_bookmarks"/>
 
                 </FrameLayout>
@@ -94,7 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:tint="@color/menu_tab_icon"
+                        app:tint="@color/menu_tab_icon"
                         android:src="@drawable/menu_history"/>
 
                 </FrameLayout>
@@ -117,7 +117,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:tint="@color/menu_tab_icon"
+                        app:tint="@color/menu_tab_icon"
                         android:src="@drawable/menu_download"/>
 
                 </FrameLayout>

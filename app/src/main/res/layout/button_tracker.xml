@@ -14,7 +14,7 @@
         android:id="@+id/btn_tracker_off"
         style="@style/MainMenuButton"
         android:layout_gravity="center"
-        android:tint="@color/private_menu_button"
+        app:tint="@color/private_menu_button"
         app:srcCompat="@drawable/action_trackingprotection_off"
         android:clickable="false" />
 </FrameLayout>

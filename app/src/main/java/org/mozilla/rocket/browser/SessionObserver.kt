@@ -1,8 +1,4 @@
-/* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.rocket.sessions
+package org.mozilla.rocket.browser
 
 import android.Manifest
 import android.graphics.Bitmap
@@ -17,10 +13,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
-import org.mozilla.focus.fragment.BrowserFragment
-import org.mozilla.focus.fragment.BrowserFragment.Companion.ANIMATION_DURATION
 import org.mozilla.focus.menu.WebContextMenu
-import org.mozilla.focus.navigation.ScreenNavigator.Companion.BROWSER_FRAGMENT_TAG
+import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.FileChooseAction
 import org.mozilla.focus.utils.IntentUtils
@@ -65,8 +59,8 @@ class SessionObserver(
             updateUrlFromWebView(session)
             browserFragment.chromeViewModel.onPageLoadingStopped()
             browserFragment.updateIsLoading(false)
-            browserFragment.appBarBgTransition.startTransition(ANIMATION_DURATION)
-            browserFragment.statusBarBgTransition.startTransition(ANIMATION_DURATION)
+            browserFragment.appBarBgTransition.startTransition(BrowserFragment.ANIMATION_DURATION)
+            browserFragment.statusBarBgTransition.startTransition(BrowserFragment.ANIMATION_DURATION)
         }
     }
 
@@ -94,13 +88,16 @@ class SessionObserver(
 
     override fun handleExternalUrl(url: String?): Boolean {
         if (browserFragment.context == null) {
-            Log.w(BROWSER_FRAGMENT_TAG, "No context to use, abort callback handleExternalUrl")
+            Log.w(
+                ScreenNavigator.BROWSER_FRAGMENT_TAG,
+                "No context to use, abort callback handleExternalUrl"
+            )
             return false
         }
         val navigationState = browserFragment.chromeViewModel.navigationState.value
         if (navigationState != null && navigationState.isHome) {
             val msg = "Ignore external url when browser page is not on the front"
-            Log.w(BROWSER_FRAGMENT_TAG, msg)
+            Log.w(ScreenNavigator.BROWSER_FRAGMENT_TAG, msg)
             return false
         }
         return IntentUtils.handleExternalUri(browserFragment.context, url)
@@ -187,7 +184,10 @@ class SessionObserver(
     override fun onReceivedIcon(icon: Bitmap?) {}
     override fun onLongPress(session: Session, hitTarget: TabView.HitTarget) {
         if (browserFragment.activity == null) {
-            Log.w(BROWSER_FRAGMENT_TAG, "No context to use, abort callback onLongPress")
+            Log.w(
+                ScreenNavigator.BROWSER_FRAGMENT_TAG,
+                "No context to use, abort callback onLongPress"
+            )
             return
         }
         browserFragment.webContextMenu = WebContextMenu.show(

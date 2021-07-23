@@ -29,7 +29,7 @@
             android:background="@drawable/round_rectangle_ripple"
             android:padding="11dp"
             android:src="@drawable/edit_close"
-            android:tint="@color/colorScreenshotItemBorder" />
+            app:tint="@color/colorScreenshotItemBorder" />
     </RelativeLayout>
 
     <TextView

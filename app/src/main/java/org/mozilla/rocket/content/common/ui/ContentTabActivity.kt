@@ -164,6 +164,7 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionHandler.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
     }
 

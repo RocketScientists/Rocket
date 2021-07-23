@@ -36,7 +36,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import dagger.Lazy
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.ActivityMainBinding
-import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.focus.fragment.ListPanelDialog
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.notification.NotificationId
@@ -60,6 +59,7 @@ import org.mozilla.focus.web.GeoPermissionCache
 import org.mozilla.focus.web.WebViewProvider
 import org.mozilla.rocket.appupdate.InAppUpdateController
 import org.mozilla.rocket.appupdate.InAppUpdateIntro
+import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.OpenUrlAction
 import org.mozilla.rocket.component.LaunchIntentDispatcher

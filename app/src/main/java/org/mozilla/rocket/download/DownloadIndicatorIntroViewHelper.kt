@@ -32,8 +32,8 @@ object DownloadIndicatorIntroViewHelper {
                     val location = IntArray(2)
                     targetView.getLocationOnScreen(location)
 
-                    val wm =
-                        fragment.activity!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    val wm = fragment.requireActivity()
+                        .getSystemService(Context.WINDOW_SERVICE) as WindowManager
                     val display = wm.defaultDisplay
                     val metrics = DisplayMetrics()
                     display.getMetrics(metrics)

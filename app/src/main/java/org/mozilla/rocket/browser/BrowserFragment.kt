@@ -131,10 +131,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     var loadedUrl: String? = null
 
-    // Set an initial WeakReference so we never have to handle loadStateListenerWeakReference being null
-    // (i.e. so we can always just .get()).
-    private var loadStateListenerWeakReference = WeakReference<LoadStateListener?>(null)
-
     var fullscreenCallback: FullscreenCallback? = null
 
     // pending action for file-choosing
@@ -166,20 +162,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     val isPopupWindowAllowed: Boolean
         get() = ScreenNavigator[context].isBrowserInForeground &&
             isAdded && !TabTray.isShowing(parentFragmentManager)
-
-    private val portraitStateModel: PortraitStateModel?
-        get() {
-            val activity = activity ?: return null
-            return if (activity is MainActivity) {
-                activity.portraitStateModel
-            } else {
-                if (BuildConfig.DEBUG) {
-                    throw IllegalStateException("Only MainActivity has portrait state model")
-                } else {
-                    null
-                }
-            }
-        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -813,25 +795,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
     }
 
-    /**
-     * Set a (singular) LoadStateListener. Only one listener is supported at any given time. Setting
-     * a new listener means any previously set listeners will be dropped. This is only intended
-     * to be used by NavigationItemViewHolder. If you want to use this method for any other
-     * parts of the codebase, please extend it to handle a list of listeners. (We would also need
-     * to automatically clean up expired listeners from that list, probably when adding to that list.)
-     *
-     * @param listener The listener to notify of load state changes. Only a weak reference will be kept,
-     * no more calls will be sent once the listener is garbage collected.
-     */
-    @VisibleForTesting
-    fun setIsLoadingListener(listener: LoadStateListener?) {
-        loadStateListenerWeakReference = WeakReference(listener)
-    }
-
     fun updateIsLoading(isLoading: Boolean) {
         this.isLoading = isLoading
-        val currentListener = loadStateListenerWeakReference.get()
-        currentListener?.isLoadingChanged(isLoading)
     }
 
     override fun onRequestPermissionsResult(
@@ -989,24 +954,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
     }
 
-    private fun getPageBitmap(webView: WebView): Bitmap? {
-        val displayMetrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return try {
-            val height = (webView.contentHeight * displayMetrics.density).toInt()
-            val bitmap = Bitmap.createBitmap(webView.width, height, Bitmap.Config.RGB_565)
-            val canvas = Canvas(bitmap)
-            webView.draw(canvas)
-            bitmap
-            // OOM may occur, even if OOMError is not thrown, operations during Bitmap creation may
-            // throw other Exceptions such as NPE when the bitmap is very large.
-        } catch (ex: Exception) {
-            null
-        } catch (ex: OutOfMemoryError) {
-            null
-        }
-    }
-
     fun getWebViewSlot(): ViewGroup? = binding?.webviewSlot
 
     private fun showFindInPage() {
@@ -1060,10 +1007,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         observer: Observer<X>
     ) {
         this.observe(lifecycleOwner, observer)
-    }
-
-    interface LoadStateListener {
-        fun isLoadingChanged(isLoading: Boolean)
     }
 
     companion object {

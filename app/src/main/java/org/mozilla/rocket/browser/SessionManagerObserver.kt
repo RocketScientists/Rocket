@@ -7,6 +7,7 @@ package org.mozilla.rocket.browser
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -16,6 +17,7 @@ import android.webkit.WebChromeClient
 import com.google.android.material.snackbar.Snackbar
 import org.mozilla.focus.R
 import org.mozilla.focus.navigation.ScreenNavigator
+import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.SessionManager.Factor
@@ -35,7 +37,7 @@ class SessionManagerObserver(
         browserFragment.chromeViewModel.onFocusedUrlChanged(session?.url)
         browserFragment.chromeViewModel.onFocusedTitleChanged(session?.title)
         if (session == null) {
-            if (factor === Factor.FACTOR_NO_FOCUS && !browserFragment.isStartedFromExternalApp) {
+            if (factor === Factor.FACTOR_NO_FOCUS && !isStartedFromExternalApp()) {
                 ScreenNavigator.get(browserFragment.context).popToHomeScreen(true)
             } else {
                 browserFragment.requireActivity().finish()
@@ -192,5 +194,13 @@ class SessionManagerObserver(
         realm: String?
     ) {
         sessionObserver.onHttpAuthRequest(callback, host, realm)
+    }
+
+    private fun isStartedFromExternalApp(): Boolean {
+        // No SafeIntent needed here because intent.getAction() is safe (SafeIntent simply calls
+        // intent.getAction() without any wrapping):
+        val intent = browserFragment?.activity?.intent ?: return false
+        val isInternal = intent.getBooleanExtra(IntentUtils.EXTRA_IS_INTERNAL_REQUEST, false)
+        return !isInternal && Intent.ACTION_VIEW == intent.action
     }
 }

@@ -148,17 +148,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     val url: String
         get() = binding?.toolbar?.displayUrl?.text?.toString().orEmpty()
 
-    // No SafeIntent needed here because intent.getAction() is safe (SafeIntent simply calls intent.getAction()
-    // without any wrapping):
-    val isStartedFromExternalApp: Boolean
-        get() {
-            // No SafeIntent needed here because intent.getAction() is safe (SafeIntent simply calls intent.getAction()
-            // without any wrapping):
-            val intent = activity?.intent ?: return false
-            val isInternal = intent.getBooleanExtra(IntentUtils.EXTRA_IS_INTERNAL_REQUEST, false)
-            return !isInternal && Intent.ACTION_VIEW == intent.action
-        }
-
     val isPopupWindowAllowed: Boolean
         get() = ScreenNavigator[context].isBrowserInForeground &&
             isAdded && !TabTray.isShowing(parentFragmentManager)

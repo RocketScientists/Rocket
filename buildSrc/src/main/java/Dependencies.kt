@@ -29,7 +29,7 @@ object Versions {
     const val navigation = "2.2.1"
     const val paging = "2.1.2"
     const val lottie = "3.4.0"
-    const val leakcanary = "2.6"
+    const val leakcanary = "2.7"
     const val android_components = "0.52.0"
     const val android_components_awesomebar = "0.56.0"
     const val annotation = "1.1.0"

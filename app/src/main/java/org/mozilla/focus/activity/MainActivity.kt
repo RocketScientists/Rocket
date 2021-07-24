@@ -126,7 +126,6 @@ class MainActivity :
 
     private lateinit var homeMenu: HomeMenuDialog
     private lateinit var browserMenu: BrowserMenuDialog
-    private var mDialogFragment: DialogFragment? = null
     private var myshotOnBoardingDialog: Dialog? = null
 
     private lateinit var screenNavigator: ScreenNavigator
@@ -570,18 +569,11 @@ class MainActivity :
         if (requestCode == ScreenshotViewerActivity.REQ_CODE_VIEW_SCREENSHOT) {
             if (resultCode == ScreenshotViewerActivity.RESULT_NOTIFY_SCREENSHOT_IS_DELETED) {
                 Toast.makeText(this, R.string.message_deleted_screenshot, Toast.LENGTH_SHORT).show()
-                mDialogFragment?.let {
-                    val fragment = it.childFragmentManager.findFragmentById(R.id.main_content)
-                    if (fragment is ScreenshotGridFragment && data != null) {
-                        val id =
-                            data.getLongExtra(ScreenshotViewerActivity.EXTRA_SCREENSHOT_ITEM_ID, -1)
-                        fragment.notifyItemDelete(id)
-                    }
-                }
+                maybeNotifyScreenshotFragment(data)
             } else if (resultCode == ScreenshotViewerActivity.RESULT_OPEN_URL) {
                 if (data != null) {
                     val url = data.getStringExtra(ScreenshotViewerActivity.EXTRA_URL)
-                    mDialogFragment?.dismissAllowingStateLoss()
+                    getListPanelFragment()?.dismissAllowingStateLoss()
                     chromeViewModel.openUrl.value =
                         OpenUrlAction(url, withNewTab = true, isFromExternal = false)
                 }
@@ -692,15 +684,28 @@ class MainActivity :
             setOnDismissListener { portraitStateModel.cancelRequest(PortraitComponent.ListPanelDialog) }
         }
         portraitStateModel.request(PortraitComponent.ListPanelDialog)
-        dialogFragment.show(supportFragmentManager, "")
-        mDialogFragment = dialogFragment
+        dialogFragment.show(supportFragmentManager, TAG_LIST_PANEL_FRAGMENT)
+    }
+
+    private fun getListPanelFragment(): DialogFragment? {
+        return supportFragmentManager.findFragmentByTag(TAG_LIST_PANEL_FRAGMENT) as? DialogFragment
+    }
+
+    private fun maybeNotifyScreenshotFragment(intent: Intent?) {
+        val data = intent ?: return
+        val listPanel = getListPanelFragment() ?: return
+        val tagFragment = listPanel.childFragmentManager.findFragmentById(R.id.main_content)
+        if (tagFragment is ScreenshotGridFragment) {
+            val id = data.getLongExtra(ScreenshotViewerActivity.EXTRA_SCREENSHOT_ITEM_ID, -1)
+            tagFragment.notifyItemDelete(id)
+        }
     }
 
     private fun dismissAllMenus() {
         homeMenu.dismiss()
         browserMenu.dismiss()
         visibleBrowserFragment?.run { dismissAllMenus() }
-        mDialogFragment?.dismissAllowingStateLoss()
+        getListPanelFragment()?.dismissAllowingStateLoss()
         myshotOnBoardingDialog?.run {
             dismiss()
             myshotOnBoardingDialog = null
@@ -974,6 +979,8 @@ class MainActivity :
     companion object {
         const val REQUEST_CODE_IN_APP_UPDATE = 1024
         const val ACTION_INSTALL_IN_APP_UPDATE = "action_install_in_app_update"
+
+        const val TAG_LIST_PANEL_FRAGMENT = "list_panel_dialog_fragment"
 
         @JvmField
         var shouldRunPromotion = true

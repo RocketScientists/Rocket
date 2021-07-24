@@ -80,10 +80,6 @@ class SessionObserver(
         } else if (browserFragment.chromeViewModel.openUrl.value?.url ?: "" != "") {
             browserFragment.chromeViewModel.openUrl.value!!.url = ""
         }
-
-        browserFragment.shoppingSearchPromptMessageViewModel.checkShoppingSearchPromptVisibility(
-            url
-        )
     }
 
     override fun handleExternalUrl(url: String?): Boolean {
@@ -215,7 +211,6 @@ class SessionObserver(
             // Hide browser UI and web content
             binding.appBar.visibility = View.INVISIBLE
             binding.webviewContainer.visibility = View.INVISIBLE
-            browserFragment.shoppingSearchViewStub.visibility = View.INVISIBLE
             binding.browserBottomBar.visibility = View.INVISIBLE
 
             // Add view to video container and make it visible
@@ -224,6 +219,8 @@ class SessionObserver(
             )
             binding.videoContainer.addView(view, params)
             binding.videoContainer.visibility = View.VISIBLE
+
+            browserFragment.hidePluggableUi()
 
             // Switch to immersive mode: Hide system bars other UI controls
             browserFragment.systemVisibility =
@@ -243,7 +240,6 @@ class SessionObserver(
         // Show browser UI and web content again
         binding.appBar.visibility = View.VISIBLE
         binding.webviewContainer.visibility = View.VISIBLE
-        browserFragment.shoppingSearchViewStub.visibility = View.VISIBLE
         binding.browserBottomBar.visibility = View.VISIBLE
         if (browserFragment.systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
             ViewUtils.exitImmersiveMode(
@@ -251,6 +247,7 @@ class SessionObserver(
                 browserFragment.activity
             )
         }
+        browserFragment.showPluggableUi()
 
         // Notify renderer that we left fullscreen mode.
         browserFragment.fullscreenCallback?.let {

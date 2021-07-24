@@ -82,9 +82,6 @@ class SessionManagerObserver(
     private fun refreshChrome(tab: Session) {
         browserFragment.geolocationController.reset()
         browserFragment.updateURL(tab.url)
-        browserFragment.shoppingSearchPromptMessageViewModel.checkShoppingSearchPromptVisibility(
-            tab.url
-        )
 
         if (tab.progress == 0 || tab.progress == 100) {
             browserFragment.binding?.progressBar?.visibility = View.GONE

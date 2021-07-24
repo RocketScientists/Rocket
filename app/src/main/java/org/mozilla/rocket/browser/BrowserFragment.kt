@@ -10,38 +10,27 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.ViewStub
 import android.view.WindowInsets
 import android.webkit.WebView
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
-import androidx.annotation.VisibleForTesting
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.snackbar.Snackbar
 import dagger.Lazy
-import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
-import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.navigation.ScreenNavigator
@@ -52,12 +41,9 @@ import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
 import org.mozilla.focus.telemetry.TelemetryWrapper.longPressDownloadIndicator
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.FileChooseAction
-import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.SupportUtils
 import org.mozilla.focus.utils.ViewUtils
-import org.mozilla.focus.viewmodel.ShoppingSearchPromptViewModel
-import org.mozilla.focus.viewmodel.ShoppingSearchPromptViewModel.VisibilityState.Expanded
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.focus.widget.FindInPage
 import org.mozilla.permissionhandler.PermissionHandle
@@ -74,9 +60,8 @@ import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownload
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.switchFrom
-import org.mozilla.rocket.landing.PortraitStateModel
 import org.mozilla.rocket.permission.GeolocationPermissionController
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity.Companion.getStartIntent
+import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabView.FullscreenCallback
 import org.mozilla.rocket.tabs.TabsSessionProvider
@@ -84,7 +69,6 @@ import org.mozilla.rocket.tabs.utils.TabUtil
 import org.mozilla.rocket.tabs.web.Download
 import org.mozilla.threadutils.ThreadUtils
 import org.mozilla.urlutils.UrlUtils
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 /**
@@ -101,13 +85,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     @Inject
     lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
 
-    @Inject
-    lateinit var promptMessageViewModelCreator: Lazy<ShoppingSearchPromptViewModel>
     lateinit var chromeViewModel: ChromeViewModel
     lateinit var bottomBarViewModel: BottomBarViewModel
-    lateinit var shoppingSearchPromptMessageViewModel: ShoppingSearchPromptViewModel
     private lateinit var bottomBarItemAdapter: BottomBarItemAdapter
-    private lateinit var shoppingSearchPromptMessageBehavior: BottomSheetBehavior<*>
 
     var binding: FragmentBrowserBinding? = null
 
@@ -119,7 +99,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private val managerObserver = SessionManagerObserver(this, sessionObserver)
 
     lateinit var findInPage: FindInPage
-    lateinit var shoppingSearchViewStub: ViewStub
 
     lateinit var appBarBgTransition: TransitionDrawable
     lateinit var statusBarBgTransition: TransitionDrawable
@@ -140,6 +119,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private var landscapeStartTime = 0L
 
     private val captureCtrl = CaptureController(this)
+    private val shoppingSearchCtrl = ShoppingSearchController(this)
 
     // getUrl() is used for things like sharing the current URL. We could try to use the webview,
     // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
@@ -275,8 +255,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         super.onCreate(savedInstanceState)
         bottomBarViewModel = getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = getActivityViewModel(chromeViewModelCreator)
-        shoppingSearchPromptMessageViewModel = getActivityViewModel(promptMessageViewModelCreator)
         lifecycle.addObserver(captureCtrl)
+        lifecycle.addObserver(shoppingSearchCtrl)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -292,30 +272,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         savedInstanceState: Bundle?
     ): View = FragmentBrowserBinding.inflate(inflater, container, false).also {
         this.binding = it
-        shoppingSearchViewStub = it.shoppingSearchStub
     }.root
-
-    private fun observeShoppingSearchPromptMessageViewModel() {
-        shoppingSearchPromptMessageViewModel.openShoppingSearch.observeOnViewLifecycle {
-            startActivity(getStartIntent(requireContext()))
-            ScreenNavigator[context].popToHomeScreen(false)
-        }
-
-        shoppingSearchPromptMessageViewModel.promptVisibilityState.observeOnViewLifecycle {
-            if (shoppingSearchViewStub.parent != null) {
-                setupShoppingSearchPrompt(shoppingSearchViewStub.inflate())
-            }
-            if (it is Expanded) {
-                changeShoppingSearchPromptMessageState(BottomSheetBehavior.STATE_EXPANDED)
-            } else {
-                changeShoppingSearchPromptMessageState(BottomSheetBehavior.STATE_HIDDEN)
-            }
-        }
-
-        shoppingSearchPromptMessageViewModel.shoppingSiteList.observeOnViewLifecycle {
-            shoppingSearchPromptMessageViewModel.checkShoppingSearchPromptVisibility(url)
-        }
-    }
 
     override fun onResume() {
         sessionManager.resume()
@@ -339,33 +296,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             return
         }
         binding?.toolbar?.displayUrl?.text = UrlUtils.stripUserInfo(url)
-    }
-
-    private fun setupShoppingSearchPrompt(view: View) {
-        shoppingSearchPromptMessageBehavior =
-            BottomSheetBehavior.from(view.findViewById<CoordinatorLayout>(R.id.bottom_sheet))
-                .apply {
-                    setBottomSheetCallback(object : BottomSheetCallback() {
-                        override fun onStateChanged(bottomSheet: View, newState: Int) {
-                            when (newState) {
-                                BottomSheetBehavior.STATE_EXPANDED -> shoppingSearchPromptMessageViewModel.onPromptIsShown()
-                                BottomSheetBehavior.STATE_HIDDEN -> shoppingSearchPromptMessageViewModel.onPromptIsDismissed()
-                                BottomSheetBehavior.STATE_DRAGGING -> shoppingSearchPromptMessageViewModel.onPromptIsDragged()
-                            }
-                        }
-
-                        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                            // Do nothing
-                        }
-                    })
-                }
-        view.findViewById<Button>(R.id.bottom_sheet_search).setOnClickListener {
-            shoppingSearchPromptMessageViewModel.onShoppingSearchPromptButtonClicked()
-        }
-    }
-
-    private fun changeShoppingSearchPromptMessageState(state: Int) {
-        shoppingSearchPromptMessageBehavior.state = state
+        shoppingSearchCtrl.notifyUrlChanged()
     }
 
     private fun observeChromeAction() {
@@ -590,7 +521,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         initialiseNormalBrowserUi()
         sessionManager = TabsSessionProvider.getOrThrow(activity)
         sessionManager.register(managerObserver, this, false)
-        observeShoppingSearchPromptMessageViewModel()
+        shoppingSearchCtrl.onViewCreated(binding.shoppingSearchStub)
         observeDarkTheme()
 
         // maybe Fragment was destroyed
@@ -756,6 +687,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     override fun onDestroyView() {
         sessionManager.unregister(managerObserver)
+        shoppingSearchCtrl.onDestroyView()
         binding = null
         super.onDestroyView()
     }
@@ -952,12 +884,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         binding.root.isActivated = false
         binding.appBar.setExpanded(false)
         binding.browserBottomBar.visibility = View.INVISIBLE
-        shoppingSearchViewStub.visibility = View.INVISIBLE
+        hidePluggableUi()
         findInPage.onDismissListener = {
             binding.root.isActivated = true
             binding.appBar.setExpanded(true)
             binding.browserBottomBar.visibility = View.VISIBLE
-            shoppingSearchViewStub.visibility = View.VISIBLE
+            showPluggableUi()
         }
         findInPage.show(focusTab)
         TelemetryWrapper.findInPage(TelemetryWrapper.FIND_IN_PAGE.OPEN_BY_MENU)
@@ -965,6 +897,14 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun hideFindInPage() {
         findInPage.hide()
+    }
+
+    fun showPluggableUi() {
+        shoppingSearchCtrl.setVisible()
+    }
+
+    fun hidePluggableUi() {
+        shoppingSearchCtrl.setInvisible()
     }
 
     private fun checkToShowMyShotOnBoarding() {

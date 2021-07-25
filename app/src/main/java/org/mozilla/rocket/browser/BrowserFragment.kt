@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.TransitionDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
@@ -21,6 +22,8 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowInsets
 import android.webkit.GeolocationPermissions
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -41,7 +44,6 @@ import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
 import org.mozilla.focus.telemetry.TelemetryWrapper.longPressDownloadIndicator
 import org.mozilla.focus.utils.AppConstants
-import org.mozilla.focus.utils.FileChooseAction
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.SupportUtils
 import org.mozilla.focus.utils.ViewUtils
@@ -109,8 +111,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     var fullscreenCallback: FullscreenCallback? = null
 
-    // pending action for file-choosing
-    var fileChooseAction: FileChooseAction? = null
     lateinit var permissionHandler: PermissionHandler
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
@@ -118,6 +118,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private val geolocationController = GeolocationPermissionController(this)
     private val captureCtrl = CaptureController(this)
     private val shoppingSearchCtrl = ShoppingSearchController(this)
+    private val fileChooseController = FileChooseController(this)
 
     // getUrl() is used for things like sharing the current URL. We could try to use the webview,
     // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
@@ -136,7 +137,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             override fun doActionDirect(permission: String, actionId: Int, params: Parcelable?) {
                 when (actionId) {
                     ACTION_DOWNLOAD -> maybeQueueDownload(params)
-                    ACTION_PICK_FILE -> fileChooseAction?.startChooserActivity()
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -164,14 +164,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 queueDownload(parcelable as? Download)
             }
 
-            private fun actionPickFileGranted() {
-                fileChooseAction?.startChooserActivity()
-            }
-
             private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
                 when (actionId) {
                     ACTION_DOWNLOAD -> actionDownloadGranted(params)
-                    ACTION_PICK_FILE -> actionPickFileGranted()
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -190,10 +185,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 params: Parcelable?
             ) {
                 when (actionId) {
-                    ACTION_PICK_FILE -> {
-                        fileChooseAction?.cancel()
-                        fileChooseAction = null
-                    }
                     ACTION_DOWNLOAD -> Unit
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
@@ -210,18 +201,14 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
             private fun getAskAgainSnackBarString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_DOWNLOAD,
-                    ACTION_PICK_FILE
-                    -> R.string.permission_toast_storage
+                    ACTION_DOWNLOAD -> R.string.permission_toast_storage
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
 
             private fun getPermissionDeniedToastString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_DOWNLOAD,
-                    ACTION_PICK_FILE,
-                    -> R.string.permission_toast_storage_deny
+                    ACTION_DOWNLOAD -> R.string.permission_toast_storage_deny
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
@@ -229,7 +216,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             override fun requestPermissions(actionId: Int) {
                 val permission = when (actionId) {
                     ACTION_DOWNLOAD -> Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ACTION_PICK_FILE -> Manifest.permission.READ_EXTERNAL_STORAGE
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
                 this@BrowserFragment.requestPermissions(arrayOf(permission), actionId)
@@ -250,6 +236,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         lifecycle.addObserver(captureCtrl)
         lifecycle.addObserver(geolocationController)
         lifecycle.addObserver(shoppingSearchCtrl)
+        lifecycle.addObserver(fileChooseController)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -536,13 +523,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         permissionHandler.onActivityResult(activity, requestCode, resultCode, data)
-        if (requestCode == FileChooseAction.REQUEST_CODE_CHOOSE_FILE) {
-            val done =
-                fileChooseAction == null || fileChooseAction?.onFileChose(resultCode, data) == true
-            if (done) {
-                fileChooseAction = null
-            }
-        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -902,6 +882,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         geolocationController.dismissGeolocationDialog()
     }
 
+    fun chooseFile(
+        callback: ValueCallback<Array<Uri>>?,
+        params: WebChromeClient.FileChooserParams
+    ) {
+        fileChooseController.maybeChooseFile(callback, params)
+    }
+
     private fun checkToShowMyShotOnBoarding() {
         chromeViewModel.checkToShowMyShotOnBoarding()
     }
@@ -945,6 +932,5 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         const val SITE_LOCK = 1
         const val BUNDLE_MAX_SIZE = 300 * 1000 // 300K
         const val ACTION_DOWNLOAD = 0
-        const val ACTION_PICK_FILE = 1
     }
 }

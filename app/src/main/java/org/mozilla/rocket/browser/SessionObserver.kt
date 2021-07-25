@@ -16,7 +16,6 @@ import androidx.lifecycle.Lifecycle
 import org.mozilla.focus.menu.WebContextMenu
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.telemetry.TelemetryWrapper
-import org.mozilla.focus.utils.FileChooseAction
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.web.HttpAuthenticationDialogBuilder
@@ -158,14 +157,7 @@ class SessionObserver(
         return try {
             requireNotNull(filePathCallback)
             requireNotNull(fileChooserParams)
-            browserFragment.fileChooseAction =
-                FileChooseAction(browserFragment, filePathCallback, fileChooserParams)
-            browserFragment.permissionHandler.tryAction(
-                browserFragment,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                BrowserFragment.ACTION_PICK_FILE,
-                null
-            )
+            browserFragment.chooseFile(filePathCallback, fileChooserParams)
             true
         } catch (e: Exception) {
             e.printStackTrace()

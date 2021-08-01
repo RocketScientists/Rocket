@@ -4,18 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.rocket.browser
 
-import android.Manifest
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +24,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -119,6 +115,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private val captureCtrl = CaptureController(this)
     private val shoppingSearchCtrl = ShoppingSearchController(this)
     private val fileChooseController = FileChooseController(this)
+    private val downloadCtrl = DownloadController(this)
 
     // getUrl() is used for things like sharing the current URL. We could try to use the webview,
     // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
@@ -136,37 +133,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         permissionHandler = PermissionHandler(object : PermissionHandle {
             override fun doActionDirect(permission: String, actionId: Int, params: Parcelable?) {
                 when (actionId) {
-                    ACTION_DOWNLOAD -> maybeQueueDownload(params)
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
 
-            private fun maybeQueueDownload(params: Parcelable?) {
-                val ctx = getContext()
-                if (ctx == null) {
-                    val msg = "No context to use, abort callback onDownloadStart"
-                    Log.w(ScreenNavigator.BROWSER_FRAGMENT_TAG, msg)
-                    return
-                }
-                val download = params as Download
-                val result = ContextCompat.checkSelfPermission(
-                    ctx,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                if (PackageManager.PERMISSION_GRANTED == result) {
-                    // We do have the permission to write to the external storage.
-                    // Proceed with the download.
-                    queueDownload(download)
-                }
-            }
-
-            private fun actionDownloadGranted(parcelable: Parcelable?) {
-                queueDownload(parcelable as? Download)
-            }
-
             private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
                 when (actionId) {
-                    ACTION_DOWNLOAD -> actionDownloadGranted(params)
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -185,7 +157,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 params: Parcelable?
             ) {
                 when (actionId) {
-                    ACTION_DOWNLOAD -> Unit
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -201,21 +172,18 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
             private fun getAskAgainSnackBarString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_DOWNLOAD -> R.string.permission_toast_storage
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
 
             private fun getPermissionDeniedToastString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_DOWNLOAD -> R.string.permission_toast_storage_deny
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
             }
 
             override fun requestPermissions(actionId: Int) {
                 val permission = when (actionId) {
-                    ACTION_DOWNLOAD -> Manifest.permission.WRITE_EXTERNAL_STORAGE
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
                 this@BrowserFragment.requestPermissions(arrayOf(permission), actionId)
@@ -237,6 +205,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         lifecycle.addObserver(geolocationController)
         lifecycle.addObserver(shoppingSearchCtrl)
         lifecycle.addObserver(fileChooseController)
+        lifecycle.addObserver(downloadCtrl)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -706,16 +675,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         )
     }
 
-    /**
-     * Use Android's Download Manager to queue this download.
-     */
-    private fun queueDownload(download: Download?) {
-        if (activity == null || download == null) {
-            return
-        }
-        chromeViewModel.onEnqueueDownload(download, url)
-    }
-
     override fun onBackPressed(): Boolean {
         if (findInPage.onBackPressed()) {
             return true
@@ -889,6 +848,20 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         fileChooseController.maybeChooseFile(callback, params)
     }
 
+    fun maybeQueueDownload(download: Download) {
+        downloadCtrl.maybeQueueDownload(download)
+    }
+
+    /**
+     * Use Android's Download Manager to queue this download.
+     */
+    fun addToDownloadManager(download: Download?) {
+        if (activity == null || download == null) {
+            return
+        }
+        chromeViewModel.onEnqueueDownload(download, url)
+    }
+
     private fun checkToShowMyShotOnBoarding() {
         chromeViewModel.checkToShowMyShotOnBoarding()
     }
@@ -931,6 +904,5 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         const val SITE_GLOBE = 0
         const val SITE_LOCK = 1
         const val BUNDLE_MAX_SIZE = 300 * 1000 // 300K
-        const val ACTION_DOWNLOAD = 0
     }
 }

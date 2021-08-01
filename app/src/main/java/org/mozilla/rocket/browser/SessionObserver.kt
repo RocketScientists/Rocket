@@ -1,6 +1,5 @@
 package org.mozilla.rocket.browser
 
-import android.Manifest
 import android.graphics.Bitmap
 import android.net.Uri
 import android.text.TextUtils
@@ -19,13 +18,13 @@ import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.web.HttpAuthenticationDialogBuilder
-import org.mozilla.rocket.download.BrowserDownloadCallback
 import org.mozilla.rocket.history.SessionHistoryInserter
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.TabView
 import org.mozilla.rocket.tabs.TabViewClient
 import org.mozilla.rocket.tabs.TabViewEngineSession
 import org.mozilla.rocket.tabs.web.Download
+import org.mozilla.rocket.tabs.web.DownloadCallback
 
 class SessionObserver(
     private val browserFragment: BrowserFragment
@@ -181,10 +180,7 @@ class SessionObserver(
         browserFragment.webContextMenu = WebContextMenu.show(
             false,
             browserFragment.requireActivity(),
-            BrowserDownloadCallback(
-                browserFragment,
-                browserFragment.permissionHandler
-            ),
+            BrowserDownloadCallback(browserFragment),
             hitTarget
         )
     }
@@ -316,12 +312,7 @@ class SessionObserver(
             requireNotNull(download.contentLength),
             false
         )
-        browserFragment.permissionHandler.tryAction(
-            browserFragment,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            BrowserFragment.ACTION_DOWNLOAD,
-            d
-        )
+        browserFragment.maybeQueueDownload(d)
         return true
     }
 
@@ -348,5 +339,13 @@ class SessionObserver(
         val builder = innerBuilder.build()
         builder.createDialog()
         builder.show()
+    }
+
+    private class BrowserDownloadCallback(
+        private val fragment: BrowserFragment
+    ) : DownloadCallback {
+        override fun onDownloadStart(download: Download) {
+            fragment.maybeQueueDownload(download)
+        }
     }
 }

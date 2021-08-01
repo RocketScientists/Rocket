@@ -5,8 +5,6 @@
 package org.mozilla.rocket.browser
 
 import android.app.Dialog
-import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
@@ -23,12 +21,10 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.google.android.material.snackbar.Snackbar
 import dagger.Lazy
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentBrowserBinding
@@ -45,8 +41,6 @@ import org.mozilla.focus.utils.SupportUtils
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.focus.widget.FindInPage
-import org.mozilla.permissionhandler.PermissionHandle
-import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
@@ -107,7 +101,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     var fullscreenCallback: FullscreenCallback? = null
 
-    lateinit var permissionHandler: PermissionHandler
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
@@ -128,74 +121,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         get() = ScreenNavigator[context].isBrowserInForeground &&
             isAdded && !TabTray.isShowing(parentFragmentManager)
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        permissionHandler = PermissionHandler(object : PermissionHandle {
-            override fun doActionDirect(permission: String, actionId: Int, params: Parcelable?) {
-                when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
-                when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            override fun doActionGranted(permission: String, actionId: Int, params: Parcelable?) {
-                doActionGrantedOrSetting(actionId, params)
-            }
-
-            override fun doActionSetting(permission: String, actionId: Int, params: Parcelable?) {
-                doActionGrantedOrSetting(actionId, params)
-            }
-
-            override fun doActionNoPermission(
-                permission: String,
-                actionId: Int,
-                params: Parcelable?
-            ) {
-                when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            override fun makeAskAgainSnackBar(actionId: Int): Snackbar {
-                return PermissionHandler.makeAskAgainSnackBar(
-                    this@BrowserFragment,
-                    requireActivity().findViewById(R.id.container),
-                    getAskAgainSnackBarString(actionId),
-                    binding?.browserBottomBar
-                )
-            }
-
-            private fun getAskAgainSnackBarString(actionId: Int): Int {
-                return when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-            }
-
-            private fun getPermissionDeniedToastString(actionId: Int): Int {
-                return when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-            }
-
-            override fun requestPermissions(actionId: Int) {
-                val permission = when (actionId) {
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-                this@BrowserFragment.requestPermissions(arrayOf(permission), actionId)
-            }
-
-            override fun permissionDeniedToast(actionId: Int) {
-                val toastStr = getPermissionDeniedToastString(actionId)
-                Toast.makeText(context, toastStr, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         this.appComponent().inject(this)
         super.onCreate(savedInstanceState)
@@ -206,13 +131,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         lifecycle.addObserver(shoppingSearchCtrl)
         lifecycle.addObserver(fileChooseController)
         lifecycle.addObserver(downloadCtrl)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            permissionHandler.onRestoreInstanceState(savedInstanceState)
-        }
     }
 
     override fun onCreateView(
@@ -490,10 +408,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        permissionHandler.onActivityResult(activity, requestCode, resultCode, data)
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateBottomBarLayout()
@@ -602,7 +516,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        permissionHandler.onSaveInstanceState(outState)
         sessionManager.focusSession?.engineSession?.tabView?.saveViewState(outState)
 
         // Workaround for #1107 TransactionTooLargeException
@@ -660,19 +573,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun updateIsLoading(isLoading: Boolean) {
         this.isLoading = isLoading
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        permissionHandler.onRequestPermissionsResult(
-            context,
-            requestCode,
-            permissions,
-            grantResults
-        )
     }
 
     override fun onBackPressed(): Boolean {

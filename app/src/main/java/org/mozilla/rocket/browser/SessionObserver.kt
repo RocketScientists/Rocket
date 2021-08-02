@@ -279,13 +279,7 @@ class SessionObserver(
         if (!isForegroundSession(session) || !browserFragment.isPopupWindowAllowed) {
             return
         }
-        browserFragment.geolocationController.set(origin, callback)
-        browserFragment.permissionHandler.tryAction(
-            browserFragment,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            BrowserFragment.ACTION_GEO_LOCATION,
-            null
-        )
+        browserFragment.showGeolocationPermission(origin, callback)
     }
 
     fun changeSession(nextSession: Session?) {

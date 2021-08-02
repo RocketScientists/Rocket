@@ -80,7 +80,7 @@ class SessionManagerObserver(
     }
 
     private fun refreshChrome(tab: Session) {
-        browserFragment.geolocationController.reset()
+        browserFragment.closeGeolocationPermission()
         browserFragment.updateURL(tab.url)
 
         if (tab.progress == 0 || tab.progress == 100) {

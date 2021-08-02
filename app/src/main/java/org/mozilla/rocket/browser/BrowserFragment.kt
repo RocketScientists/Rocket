@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowInsets
+import android.webkit.GeolocationPermissions
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -60,7 +61,6 @@ import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownload
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.switchFrom
-import org.mozilla.rocket.permission.GeolocationPermissionController
 import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabView.FullscreenCallback
@@ -105,9 +105,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     var webContextMenu: Dialog? = null
 
-    val geolocationController: GeolocationPermissionController
-        by lazy { GeolocationPermissionController() }
-
     var loadedUrl: String? = null
 
     var fullscreenCallback: FullscreenCallback? = null
@@ -118,6 +115,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
+    private val geolocationController = GeolocationPermissionController(this)
     private val captureCtrl = CaptureController(this)
     private val shoppingSearchCtrl = ShoppingSearchController(this)
 
@@ -139,7 +137,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 when (actionId) {
                     ACTION_DOWNLOAD -> maybeQueueDownload(params)
                     ACTION_PICK_FILE -> fileChooseAction?.startChooserActivity()
-                    ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -175,7 +172,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 when (actionId) {
                     ACTION_DOWNLOAD -> actionDownloadGranted(params)
                     ACTION_PICK_FILE -> actionPickFileGranted()
-                    ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
             }
@@ -198,7 +194,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                         fileChooseAction?.cancel()
                         fileChooseAction = null
                     }
-                    ACTION_GEO_LOCATION -> geolocationController.rejectGeoRequest(false)
                     ACTION_DOWNLOAD -> Unit
                     else -> throw IllegalArgumentException("Unknown actionId")
                 }
@@ -215,7 +210,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
             private fun getAskAgainSnackBarString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_GEO_LOCATION -> R.string.permission_toast_location
                     ACTION_DOWNLOAD,
                     ACTION_PICK_FILE
                     -> R.string.permission_toast_storage
@@ -225,7 +219,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
             private fun getPermissionDeniedToastString(actionId: Int): Int {
                 return when (actionId) {
-                    ACTION_GEO_LOCATION -> R.string.permission_toast_location_deny
                     ACTION_DOWNLOAD,
                     ACTION_PICK_FILE,
                     -> R.string.permission_toast_storage_deny
@@ -237,7 +230,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
                 val permission = when (actionId) {
                     ACTION_DOWNLOAD -> Manifest.permission.WRITE_EXTERNAL_STORAGE
                     ACTION_PICK_FILE -> Manifest.permission.READ_EXTERNAL_STORAGE
-                    ACTION_GEO_LOCATION -> Manifest.permission.ACCESS_FINE_LOCATION
                     else -> throw IllegalArgumentException("Unknown Action")
                 }
                 this@BrowserFragment.requestPermissions(arrayOf(permission), actionId)
@@ -256,6 +248,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         bottomBarViewModel = getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = getActivityViewModel(chromeViewModelCreator)
         lifecycle.addObserver(captureCtrl)
+        lifecycle.addObserver(geolocationController)
         lifecycle.addObserver(shoppingSearchCtrl)
     }
 
@@ -681,7 +674,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
             sessionManager.focusSession?.engineSession?.tabView?.performExitFullScreen()
         }
-        geolocationController.dismissDialog()
+        geolocationController.dismissGeolocationDialog()
         super.onStop()
     }
 
@@ -859,13 +852,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun dismissAllMenus() {
         dismissWebContextMenu()
-        geolocationController.dismissDialog()
-    }
-
-    private fun mayShowGeolocationDialog() {
-        if (isPopupWindowAllowed) {
-            geolocationController.showPermissionDialog(requireContext())
-        }
+        geolocationController.dismissGeolocationDialog()
     }
 
     private fun dismissWebContextMenu() {
@@ -905,6 +892,14 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun hidePluggableUi() {
         shoppingSearchCtrl.setInvisible()
+    }
+
+    fun showGeolocationPermission(origin: String, callback: GeolocationPermissions.Callback?) {
+        geolocationController.showGeolocationDialog(origin, callback)
+    }
+
+    fun closeGeolocationPermission() {
+        geolocationController.dismissGeolocationDialog()
     }
 
     private fun checkToShowMyShotOnBoarding() {
@@ -951,6 +946,5 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         const val BUNDLE_MAX_SIZE = 300 * 1000 // 300K
         const val ACTION_DOWNLOAD = 0
         const val ACTION_PICK_FILE = 1
-        const val ACTION_GEO_LOCATION = 2
     }
 }

@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.mozilla.focus.R;
-import org.mozilla.rocket.permission.GeolocationPermissionController;
+import org.mozilla.rocket.browser.GeolocationPermissionController;
 
 public class MockUIUtils {
 

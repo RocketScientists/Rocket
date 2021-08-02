@@ -1,6 +1,5 @@
 package org.mozilla.rocket.browser
 
-import android.Manifest
 import android.graphics.Bitmap
 import android.net.Uri
 import android.text.TextUtils
@@ -16,17 +15,16 @@ import androidx.lifecycle.Lifecycle
 import org.mozilla.focus.menu.WebContextMenu
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.telemetry.TelemetryWrapper
-import org.mozilla.focus.utils.FileChooseAction
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.web.HttpAuthenticationDialogBuilder
-import org.mozilla.rocket.download.BrowserDownloadCallback
 import org.mozilla.rocket.history.SessionHistoryInserter
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.TabView
 import org.mozilla.rocket.tabs.TabViewClient
 import org.mozilla.rocket.tabs.TabViewEngineSession
 import org.mozilla.rocket.tabs.web.Download
+import org.mozilla.rocket.tabs.web.DownloadCallback
 
 class SessionObserver(
     private val browserFragment: BrowserFragment
@@ -80,10 +78,6 @@ class SessionObserver(
         } else if (browserFragment.chromeViewModel.openUrl.value?.url ?: "" != "") {
             browserFragment.chromeViewModel.openUrl.value!!.url = ""
         }
-
-        browserFragment.shoppingSearchPromptMessageViewModel.checkShoppingSearchPromptVisibility(
-            url
-        )
     }
 
     override fun handleExternalUrl(url: String?): Boolean {
@@ -162,14 +156,7 @@ class SessionObserver(
         return try {
             requireNotNull(filePathCallback)
             requireNotNull(fileChooserParams)
-            browserFragment.fileChooseAction =
-                FileChooseAction(browserFragment, filePathCallback, fileChooserParams)
-            browserFragment.permissionHandler.tryAction(
-                browserFragment,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                BrowserFragment.ACTION_PICK_FILE,
-                null
-            )
+            browserFragment.chooseFile(filePathCallback, fileChooserParams)
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -193,10 +180,7 @@ class SessionObserver(
         browserFragment.webContextMenu = WebContextMenu.show(
             false,
             browserFragment.requireActivity(),
-            BrowserDownloadCallback(
-                browserFragment,
-                browserFragment.permissionHandler
-            ),
+            BrowserDownloadCallback(browserFragment),
             hitTarget
         )
     }
@@ -215,7 +199,6 @@ class SessionObserver(
             // Hide browser UI and web content
             binding.appBar.visibility = View.INVISIBLE
             binding.webviewContainer.visibility = View.INVISIBLE
-            browserFragment.shoppingSearchViewStub.visibility = View.INVISIBLE
             binding.browserBottomBar.visibility = View.INVISIBLE
 
             // Add view to video container and make it visible
@@ -224,6 +207,8 @@ class SessionObserver(
             )
             binding.videoContainer.addView(view, params)
             binding.videoContainer.visibility = View.VISIBLE
+
+            browserFragment.hidePluggableUi()
 
             // Switch to immersive mode: Hide system bars other UI controls
             browserFragment.systemVisibility =
@@ -243,7 +228,6 @@ class SessionObserver(
         // Show browser UI and web content again
         binding.appBar.visibility = View.VISIBLE
         binding.webviewContainer.visibility = View.VISIBLE
-        browserFragment.shoppingSearchViewStub.visibility = View.VISIBLE
         binding.browserBottomBar.visibility = View.VISIBLE
         if (browserFragment.systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
             ViewUtils.exitImmersiveMode(
@@ -251,6 +235,7 @@ class SessionObserver(
                 browserFragment.activity
             )
         }
+        browserFragment.showPluggableUi()
 
         // Notify renderer that we left fullscreen mode.
         browserFragment.fullscreenCallback?.let {
@@ -282,13 +267,7 @@ class SessionObserver(
         if (!isForegroundSession(session) || !browserFragment.isPopupWindowAllowed) {
             return
         }
-        browserFragment.geolocationController.set(origin, callback)
-        browserFragment.permissionHandler.tryAction(
-            browserFragment,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            BrowserFragment.ACTION_GEO_LOCATION,
-            null
-        )
+        browserFragment.showGeolocationPermission(origin, callback)
     }
 
     fun changeSession(nextSession: Session?) {
@@ -333,12 +312,7 @@ class SessionObserver(
             requireNotNull(download.contentLength),
             false
         )
-        browserFragment.permissionHandler.tryAction(
-            browserFragment,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            BrowserFragment.ACTION_DOWNLOAD,
-            d
-        )
+        browserFragment.maybeQueueDownload(d)
         return true
     }
 
@@ -365,5 +339,13 @@ class SessionObserver(
         val builder = innerBuilder.build()
         builder.createDialog()
         builder.show()
+    }
+
+    private class BrowserDownloadCallback(
+        private val fragment: BrowserFragment
+    ) : DownloadCallback {
+        override fun onDownloadStart(download: Download) {
+            fragment.maybeQueueDownload(download)
+        }
     }
 }

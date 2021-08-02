@@ -47,6 +47,7 @@ import org.mozilla.rocket.menu.BrowserMenuDialog
 import org.mozilla.rocket.menu.HomeMenuDialog
 import org.mozilla.rocket.privately.PrivateModeActivity
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
+import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.shopping.search.di.ShoppingSearchModule
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchKeywordInputFragment
@@ -80,6 +81,7 @@ interface AppComponent {
     fun inject(editBookmarkActivity: EditBookmarkActivity)
     fun inject(bookmarksFragment: BookmarksFragment)
     fun inject(browserFragment: BrowserFragment)
+    fun inject(shoppingSearchController: ShoppingSearchController)
     fun inject(browserFragment: org.mozilla.rocket.privately.browse.BrowserFragment)
     fun inject(browserFragmentLegacy: org.mozilla.rocket.privately.browse.BrowserFragmentLegacy)
     fun inject(downloadsFragment: DownloadsFragment)

@@ -1,35 +1,79 @@
-package org.mozilla.rocket.permission
+package org.mozilla.rocket.browser
 
+import android.Manifest
 import android.content.Context
 import android.view.LayoutInflater
 import android.webkit.GeolocationPermissions
 import android.widget.CheckedTextView
+import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import org.mozilla.focus.R
 import org.mozilla.focus.web.GeoPermissionCache
+import org.mozilla.rocket.permission.Action
+import org.mozilla.rocket.permission.PermissionHelper
 import org.mozilla.threadutils.ThreadUtils
 
-class GeolocationPermissionController {
+class GeolocationPermissionController(private val hostFragment: Fragment) : LifecycleObserver {
     private var geolocationOrigin: String? = null
     private var geolocationCallback: GeolocationPermissions.Callback? = null
     private var geoDialog: AlertDialog? = null
 
-    fun set(origin: String, callback: GeolocationPermissions.Callback?) {
-        geolocationOrigin = origin
-        geolocationCallback = callback
+    private lateinit var helper: PermissionHelper
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun onCreateFragment() {
+        helper = PermissionHelper.createHelperOnCreateStage(
+            hostFragment,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            R.string.permission_toast_location
+        )
     }
 
-    fun reset() {
-        geolocationOrigin = ""
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroyFragment() {
+    }
+
+    fun showGeolocationDialog(origin: String, callback: GeolocationPermissions.Callback?) {
+        val context = hostFragment.context ?: return
+        geolocationOrigin = origin
+        geolocationCallback = callback
+
+        val directAction: Action = {
+            showDialog(context)
+        }
+
+        val rejectAction: Action = {
+            dismissGeolocationDialog()
+            showMessageForPermissionDenied()
+            rejectGeoRequest(false)
+        }
+
+        helper.verifyPermissionAndRun(
+            directAction = directAction,
+            rejectedAction = rejectAction
+        )
+    }
+
+    fun dismissGeolocationDialog() {
+        geolocationOrigin = null
         geolocationCallback = null
         dismissDialog()
+    }
+
+    private fun showMessageForPermissionDenied() {
+        val context = hostFragment.context ?: return
+        Toast.makeText(context, R.string.permission_toast_location_deny, Toast.LENGTH_LONG).show()
     }
 
     /**
      * show webView geolocation permission prompt
      */
-    fun showPermissionDialog(context: Context) {
+    private fun showDialog(context: Context) {
         geolocationCallback ?: return
         if (geoDialog?.isShowing == true) {
             return
@@ -42,7 +86,7 @@ class GeolocationPermissionController {
         }
     }
 
-    fun dismissDialog() {
+    private fun dismissDialog() {
         geoDialog?.dismiss()
         geoDialog = null
     }
@@ -57,7 +101,7 @@ class GeolocationPermissionController {
         geolocationCallback = null
     }
 
-    fun rejectGeoRequest(cacheIt: Boolean) {
+    private fun rejectGeoRequest(cacheIt: Boolean) {
         geolocationCallback ?: return
 
         // I'm not sure why it's so. This method already on Main thread.

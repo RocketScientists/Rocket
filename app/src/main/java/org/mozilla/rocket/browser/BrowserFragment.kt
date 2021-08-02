@@ -4,44 +4,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.rocket.browser
 
-import android.Manifest
 import android.app.Dialog
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.drawable.TransitionDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
-import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.ViewStub
 import android.view.WindowInsets
+import android.webkit.GeolocationPermissions
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.annotation.VisibleForTesting
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.google.android.material.snackbar.Snackbar
 import dagger.Lazy
-import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
-import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.navigation.ScreenNavigator
@@ -51,17 +36,11 @@ import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
 import org.mozilla.focus.telemetry.TelemetryWrapper.longPressDownloadIndicator
 import org.mozilla.focus.utils.AppConstants
-import org.mozilla.focus.utils.FileChooseAction
-import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.SupportUtils
 import org.mozilla.focus.utils.ViewUtils
-import org.mozilla.focus.viewmodel.ShoppingSearchPromptViewModel
-import org.mozilla.focus.viewmodel.ShoppingSearchPromptViewModel.VisibilityState.Expanded
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.focus.widget.FindInPage
-import org.mozilla.permissionhandler.PermissionHandle
-import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
@@ -74,9 +53,7 @@ import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownload
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.switchFrom
-import org.mozilla.rocket.landing.PortraitStateModel
-import org.mozilla.rocket.permission.GeolocationPermissionController
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity.Companion.getStartIntent
+import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabView.FullscreenCallback
 import org.mozilla.rocket.tabs.TabsSessionProvider
@@ -84,7 +61,6 @@ import org.mozilla.rocket.tabs.utils.TabUtil
 import org.mozilla.rocket.tabs.web.Download
 import org.mozilla.threadutils.ThreadUtils
 import org.mozilla.urlutils.UrlUtils
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 /**
@@ -101,13 +77,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     @Inject
     lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
 
-    @Inject
-    lateinit var promptMessageViewModelCreator: Lazy<ShoppingSearchPromptViewModel>
     lateinit var chromeViewModel: ChromeViewModel
     lateinit var bottomBarViewModel: BottomBarViewModel
-    lateinit var shoppingSearchPromptMessageViewModel: ShoppingSearchPromptViewModel
     private lateinit var bottomBarItemAdapter: BottomBarItemAdapter
-    private lateinit var shoppingSearchPromptMessageBehavior: BottomSheetBehavior<*>
 
     var binding: FragmentBrowserBinding? = null
 
@@ -119,31 +91,24 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private val managerObserver = SessionManagerObserver(this, sessionObserver)
 
     lateinit var findInPage: FindInPage
-    lateinit var shoppingSearchViewStub: ViewStub
 
     lateinit var appBarBgTransition: TransitionDrawable
     lateinit var statusBarBgTransition: TransitionDrawable
 
     var webContextMenu: Dialog? = null
 
-    val geolocationController: GeolocationPermissionController
-        by lazy { GeolocationPermissionController() }
-
     var loadedUrl: String? = null
-
-    // Set an initial WeakReference so we never have to handle loadStateListenerWeakReference being null
-    // (i.e. so we can always just .get()).
-    private var loadStateListenerWeakReference = WeakReference<LoadStateListener?>(null)
 
     var fullscreenCallback: FullscreenCallback? = null
 
-    // pending action for file-choosing
-    var fileChooseAction: FileChooseAction? = null
-    lateinit var permissionHandler: PermissionHandler
     private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
+    private val geolocationController = GeolocationPermissionController(this)
     private val captureCtrl = CaptureController(this)
+    private val shoppingSearchCtrl = ShoppingSearchController(this)
+    private val fileChooseController = FileChooseController(this)
+    private val downloadCtrl = DownloadController(this)
 
     // getUrl() is used for things like sharing the current URL. We could try to use the webview,
     // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
@@ -152,167 +117,20 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     val url: String
         get() = binding?.toolbar?.displayUrl?.text?.toString().orEmpty()
 
-    // No SafeIntent needed here because intent.getAction() is safe (SafeIntent simply calls intent.getAction()
-    // without any wrapping):
-    val isStartedFromExternalApp: Boolean
-        get() {
-            // No SafeIntent needed here because intent.getAction() is safe (SafeIntent simply calls intent.getAction()
-            // without any wrapping):
-            val intent = activity?.intent ?: return false
-            val isInternal = intent.getBooleanExtra(IntentUtils.EXTRA_IS_INTERNAL_REQUEST, false)
-            return !isInternal && Intent.ACTION_VIEW == intent.action
-        }
-
     val isPopupWindowAllowed: Boolean
         get() = ScreenNavigator[context].isBrowserInForeground &&
             isAdded && !TabTray.isShowing(parentFragmentManager)
-
-    private val portraitStateModel: PortraitStateModel?
-        get() {
-            val activity = activity ?: return null
-            return if (activity is MainActivity) {
-                activity.portraitStateModel
-            } else {
-                if (BuildConfig.DEBUG) {
-                    throw IllegalStateException("Only MainActivity has portrait state model")
-                } else {
-                    null
-                }
-            }
-        }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        permissionHandler = PermissionHandler(object : PermissionHandle {
-            override fun doActionDirect(permission: String, actionId: Int, params: Parcelable?) {
-                when (actionId) {
-                    ACTION_DOWNLOAD -> maybeQueueDownload(params)
-                    ACTION_PICK_FILE -> fileChooseAction?.startChooserActivity()
-                    ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            private fun maybeQueueDownload(params: Parcelable?) {
-                val ctx = getContext()
-                if (ctx == null) {
-                    val msg = "No context to use, abort callback onDownloadStart"
-                    Log.w(ScreenNavigator.BROWSER_FRAGMENT_TAG, msg)
-                    return
-                }
-                val download = params as Download
-                val result = ContextCompat.checkSelfPermission(
-                    ctx,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                if (PackageManager.PERMISSION_GRANTED == result) {
-                    // We do have the permission to write to the external storage.
-                    // Proceed with the download.
-                    queueDownload(download)
-                }
-            }
-
-            private fun actionDownloadGranted(parcelable: Parcelable?) {
-                queueDownload(parcelable as? Download)
-            }
-
-            private fun actionPickFileGranted() {
-                fileChooseAction?.startChooserActivity()
-            }
-
-            private fun doActionGrantedOrSetting(actionId: Int, params: Parcelable?) {
-                when (actionId) {
-                    ACTION_DOWNLOAD -> actionDownloadGranted(params)
-                    ACTION_PICK_FILE -> actionPickFileGranted()
-                    ACTION_GEO_LOCATION -> mayShowGeolocationDialog()
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            override fun doActionGranted(permission: String, actionId: Int, params: Parcelable?) {
-                doActionGrantedOrSetting(actionId, params)
-            }
-
-            override fun doActionSetting(permission: String, actionId: Int, params: Parcelable?) {
-                doActionGrantedOrSetting(actionId, params)
-            }
-
-            override fun doActionNoPermission(
-                permission: String,
-                actionId: Int,
-                params: Parcelable?
-            ) {
-                when (actionId) {
-                    ACTION_PICK_FILE -> {
-                        fileChooseAction?.cancel()
-                        fileChooseAction = null
-                    }
-                    ACTION_GEO_LOCATION -> geolocationController.rejectGeoRequest(false)
-                    ACTION_DOWNLOAD -> Unit
-                    else -> throw IllegalArgumentException("Unknown actionId")
-                }
-            }
-
-            override fun makeAskAgainSnackBar(actionId: Int): Snackbar {
-                return PermissionHandler.makeAskAgainSnackBar(
-                    this@BrowserFragment,
-                    requireActivity().findViewById(R.id.container),
-                    getAskAgainSnackBarString(actionId),
-                    binding?.browserBottomBar
-                )
-            }
-
-            private fun getAskAgainSnackBarString(actionId: Int): Int {
-                return when (actionId) {
-                    ACTION_GEO_LOCATION -> R.string.permission_toast_location
-                    ACTION_DOWNLOAD,
-                    ACTION_PICK_FILE
-                    -> R.string.permission_toast_storage
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-            }
-
-            private fun getPermissionDeniedToastString(actionId: Int): Int {
-                return when (actionId) {
-                    ACTION_GEO_LOCATION -> R.string.permission_toast_location_deny
-                    ACTION_DOWNLOAD,
-                    ACTION_PICK_FILE,
-                    -> R.string.permission_toast_storage_deny
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-            }
-
-            override fun requestPermissions(actionId: Int) {
-                val permission = when (actionId) {
-                    ACTION_DOWNLOAD -> Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ACTION_PICK_FILE -> Manifest.permission.READ_EXTERNAL_STORAGE
-                    ACTION_GEO_LOCATION -> Manifest.permission.ACCESS_FINE_LOCATION
-                    else -> throw IllegalArgumentException("Unknown Action")
-                }
-                this@BrowserFragment.requestPermissions(arrayOf(permission), actionId)
-            }
-
-            override fun permissionDeniedToast(actionId: Int) {
-                val toastStr = getPermissionDeniedToastString(actionId)
-                Toast.makeText(context, toastStr, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         this.appComponent().inject(this)
         super.onCreate(savedInstanceState)
         bottomBarViewModel = getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = getActivityViewModel(chromeViewModelCreator)
-        shoppingSearchPromptMessageViewModel = getActivityViewModel(promptMessageViewModelCreator)
         lifecycle.addObserver(captureCtrl)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            permissionHandler.onRestoreInstanceState(savedInstanceState)
-        }
+        lifecycle.addObserver(geolocationController)
+        lifecycle.addObserver(shoppingSearchCtrl)
+        lifecycle.addObserver(fileChooseController)
+        lifecycle.addObserver(downloadCtrl)
     }
 
     override fun onCreateView(
@@ -321,30 +139,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         savedInstanceState: Bundle?
     ): View = FragmentBrowserBinding.inflate(inflater, container, false).also {
         this.binding = it
-        shoppingSearchViewStub = it.shoppingSearchStub
     }.root
-
-    private fun observeShoppingSearchPromptMessageViewModel() {
-        shoppingSearchPromptMessageViewModel.openShoppingSearch.observeOnViewLifecycle {
-            startActivity(getStartIntent(requireContext()))
-            ScreenNavigator[context].popToHomeScreen(false)
-        }
-
-        shoppingSearchPromptMessageViewModel.promptVisibilityState.observeOnViewLifecycle {
-            if (shoppingSearchViewStub.parent != null) {
-                setupShoppingSearchPrompt(shoppingSearchViewStub.inflate())
-            }
-            if (it is Expanded) {
-                changeShoppingSearchPromptMessageState(BottomSheetBehavior.STATE_EXPANDED)
-            } else {
-                changeShoppingSearchPromptMessageState(BottomSheetBehavior.STATE_HIDDEN)
-            }
-        }
-
-        shoppingSearchPromptMessageViewModel.shoppingSiteList.observeOnViewLifecycle {
-            shoppingSearchPromptMessageViewModel.checkShoppingSearchPromptVisibility(url)
-        }
-    }
 
     override fun onResume() {
         sessionManager.resume()
@@ -368,33 +163,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             return
         }
         binding?.toolbar?.displayUrl?.text = UrlUtils.stripUserInfo(url)
-    }
-
-    private fun setupShoppingSearchPrompt(view: View) {
-        shoppingSearchPromptMessageBehavior =
-            BottomSheetBehavior.from(view.findViewById<CoordinatorLayout>(R.id.bottom_sheet))
-                .apply {
-                    setBottomSheetCallback(object : BottomSheetCallback() {
-                        override fun onStateChanged(bottomSheet: View, newState: Int) {
-                            when (newState) {
-                                BottomSheetBehavior.STATE_EXPANDED -> shoppingSearchPromptMessageViewModel.onPromptIsShown()
-                                BottomSheetBehavior.STATE_HIDDEN -> shoppingSearchPromptMessageViewModel.onPromptIsDismissed()
-                                BottomSheetBehavior.STATE_DRAGGING -> shoppingSearchPromptMessageViewModel.onPromptIsDragged()
-                            }
-                        }
-
-                        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                            // Do nothing
-                        }
-                    })
-                }
-        view.findViewById<Button>(R.id.bottom_sheet_search).setOnClickListener {
-            shoppingSearchPromptMessageViewModel.onShoppingSearchPromptButtonClicked()
-        }
-    }
-
-    private fun changeShoppingSearchPromptMessageState(state: Int) {
-        shoppingSearchPromptMessageBehavior.state = state
+        shoppingSearchCtrl.notifyUrlChanged()
     }
 
     private fun observeChromeAction() {
@@ -619,7 +388,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         initialiseNormalBrowserUi()
         sessionManager = TabsSessionProvider.getOrThrow(activity)
         sessionManager.register(managerObserver, this, false)
-        observeShoppingSearchPromptMessageViewModel()
+        shoppingSearchCtrl.onViewCreated(binding.shoppingSearchStub)
         observeDarkTheme()
 
         // maybe Fragment was destroyed
@@ -636,17 +405,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         } else {
             // Focus to tab again to force initialization.
             sessionManager.switchToTab(focusTab.id)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        permissionHandler.onActivityResult(activity, requestCode, resultCode, data)
-        if (requestCode == FileChooseAction.REQUEST_CODE_CHOOSE_FILE) {
-            val done =
-                fileChooseAction == null || fileChooseAction?.onFileChose(resultCode, data) == true
-            if (done) {
-                fileChooseAction = null
-            }
         }
     }
 
@@ -703,7 +461,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private fun startCapture(params: Parcelable?) {
         val currentTab = sessionManager.focusSession ?: return
         val currentWebView = currentTab.engineSession?.tabView as? WebView ?: return
-        captureCtrl.capture(this, currentWebView, params as? ScreenCaptureTelemetryData) {
+        captureCtrl.capture(currentWebView, params as? ScreenCaptureTelemetryData) {
             // My shot on boarding didn't show before and capture is succeed, skip to show toast
             checkToShowMyShotOnBoarding()
         }
@@ -758,7 +516,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        permissionHandler.onSaveInstanceState(outState)
         sessionManager.focusSession?.engineSession?.tabView?.saveViewState(outState)
 
         // Workaround for #1107 TransactionTooLargeException
@@ -779,12 +536,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
             sessionManager.focusSession?.engineSession?.tabView?.performExitFullScreen()
         }
-        geolocationController.dismissDialog()
+        geolocationController.dismissGeolocationDialog()
         super.onStop()
     }
 
     override fun onDestroyView() {
         sessionManager.unregister(managerObserver)
+        shoppingSearchCtrl.onDestroyView()
         binding = null
         super.onDestroyView()
     }
@@ -813,48 +571,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
     }
 
-    /**
-     * Set a (singular) LoadStateListener. Only one listener is supported at any given time. Setting
-     * a new listener means any previously set listeners will be dropped. This is only intended
-     * to be used by NavigationItemViewHolder. If you want to use this method for any other
-     * parts of the codebase, please extend it to handle a list of listeners. (We would also need
-     * to automatically clean up expired listeners from that list, probably when adding to that list.)
-     *
-     * @param listener The listener to notify of load state changes. Only a weak reference will be kept,
-     * no more calls will be sent once the listener is garbage collected.
-     */
-    @VisibleForTesting
-    fun setIsLoadingListener(listener: LoadStateListener?) {
-        loadStateListenerWeakReference = WeakReference(listener)
-    }
-
     fun updateIsLoading(isLoading: Boolean) {
         this.isLoading = isLoading
-        val currentListener = loadStateListenerWeakReference.get()
-        currentListener?.isLoadingChanged(isLoading)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        permissionHandler.onRequestPermissionsResult(
-            context,
-            requestCode,
-            permissions,
-            grantResults
-        )
-    }
-
-    /**
-     * Use Android's Download Manager to queue this download.
-     */
-    private fun queueDownload(download: Download?) {
-        if (activity == null || download == null) {
-            return
-        }
-        chromeViewModel.onEnqueueDownload(download, url)
     }
 
     override fun onBackPressed(): Boolean {
@@ -973,37 +691,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun dismissAllMenus() {
         dismissWebContextMenu()
-        geolocationController.dismissDialog()
-    }
-
-    private fun mayShowGeolocationDialog() {
-        if (isPopupWindowAllowed) {
-            geolocationController.showPermissionDialog(requireContext())
-        }
+        geolocationController.dismissGeolocationDialog()
     }
 
     private fun dismissWebContextMenu() {
         webContextMenu?.let {
             it.dismiss()
             webContextMenu = null
-        }
-    }
-
-    private fun getPageBitmap(webView: WebView): Bitmap? {
-        val displayMetrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return try {
-            val height = (webView.contentHeight * displayMetrics.density).toInt()
-            val bitmap = Bitmap.createBitmap(webView.width, height, Bitmap.Config.RGB_565)
-            val canvas = Canvas(bitmap)
-            webView.draw(canvas)
-            bitmap
-            // OOM may occur, even if OOMError is not thrown, operations during Bitmap creation may
-            // throw other Exceptions such as NPE when the bitmap is very large.
-        } catch (ex: Exception) {
-            null
-        } catch (ex: OutOfMemoryError) {
-            null
         }
     }
 
@@ -1016,12 +710,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         binding.root.isActivated = false
         binding.appBar.setExpanded(false)
         binding.browserBottomBar.visibility = View.INVISIBLE
-        shoppingSearchViewStub.visibility = View.INVISIBLE
+        hidePluggableUi()
         findInPage.onDismissListener = {
             binding.root.isActivated = true
             binding.appBar.setExpanded(true)
             binding.browserBottomBar.visibility = View.VISIBLE
-            shoppingSearchViewStub.visibility = View.VISIBLE
+            showPluggableUi()
         }
         findInPage.show(focusTab)
         TelemetryWrapper.findInPage(TelemetryWrapper.FIND_IN_PAGE.OPEN_BY_MENU)
@@ -1029,6 +723,43 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     fun hideFindInPage() {
         findInPage.hide()
+    }
+
+    fun showPluggableUi() {
+        shoppingSearchCtrl.setVisible()
+    }
+
+    fun hidePluggableUi() {
+        shoppingSearchCtrl.setInvisible()
+    }
+
+    fun showGeolocationPermission(origin: String, callback: GeolocationPermissions.Callback?) {
+        geolocationController.showGeolocationDialog(origin, callback)
+    }
+
+    fun closeGeolocationPermission() {
+        geolocationController.dismissGeolocationDialog()
+    }
+
+    fun chooseFile(
+        callback: ValueCallback<Array<Uri>>?,
+        params: WebChromeClient.FileChooserParams
+    ) {
+        fileChooseController.maybeChooseFile(callback, params)
+    }
+
+    fun maybeQueueDownload(download: Download) {
+        downloadCtrl.maybeQueueDownload(download)
+    }
+
+    /**
+     * Use Android's Download Manager to queue this download.
+     */
+    fun addToDownloadManager(download: Download?) {
+        if (activity == null || download == null) {
+            return
+        }
+        chromeViewModel.onEnqueueDownload(download, url)
     }
 
     private fun checkToShowMyShotOnBoarding() {
@@ -1062,10 +793,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         this.observe(lifecycleOwner, observer)
     }
 
-    interface LoadStateListener {
-        fun isLoadingChanged(isLoading: Boolean)
-    }
-
     companion object {
         /**
          * Custom data that is passed when calling [SessionManager.addTab]
@@ -1077,8 +804,5 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         const val SITE_GLOBE = 0
         const val SITE_LOCK = 1
         const val BUNDLE_MAX_SIZE = 300 * 1000 // 300K
-        const val ACTION_DOWNLOAD = 0
-        const val ACTION_PICK_FILE = 1
-        const val ACTION_GEO_LOCATION = 2
     }
 }

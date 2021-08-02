@@ -17,12 +17,11 @@ class CaptureRunnable(
     webView: WebView,
     screenCaptureDialogFragment: ScreenCaptureDialogFragment,
     telemetryData: ScreenCaptureTelemetryData?,
-    captureResultCallback: CaptureResultCallback?
+    private var captureResultCallback: CaptureResultCallback?
 ) : ScreenshotCaptureTask(activity, telemetryData), Runnable {
     private val refActivity = WeakReference(activity)
     private val refWebView = WeakReference(webView)
     private val refScreenCaptureDialogFragment = WeakReference(screenCaptureDialogFragment)
-    private val refCallback = WeakReference(captureResultCallback)
 
     override fun run() {
         val activity = refActivity.get() ?: return
@@ -33,7 +32,7 @@ class CaptureRunnable(
             //  Capture failed
             val screenCaptureDialogFragment = refScreenCaptureDialogFragment.get()
             screenCaptureDialogFragment?.dismiss()
-            refCallback.get()?.onCaptureResult(false)
+            captureResultCallback?.onCaptureResult(false)
         }
     }
 
@@ -64,28 +63,39 @@ class CaptureRunnable(
     }
 
     private fun onCaptureComplete(title: String, url: String, bitmap: Bitmap?) {
-        refCallback.get()?.onCaptureResult(true)
         // pass bitmap to ScreenshotCaptureTask for saving image
         execute(title, url, bitmap)
     }
 
     override fun onPostExecute(path: String) {
         val screenCaptureDialogFragment = refScreenCaptureDialogFragment.get()
-        if (screenCaptureDialogFragment == null) {
+        // if Capture Dialog Fragment is not  in foreground, cancel this task
+        if (screenCaptureDialogFragment == null || !screenCaptureDialogFragment.isResumed) {
             cancel(true)
             return
         }
+
         val captureSuccess = !TextUtils.isEmpty(path)
         if (captureSuccess) {
             Settings.getInstance(refActivity.get()).setHasUnreadMyShot(true)
         }
 
-        refCallback.get()?.onCaptureResult(captureSuccess)
+        captureResultCallback?.onCaptureResult(captureSuccess)
+        clearReference()
+
         if (TextUtils.isEmpty(path)) {
             screenCaptureDialogFragment.dismiss()
         } else {
             screenCaptureDialogFragment.dismiss(!AppConstants.isUnderEspressoTest())
         }
+    }
+
+    override fun onCancelled() {
+        clearReference()
+    }
+
+    private fun clearReference() {
+        captureResultCallback = null
     }
 
     fun interface CaptureResultCallback {

@@ -605,7 +605,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
     private fun startCapture(params: Parcelable?) {
         val currentTab = sessionManager.focusSession ?: return
         val currentWebView = currentTab.engineSession?.tabView as? WebView ?: return
-        captureCtrl.capture(this, currentWebView, params as? ScreenCaptureTelemetryData) {
+        captureCtrl.capture(currentWebView, params as? ScreenCaptureTelemetryData) {
             // My shot on boarding didn't show before and capture is succeed, skip to show toast
             checkToShowMyShotOnBoarding()
         }

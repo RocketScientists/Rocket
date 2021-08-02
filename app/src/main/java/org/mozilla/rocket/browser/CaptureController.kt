@@ -1,20 +1,13 @@
 package org.mozilla.rocket.browser
 
 import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Handler
 import android.webkit.WebView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.material.snackbar.Snackbar
 import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
@@ -24,6 +17,8 @@ import org.mozilla.focus.utils.Settings
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
+import org.mozilla.rocket.permission.Action
+import org.mozilla.rocket.permission.PermissionHelper
 import java.lang.ref.WeakReference
 
 private const val TAG_CAPTURE_FRAGMENT = "capturingFragment"
@@ -31,7 +26,7 @@ private const val CAPTURE_WAIT_INTERVAL = 150L
 
 class CaptureController(private val hostFragment: Fragment) : LifecycleObserver {
 
-    private lateinit var permissionLauncher: ActivityResultLauncher<String>
+    private lateinit var helper: PermissionHelper
 
     private var isPendingCaptureRequest: Boolean = false
     private var refWebView: WeakReference<WebView>? = null
@@ -40,17 +35,11 @@ class CaptureController(private val hostFragment: Fragment) : LifecycleObserver 
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreateFragment() {
-        val contract = ActivityResultContracts.RequestPermission()
-        permissionLauncher = hostFragment.registerForActivityResult(contract) { isGranted ->
-            if (isGranted) {
-                // Permission granted. Set this flag to true, to complete capture task in next
-                // hostFragment.onResume.
-                isPendingCaptureRequest = true
-            } else {
-                clearReferences()
-                showMessageForPermissionDenied()
-            }
-        }
+        helper = PermissionHelper.createHelperOnCreateStage(
+            hostFragment,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            R.string.permission_toast_storage
+        )
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -67,7 +56,6 @@ class CaptureController(private val hostFragment: Fragment) : LifecycleObserver 
     }
 
     fun capture(
-        hostFragment: Fragment,
         webView: WebView,
         telemetryData: ScreenCaptureTelemetryData? = null,
         callback: SuccessPromotionCallback? = null
@@ -76,38 +64,27 @@ class CaptureController(private val hostFragment: Fragment) : LifecycleObserver 
         refTelemetryData = WeakReference(telemetryData)
         refCallback = WeakReference(callback)
 
-        val context = hostFragment.context ?: return
-        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        val checkResult = ContextCompat.checkSelfPermission(context, permission)
-        if (checkResult == PackageManager.PERMISSION_GRANTED) {
-            startCapture(webView, telemetryData, callback)
-            return
-        }
-
-        val shouldShowRationaleUi = hostFragment.shouldShowRequestPermissionRationale(permission)
-        if (shouldShowRationaleUi) {
+        val directAction: Action = {
             clearReferences()
-            showRationaleUi()
-            return
+            startCapture(webView, telemetryData, callback)
         }
 
-        permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    }
-
-    private fun showRationaleUi() {
-        // TODO: should we implement PermissionHandler.isFirstTimeAsking ?
-        val activity = hostFragment.activity ?: return
-        val rootView = hostFragment.requireView()
-        val msgId = R.string.permission_toast_storage_deny
-        val snackBar = Snackbar.make(rootView, msgId, Snackbar.LENGTH_LONG)
-        snackBar.setAction(R.string.permission_handler_permission_dialog_setting) {
-            val uri = Uri.fromParts("package", activity.packageName, null)
-            val intent = Intent()
-            intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            intent.data = uri
-            activity.startActivity(intent)
+        val grantedAction: Action = {
+            // Permission granted. Set this flag to true, to complete capture task in next
+            // hostFragment.onResume.
+            isPendingCaptureRequest = true
         }
-        snackBar.show()
+
+        val rejectAction: Action = {
+            clearReferences()
+            showMessageForPermissionDenied()
+        }
+
+        helper.verifyPermissionAndRun(
+            directAction = directAction,
+            grantedAction = grantedAction,
+            rejectedAction = rejectAction
+        )
     }
 
     private fun startCapture(

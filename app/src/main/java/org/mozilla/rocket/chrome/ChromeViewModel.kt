@@ -57,6 +57,7 @@ class ChromeViewModel(
     var isCurrentUrlBookmarked: LiveData<Boolean> =
         currentUrl.switchMap(bookmarkRepo::getBookmarksByUrl).map { it.isNotEmpty() }
     val isRefreshing = MutableLiveData<Boolean>()
+    val isCurrentSessionSecure = MutableLiveData<Boolean>()
     val canGoBack = MutableLiveData<Boolean>()
     val canGoForward = MutableLiveData<Boolean>()
     val isHomePageUrlInputShowing = MutableLiveData<Boolean>()

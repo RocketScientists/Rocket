@@ -454,7 +454,7 @@ class MainActivity :
                                 }
                             }
                         }
-                        anchorView = browserFragment?.binding?.browserBottomBar
+                        anchorView = browserFragment?.getSnackBarAnchor()
                         show()
                     }
                 }
@@ -758,7 +758,7 @@ class MainActivity :
                     )
                 )
             }
-            anchorView = browserFragment?.binding?.browserBottomBar
+            anchorView = browserFragment?.getSnackBarAnchor()
         }.show()
     }
 

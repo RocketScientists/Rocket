@@ -53,6 +53,7 @@ import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownload
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.switchFrom
+import org.mozilla.rocket.extension.thenRun
 import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabView.FullscreenCallback
@@ -164,55 +165,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
         binding?.toolbar?.displayUrl?.text = UrlUtils.stripUserInfo(url)
         shoppingSearchCtrl.notifyUrlChanged()
-    }
-
-    private fun observeChromeAction() {
-        chromeViewModel.isTurboModeEnabled.observeOnViewLifecycle { enabled: Boolean ->
-            setContentBlockingEnabled(enabled)
-        }
-        chromeViewModel.isBlockImageEnabled.observeOnViewLifecycle { enabled: Boolean ->
-            setImageBlockingEnabled(enabled)
-        }
-        chromeViewModel.isBlockJavaScriptEnabled.observeOnViewLifecycle { enabled: Boolean ->
-            setJavaScriptBlockingEnabled(enabled)
-        }
-        chromeViewModel.doScreenshot.observeOnViewLifecycle { telemetryData ->
-            startCapture(telemetryData)
-        }
-
-        chromeViewModel.refreshOrStop.observeOnViewLifecycle {
-            if (isLoading) {
-                stop()
-            } else {
-                reload()
-            }
-        }
-
-        chromeViewModel.goNext.observeOnViewLifecycle {
-            if (canGoForward()) {
-                goForward()
-            }
-        }
-
-        chromeViewModel.goBack.observeOnViewLifecycle {
-            if (canGoBack()) {
-                goBack()
-            }
-        }
-
-        chromeViewModel.showFindInPage.observeOnViewLifecycle {
-            if (chromeViewModel.navigationState.value?.isBrowser == true) {
-                showFindInPage()
-            }
-        }
-        chromeViewModel.currentUrl.observeOnViewLifecycle {
-            binding?.appBar?.setExpanded(true)
-            binding?.browserBottomBar?.slideUp()
-        }
-    }
-
-    private fun observeDarkTheme() {
-        chromeViewModel.isDarkTheme.observeOnViewLifecycle { setDarkThemeEnabled(it) }
     }
 
     private fun setupBottomBar() {
@@ -327,10 +279,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         setupDownloadIndicator()
     }
 
-    private fun isInLandscape(): Boolean {
-        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    }
-
     private fun setupDownloadIndicator() {
         val downloadIndicatorViewModel = getActivityViewModel(downloadIndicatorViewModelCreator)
         downloadIndicatorViewModel
@@ -389,7 +337,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         sessionManager = TabsSessionProvider.getOrThrow(activity)
         sessionManager.register(managerObserver, this, false)
         shoppingSearchCtrl.onViewCreated(binding.shoppingSearchStub)
-        observeDarkTheme()
 
         // maybe Fragment was destroyed
         maybeRestoreWebViewState(savedInstanceState)
@@ -428,6 +375,42 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             height = bottomBarHeight
         }
         browserBottomBar.onScreenRotated()
+    }
+
+    private fun observeChromeAction() {
+        chromeViewModel.isTurboModeEnabled.observeOnViewLifecycle { setContentBlockingEnabled(it) }
+        chromeViewModel.isBlockImageEnabled.observeOnViewLifecycle { setImageBlockingEnabled(it) }
+        chromeViewModel.doScreenshot.observeOnViewLifecycle { startCapture(it) }
+        chromeViewModel.isDarkTheme.observeOnViewLifecycle { setDarkThemeEnabled(it) }
+        chromeViewModel.goNext.observeOnViewLifecycle { canGoForward().thenRun { goForward() } }
+        chromeViewModel.goBack.observeOnViewLifecycle { canGoBack().thenRun { goBack() } }
+
+        chromeViewModel.refreshOrStop.observeOnViewLifecycle {
+            if (isLoading) {
+                stop()
+            } else {
+                reload()
+            }
+        }
+
+        chromeViewModel.isBlockJavaScriptEnabled.observeOnViewLifecycle {
+            setJavaScriptBlockingEnabled(it)
+        }
+
+        chromeViewModel.showFindInPage.observeOnViewLifecycle {
+            if (chromeViewModel.navigationState.value?.isBrowser == true) {
+                showFindInPage()
+            }
+        }
+
+        chromeViewModel.currentUrl.observeOnViewLifecycle {
+            binding?.appBar?.setExpanded(true)
+            binding?.browserBottomBar?.slideUp()
+        }
+    }
+
+    private fun isInLandscape(): Boolean {
+        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
     // Workaround for full-screen WebView issue that the video doesn't fit the viewport
@@ -547,7 +530,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         super.onDestroyView()
     }
 
-    fun setContentBlockingEnabled(enabled: Boolean) {
+    private fun setContentBlockingEnabled(enabled: Boolean) {
         // TODO: Better if we can move this logic to some setting-like classes, and provider interface
         // for configuring blocking function of each tab.
         for (session in sessionManager.getTabs()) {
@@ -555,7 +538,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
         }
     }
 
-    fun setImageBlockingEnabled(enabled: Boolean) {
+    private fun setImageBlockingEnabled(enabled: Boolean) {
         // TODO: Better if we can move this logic to some setting-like classes, and provider interface
         // for configuring blocking function of each tab.
         for (session in sessionManager.getTabs()) {

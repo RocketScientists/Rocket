@@ -33,8 +33,6 @@ import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
 import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
-import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
-import org.mozilla.focus.telemetry.TelemetryWrapper.longPressDownloadIndicator
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.SupportUtils
@@ -42,6 +40,7 @@ import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.focus.widget.FindInPage
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
@@ -63,6 +62,7 @@ import org.mozilla.rocket.tabs.web.Download
 import org.mozilla.threadutils.ThreadUtils
 import org.mozilla.urlutils.UrlUtils
 import javax.inject.Inject
+import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value.WEBVIEW as EXTRA_WEB_VIEW
 
 /**
  * Fragment for displaying the browser UI.
@@ -169,100 +169,42 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     private fun setupBottomBar() {
         val browserBottomBar = binding?.browserBottomBar ?: return
+        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, Theme.Light)
+
         browserBottomBar.setOnItemClickListener { type, position ->
-            when (type) {
-                BottomBarItemAdapter.TYPE_TAB_COUNTER -> {
-                    chromeViewModel.showTabTray.call()
-                    TelemetryWrapper.showTabTrayToolbar(
-                        Extra_Value.WEBVIEW,
-                        position,
-                        isInLandscape()
-                    )
-                }
-                BottomBarItemAdapter.TYPE_MENU -> {
-                    chromeViewModel.showBrowserMenu.call()
-                    TelemetryWrapper.showMenuToolbar(Extra_Value.WEBVIEW, position)
-                }
-                BottomBarItemAdapter.TYPE_HOME -> {
-                    chromeViewModel.showNewTab.call()
-                    TelemetryWrapper.clickAddTabToolbar(
-                        Extra_Value.WEBVIEW,
-                        position,
-                        isInLandscape()
-                    )
-                }
-                BottomBarItemAdapter.TYPE_SEARCH -> {
-                    chromeViewModel.showUrlInput.value = url
-                    TelemetryWrapper.clickToolbarSearch(
-                        Extra_Value.WEBVIEW,
-                        position,
-                        isInLandscape()
-                    )
-                }
-                BottomBarItemAdapter.TYPE_CAPTURE -> chromeViewModel.onDoScreenshot(
-                    ScreenCaptureTelemetryData(Extra_Value.WEBVIEW, position)
-                )
-                BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> {
-                    chromeViewModel.pinShortcut.call()
-                    TelemetryWrapper.clickAddToHome(Extra_Value.WEBVIEW, position)
-                }
-                BottomBarItemAdapter.TYPE_BOOKMARK -> {
-                    val isActivated =
-                        bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_BOOKMARK)?.view?.isActivated == true
-                    TelemetryWrapper.clickToolbarBookmark(
-                        !isActivated,
-                        Extra_Value.WEBVIEW,
-                        position
-                    )
-                    chromeViewModel.toggleBookmark()
-                }
-                BottomBarItemAdapter.TYPE_REFRESH -> {
-                    chromeViewModel.refreshOrStop.call()
-                    TelemetryWrapper.clickToolbarReload(
-                        Extra_Value.WEBVIEW,
-                        position,
-                        isInLandscape()
-                    )
-                }
-                BottomBarItemAdapter.TYPE_SHARE -> {
-                    chromeViewModel.share.call()
-                    TelemetryWrapper.clickToolbarShare(
-                        Extra_Value.WEBVIEW,
-                        position,
-                        isInLandscape()
-                    )
-                }
-                BottomBarItemAdapter.TYPE_NEXT -> {
-                    chromeViewModel.goNext.call()
-                    TelemetryWrapper.clickToolbarForward(Extra_Value.WEBVIEW, position)
-                }
-                else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
-            }
+            updateChromeViewModelForBottomBarClick(type, position)
+            sendTelemetryForBottomBarClick(type, position)
         }
+
         browserBottomBar.setOnItemLongClickListener { type: Int, _: Int ->
             if (type == BottomBarItemAdapter.TYPE_MENU) {
                 // Long press menu always show download panel
                 chromeViewModel.showDownloadPanel.call()
-                longPressDownloadIndicator()
+                TelemetryWrapper.longPressDownloadIndicator()
                 true
             } else {
                 false
             }
         }
-        bottomBarItemAdapter =
-            BottomBarItemAdapter(browserBottomBar, BottomBarItemAdapter.Theme.Light)
-        bottomBarViewModel.items.observeOnViewLifecycle { types ->
-            bottomBarItemAdapter.setItems(types)
+
+        // if items in ViewModel changed, update adapter
+        bottomBarViewModel.items.observeOnViewLifecycle { items ->
+            bottomBarItemAdapter.setItems(items)
         }
 
-        chromeViewModel.isDarkTheme.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { isDarkTheme ->
-                bottomBarItemAdapter.setDarkTheme(isDarkTheme)
-            }
-
+        // This equals to of using switchMap. LiveData of tabCount will be RECREATED
+        // via calling `map`, once `bottomBarViewModel.items` is updated.
+        // bottomBarViewModel.items.switchMap { chromeViewModel.tabCount.map { it } }
+        //     .observeOnViewLifecycle { count: Int -> ... }
+        // Namely, `setTabCount` will be called whenever bottomBarViewModel.items are changed
+        // regardless chromeViewModel.tabCount.value is changed or not.
         chromeViewModel.tabCount.switchFrom(bottomBarViewModel.items)
             .observeOnViewLifecycle { count: Int ->
                 bottomBarItemAdapter.setTabCount(count, true)
+            }
+        chromeViewModel.isDarkTheme.switchFrom(bottomBarViewModel.items)
+            .observeOnViewLifecycle { isDarkTheme ->
+                bottomBarItemAdapter.setDarkTheme(isDarkTheme)
             }
         chromeViewModel.isRefreshing.switchFrom(bottomBarViewModel.items)
             .observeOnViewLifecycle { isRefreshing: Boolean ->
@@ -407,6 +349,22 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
             binding?.appBar?.setExpanded(true)
             binding?.browserBottomBar?.slideUp()
         }
+    }
+
+    private fun updateChromeViewModelForBottomBarClick(type: Int, position: Int) = when (type) {
+        BottomBarItemAdapter.TYPE_TAB_COUNTER -> chromeViewModel.showTabTray.call()
+        BottomBarItemAdapter.TYPE_MENU -> chromeViewModel.showBrowserMenu.call()
+        BottomBarItemAdapter.TYPE_HOME -> chromeViewModel.showNewTab.call()
+        BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.value = url
+        BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
+        BottomBarItemAdapter.TYPE_BOOKMARK -> chromeViewModel.toggleBookmark()
+        BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
+        BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
+        BottomBarItemAdapter.TYPE_NEXT -> chromeViewModel.goNext.call()
+        BottomBarItemAdapter.TYPE_CAPTURE -> chromeViewModel.onDoScreenshot(
+            ScreenCaptureTelemetryData(EXTRA_WEB_VIEW, position)
+        )
+        else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
     }
 
     private fun isInLandscape(): Boolean {
@@ -764,6 +722,32 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen, BackKeyHandleable 
 
     private fun dismissDownloadIndicatorIntroView() {
         downloadIndicatorIntro?.visibility = View.GONE
+    }
+
+    private fun sendTelemetryForBottomBarClick(type: Int, position: Int) = when (type) {
+        BottomBarItemAdapter.TYPE_TAB_COUNTER ->
+            TelemetryWrapper.showTabTrayToolbar(EXTRA_WEB_VIEW, position, isInLandscape())
+        BottomBarItemAdapter.TYPE_MENU ->
+            TelemetryWrapper.showMenuToolbar(EXTRA_WEB_VIEW, position)
+        BottomBarItemAdapter.TYPE_HOME ->
+            TelemetryWrapper.clickAddTabToolbar(EXTRA_WEB_VIEW, position, isInLandscape())
+        BottomBarItemAdapter.TYPE_SEARCH ->
+            TelemetryWrapper.clickToolbarSearch(EXTRA_WEB_VIEW, position, isInLandscape())
+        BottomBarItemAdapter.TYPE_PIN_SHORTCUT ->
+            TelemetryWrapper.clickAddToHome(EXTRA_WEB_VIEW, position)
+        BottomBarItemAdapter.TYPE_REFRESH ->
+            TelemetryWrapper.clickToolbarReload(EXTRA_WEB_VIEW, position, isInLandscape())
+        BottomBarItemAdapter.TYPE_SHARE ->
+            TelemetryWrapper.clickToolbarShare(EXTRA_WEB_VIEW, position, isInLandscape())
+        BottomBarItemAdapter.TYPE_NEXT ->
+            TelemetryWrapper.clickToolbarForward(EXTRA_WEB_VIEW, position)
+        BottomBarItemAdapter.TYPE_BOOKMARK -> {
+            val bookmarkItem = bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_BOOKMARK)
+            val isActivated = bookmarkItem?.view?.isActivated == true
+            TelemetryWrapper.clickToolbarBookmark(isActivated, EXTRA_WEB_VIEW, position)
+        }
+        BottomBarItemAdapter.TYPE_CAPTURE -> Unit
+        else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
     }
 
     /**

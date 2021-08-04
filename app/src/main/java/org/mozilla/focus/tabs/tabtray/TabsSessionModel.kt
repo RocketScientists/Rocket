@@ -6,14 +6,9 @@
 package org.mozilla.focus.tabs.tabtray
 
 import android.graphics.Bitmap
-import android.net.Uri
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import org.mozilla.focus.BuildConfig
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
-import org.mozilla.rocket.tabs.TabViewClient
-import org.mozilla.rocket.tabs.TabViewEngineSession
 import java.util.ArrayList
 
 internal class TabsSessionModel(
@@ -153,25 +148,5 @@ internal class TabsSessionModel(
             this.monitoringSession?.unregister(this)
             this.monitoringSession = null
         }
-
-        // empty
-        override fun onShowFileChooser(
-            es: TabViewEngineSession,
-            filePathCallback: ValueCallback<Array<Uri>>?,
-            fileChooserParams: WebChromeClient.FileChooserParams?
-        ): Boolean = false
-
-        // empty
-        override fun updateFailingUrl(url: String?, updateFromError: Boolean) = Unit
-
-        // empty
-        override fun handleExternalUrl(url: String?): Boolean = false
-
-        // empty
-        override fun onHttpAuthRequest(
-            callback: TabViewClient.HttpAuthCallback,
-            host: String?,
-            realm: String?
-        ) = Unit
     }
 }

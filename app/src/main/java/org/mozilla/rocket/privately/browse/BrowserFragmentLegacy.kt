@@ -509,7 +509,9 @@ class BrowserFragmentLegacy :
 
     class Observer(val fragment: BrowserFragmentLegacy) :
         SessionManager.Observer,
-        Session.Observer {
+        Session.Observer,
+        TabViewEngineSession.Client {
+
         override fun updateFailingUrl(url: String?, updateFromError: Boolean) {
             // do nothing, exist for interface compatibility only.
         }

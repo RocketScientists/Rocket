@@ -5,15 +5,11 @@
 
 package org.mozilla.rocket.tabs
 
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
-import mozilla.components.support.base.observer.Consumable
 import mozilla.components.support.base.observer.Observable
 import mozilla.components.support.base.observer.ObserverRegistry
 import org.mozilla.rocket.tabs.SessionManager.Factor.FACTOR_BACK_EXTERNAL
@@ -278,7 +274,6 @@ class SessionManager @JvmOverloads constructor(
             engineSession.register(observer)
         }
         engineSession.windowClient = WindowClient(session)
-        engineSession.engineSessionClient = Client()
         session.engineSession = engineSession
     }
 
@@ -414,35 +409,6 @@ class SessionManager @JvmOverloads constructor(
         }
     }
 
-    internal inner class Client : TabViewEngineSession.Client {
-        override fun updateFailingUrl(url: String?, updateFromError: Boolean) {
-            notifyObservers { updateFailingUrl(url, updateFromError) }
-        }
-
-        override fun handleExternalUrl(url: String?): Boolean {
-            val consumers: List<(String?) -> Boolean> = wrapConsumers { handleExternalUrl(it) }
-            return Consumable.from(url).consumeBy(consumers)
-        }
-
-        override fun onShowFileChooser(
-            es: TabViewEngineSession,
-            filePathCallback: ValueCallback<Array<Uri>>?,
-            fileChooserParams: WebChromeClient.FileChooserParams?
-        ): Boolean {
-            val consumers: List<(WebChromeClient.FileChooserParams?) -> Boolean> =
-                wrapConsumers { onShowFileChooser(es, filePathCallback, it) }
-            return Consumable.from(fileChooserParams).consumeBy(consumers)
-        }
-
-        override fun onHttpAuthRequest(
-            callback: TabViewClient.HttpAuthCallback,
-            host: String?,
-            realm: String?
-        ) {
-            notifyObservers { onHttpAuthRequest(callback, host, realm) }
-        }
-    }
-
     /**
      * A class to attach to UI thread for sending message.
      */
@@ -516,7 +482,7 @@ class SessionManager @JvmOverloads constructor(
         FACTOR_BACK_EXTERNAL(6)
     }
 
-    interface Observer : TabViewEngineSession.Client {
+    interface Observer {
         /**
          * Notify the host application a tab becomes 'focused tab'. It usually happens when adding,
          * removing or switching tabs.

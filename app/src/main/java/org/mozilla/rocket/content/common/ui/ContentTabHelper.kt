@@ -140,7 +140,7 @@ class ContentTabHelper(private val contentTabViewContract: ContentTabViewContrac
     class Observer(
         private val contentTabViewContract: ContentTabViewContract,
         private val permissionHandler: PermissionHandler
-    ) : SessionManager.Observer, Session.Observer {
+    ) : SessionManager.Observer, Session.Observer, TabViewEngineSession.Client {
 
         private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
 

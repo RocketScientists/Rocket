@@ -51,7 +51,6 @@ import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.content.view.BottomBar.BottomBarBehavior.Companion.slideUp
-import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.OnViewInflated
 import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownloadIndicatorIntroView
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
@@ -240,23 +239,22 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
                 }
                 bottomBarItemAdapter.setDownloadState(downloadState)
 
+                if (status == Status.DEFAULT) {
+                    return@observeOnViewLifecycle
+                }
+
                 val eventHistory = Settings.getInstance(activity).eventHistory
-                if (!eventHistory.contains(Settings.Event.ShowDownloadIndicatorIntro) && status !== Status.DEFAULT) {
-                    eventHistory.add(Settings.Event.ShowDownloadIndicatorIntro)
-                    val menuItem = bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_MENU)
-                    val rootView = binding?.root
-                    if (rootView != null && menuItem?.view != null) {
-                        initDownloadIndicatorIntroView(
-                            this,
-                            menuItem.view,
-                            rootView,
-                            object : OnViewInflated {
-                                override fun onInflated(view: View) {
-                                    downloadIndicatorIntro = view
-                                }
-                            }
-                        )
-                    }
+                // if Intro has showed before, return
+                if (eventHistory.contains(Settings.Event.ShowDownloadIndicatorIntro)) {
+                    return@observeOnViewLifecycle
+                }
+
+                eventHistory.add(Settings.Event.ShowDownloadIndicatorIntro)
+                val rootView = binding?.root ?: return@observeOnViewLifecycle
+                val menuView = bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_MENU)?.view
+                    ?: return@observeOnViewLifecycle
+                initDownloadIndicatorIntroView(this, menuView, rootView) {
+                    downloadIndicatorIntro = it
                 }
             }
     }

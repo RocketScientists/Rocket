@@ -15,7 +15,7 @@ object DownloadIndicatorIntroViewHelper {
 
     private const val TOAST_DELAY_LONG = 3500L
 
-    interface OnViewInflated {
+    fun interface OnViewInflated {
         fun onInflated(view: View)
     }
 

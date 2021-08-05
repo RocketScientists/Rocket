@@ -115,11 +115,11 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private var tabTransitionAnimator: ValueAnimator? = null
 
-    // getUrl() is used for things like sharing the current URL. We could try to use the webview,
-    // but sometimes it's null, and sometimes it returns a null URL. Sometimes it returns a data:
-    // URL for error pages. The URL we show in the toolbar is (A) always correct and (B) what the
-    // user is probably expecting to share, so lets use that here:
-    val url: String
+    // This is used for things like sharing the current Url. We could try to access Url of WebView,
+    // but sometimes itself is null, and sometimes it returns a null Url. Sometimes it returns a
+    // Url with `data:` scheme for error pages. The Url we show in the toolbar should be 1) always
+    // correct and 2) a Url that user is probably expecting to share, so lets use that here:
+    val chromeUrl: String
         get() = binding?.toolbar?.displayUrl?.text?.toString().orEmpty()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -350,7 +350,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         BottomBarItemAdapter.TYPE_TAB_COUNTER -> chromeViewModel.showTabTray.call()
         BottomBarItemAdapter.TYPE_MENU -> chromeViewModel.showBrowserMenu.call()
         BottomBarItemAdapter.TYPE_HOME -> chromeViewModel.showNewTab.call()
-        BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.value = url
+        BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.value = chromeUrl
         BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
         BottomBarItemAdapter.TYPE_BOOKMARK -> chromeViewModel.toggleBookmark()
         BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
@@ -562,7 +562,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         if (activity == null || download == null) {
             return
         }
-        chromeViewModel.onEnqueueDownload(download, url)
+        chromeViewModel.onEnqueueDownload(download, chromeUrl)
     }
 
     fun enterFullScreen(callback: FullscreenCallback, view: View) {
@@ -724,7 +724,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private fun initialiseNormalBrowserUi() {
         binding?.toolbar?.displayUrl?.setOnClickListener {
-            chromeViewModel.showUrlInput.value = url
+            chromeViewModel.showUrlInput.value = chromeUrl
             // TODO: Needs to confirm with bi that what vertical should be passed into in normal browser using cases
             // TODO: For now just pass a empty string
             TelemetryWrapper.clickUrlbar("", isInLandscape())

@@ -330,7 +330,7 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
         builder.show()
     }
 
-    fun chromeGetUrl(): String = browserFragment.url
+    fun chromeGetUrl(): String = browserFragment.chromeUrl
 
     fun chromeUpdateProgress(session: Session, progress: Int) {
         browserFragment.updateProgressOfSession(session, progress)

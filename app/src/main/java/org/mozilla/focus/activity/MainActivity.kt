@@ -376,7 +376,7 @@ class MainActivity :
             share.observe(
                 this@MainActivity,
                 Observer {
-                    visibleBrowserFragment?.let { shareText(it.url) }
+                    visibleBrowserFragment?.let { shareText(it.chromeUrl) }
                 }
             )
             showDownloadPanel.observe(

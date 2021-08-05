@@ -62,7 +62,7 @@ class ShoppingSearchController(private val fragment: BrowserFragment) : Lifecycl
     }
 
     fun notifyUrlChanged() {
-        shoppingSearchPromptViewModel.checkShoppingSearchPromptVisibility(fragment.url)
+        shoppingSearchPromptViewModel.checkShoppingSearchPromptVisibility(fragment.chromeUrl)
     }
 
     private fun observeShoppingSearchPromptMessageViewModel() {
@@ -85,7 +85,7 @@ class ShoppingSearchController(private val fragment: BrowserFragment) : Lifecycl
         }
 
         shoppingSearchPromptViewModel.shoppingSiteList.observeOnViewLifecycle {
-            shoppingSearchPromptViewModel.checkShoppingSearchPromptVisibility(fragment.url)
+            shoppingSearchPromptViewModel.checkShoppingSearchPromptVisibility(fragment.chromeUrl)
         }
     }
 

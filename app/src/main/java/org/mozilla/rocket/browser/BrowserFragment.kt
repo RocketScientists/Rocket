@@ -39,23 +39,15 @@ import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
 import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.AppConstants
-import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.SupportUtils
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.widget.FindInPage
-import org.mozilla.rocket.chrome.BottomBarItemAdapter
-import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
-import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.content.view.BottomBar.BottomBarBehavior.Companion.slideUp
-import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownloadIndicatorIntroView
-import org.mozilla.rocket.download.DownloadIndicatorViewModel
-import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status
 import org.mozilla.rocket.extension.UrlStringExtension.removeUrlFragment
-import org.mozilla.rocket.extension.switchFrom
 import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
@@ -67,7 +59,6 @@ import org.mozilla.urlutils.UrlUtils
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import mozilla.components.browser.session.Session.FindResult as MozillaFindResult
-import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value.WEBVIEW as EXTRA_WEB_VIEW
 
 /**
  * Fragment for displaying the browser UI.
@@ -75,19 +66,11 @@ import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value.WEBVIEW as EXTRA
 class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     @Inject
-    lateinit var downloadIndicatorViewModelCreator: Lazy<DownloadIndicatorViewModel>
-
-    @Inject
-    lateinit var bottomBarViewModelCreator: Lazy<BottomBarViewModel>
-
-    @Inject
     lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
 
     lateinit var chromeViewModel: ChromeViewModel
-    lateinit var bottomBarViewModel: BottomBarViewModel
-    private lateinit var bottomBarItemAdapter: BottomBarItemAdapter
 
-    private var binding: FragmentBrowserBinding? = null
+    var binding: FragmentBrowserBinding? = null
 
     private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
     private var isLoading = false
@@ -102,10 +85,11 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private var fullscreenCallback: FullscreenCallback? = null
 
     private var webContextMenu: WeakReference<Dialog>? = null
-    private var downloadIndicatorIntro: View? = null
     private var landscapeStartTime = 0L
 
     private val sessionCtrl = SessionController(this)
+    private val bottomBarCtrl = BottomBarController(this)
+
     private val geolocationController = GeolocationPermissionController(this)
     private val captureCtrl = CaptureController(this)
     private val shoppingSearchCtrl = ShoppingSearchController(this)
@@ -124,7 +108,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     override fun onCreate(savedInstanceState: Bundle?) {
         this.appComponent().inject(this)
         super.onCreate(savedInstanceState)
-        bottomBarViewModel = getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = getActivityViewModel(chromeViewModelCreator)
         lifecycle.addObserver(sessionCtrl)
         lifecycle.addObserver(captureCtrl)
@@ -157,62 +140,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         shoppingSearchCtrl.notifyUrlChanged()
     }
 
-    private fun setupBottomBar() {
-        val browserBottomBar = binding?.browserBottomBar ?: return
-        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, Theme.Light)
-
-        browserBottomBar.setOnItemClickListener { type, position ->
-            updateChromeViewModelForBottomBarClick(type, position)
-            sendTelemetryForBottomBarClick(type, position)
-        }
-
-        browserBottomBar.setOnItemLongClickListener { type: Int, _: Int ->
-            if (type == BottomBarItemAdapter.TYPE_MENU) {
-                // Long press menu always show download panel
-                chromeViewModel.showDownloadPanel.call()
-                TelemetryWrapper.longPressDownloadIndicator()
-                true
-            } else {
-                false
-            }
-        }
-
-        // if items in ViewModel changed, update adapter
-        bottomBarViewModel.items.observeOnViewLifecycle { items ->
-            bottomBarItemAdapter.setItems(items)
-        }
-
-        // This equals to of using switchMap. LiveData of tabCount will be RECREATED
-        // via calling `map`, once `bottomBarViewModel.items` is updated.
-        // bottomBarViewModel.items.switchMap { chromeViewModel.tabCount.map { it } }
-        //     .observeOnViewLifecycle { count: Int -> ... }
-        // Namely, `setTabCount` will be called whenever bottomBarViewModel.items are changed
-        // regardless chromeViewModel.tabCount.value is changed or not.
-        chromeViewModel.tabCount.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { count: Int ->
-                bottomBarItemAdapter.setTabCount(count, true)
-            }
-        chromeViewModel.isDarkTheme.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { isDarkTheme ->
-                bottomBarItemAdapter.setDarkTheme(isDarkTheme)
-            }
-        chromeViewModel.isRefreshing.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { isRefreshing: Boolean ->
-                bottomBarItemAdapter.setRefreshing(isRefreshing)
-                updateLoadingState(isRefreshing)
-            }
-        chromeViewModel.canGoForward.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { canGoForward: Boolean ->
-                bottomBarItemAdapter.setCanGoForward(canGoForward)
-            }
-        chromeViewModel.isCurrentUrlBookmarked.switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { isBookmark: Boolean ->
-                bottomBarItemAdapter.setBookmark(isBookmark)
-            }
-        setupDownloadIndicator()
-    }
-
-    private fun updateLoadingState(isLoading: Boolean) {
+    fun updateLoadingState(isLoading: Boolean) {
         this.isLoading = isLoading
 
         if (isLoading) {
@@ -225,43 +153,11 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
     }
 
-    private fun setupDownloadIndicator() {
-        val downloadIndicatorViewModel = getActivityViewModel(downloadIndicatorViewModelCreator)
-        downloadIndicatorViewModel
-            .downloadIndicatorObservable
-            .switchFrom(bottomBarViewModel.items)
-            .observeOnViewLifecycle { status: Status ->
-                val downloadState = when (status) {
-                    Status.DOWNLOADING -> BottomBarItemAdapter.DOWNLOAD_STATE_DOWNLOADING
-                    Status.UNREAD -> BottomBarItemAdapter.DOWNLOAD_STATE_UNREAD
-                    Status.WARNING -> BottomBarItemAdapter.DOWNLOAD_STATE_WARNING
-                    Status.DEFAULT -> BottomBarItemAdapter.DOWNLOAD_STATE_DEFAULT
-                }
-                bottomBarItemAdapter.setDownloadState(downloadState)
-
-                if (status == Status.DEFAULT) {
-                    return@observeOnViewLifecycle
-                }
-
-                val eventHistory = Settings.getInstance(activity).eventHistory
-                // if Intro has showed before, return
-                if (eventHistory.contains(Settings.Event.ShowDownloadIndicatorIntro)) {
-                    return@observeOnViewLifecycle
-                }
-
-                eventHistory.add(Settings.Event.ShowDownloadIndicatorIntro)
-                val rootView = binding?.root ?: return@observeOnViewLifecycle
-                val menuView = bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_MENU)?.view
-                    ?: return@observeOnViewLifecycle
-                initDownloadIndicatorIntroView(this, menuView, rootView) {
-                    downloadIndicatorIntro = it
-                }
-            }
-    }
-
     override fun onViewCreated(container: View, savedInstanceState: Bundle?) {
         super.onViewCreated(container, savedInstanceState)
         val binding = this.binding ?: return
+
+        viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
 
         binding.appBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
             (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
@@ -276,7 +172,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         appBarBgTransition = binding.urlbar.background as TransitionDrawable
         statusBarBgTransition = binding.insetCover.background as TransitionDrawable
         observeChromeAction()
-        setupBottomBar()
         findInPage = FindInPage(container)
         initialiseNormalBrowserUi()
         shoppingSearchCtrl.onViewCreated(binding.shoppingSearchStub)
@@ -289,10 +184,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         super.onConfigurationChanged(newConfig)
         updateBottomBarLayout()
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bottomBarViewModel.onScreenRotatedToLandscape(true)
+            bottomBarCtrl.screenRotateToLandscape(true)
             onLandscapeModeStart()
         } else {
-            bottomBarViewModel.onScreenRotatedToLandscape(false)
+            bottomBarCtrl.screenRotateToLandscape(false)
             onLandscapeModeFinish()
         }
         refreshVideoContainer()
@@ -342,22 +237,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             binding?.appBar?.setExpanded(true)
             binding?.browserBottomBar?.slideUp()
         }
-    }
-
-    private fun updateChromeViewModelForBottomBarClick(type: Int, position: Int) = when (type) {
-        BottomBarItemAdapter.TYPE_TAB_COUNTER -> chromeViewModel.showTabTray.call()
-        BottomBarItemAdapter.TYPE_MENU -> chromeViewModel.showBrowserMenu.call()
-        BottomBarItemAdapter.TYPE_HOME -> chromeViewModel.showNewTab.call()
-        BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.value = chromeUrl
-        BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
-        BottomBarItemAdapter.TYPE_BOOKMARK -> chromeViewModel.toggleBookmark()
-        BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
-        BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
-        BottomBarItemAdapter.TYPE_NEXT -> chromeViewModel.goNext.call()
-        BottomBarItemAdapter.TYPE_CAPTURE -> chromeViewModel.onDoScreenshot(
-            ScreenCaptureTelemetryData(EXTRA_WEB_VIEW, position)
-        )
-        else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
     }
 
     private fun isInLandscape(): Boolean {
@@ -495,7 +374,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         if (openNewTab) {
             // Per spec, if download indicator intro view is showed when new tabb is opened
             // just dismiss it anyway.
-            dismissDownloadIndicatorIntroView()
+            bottomBarCtrl.dismissDownloadIndicatorIntroView()
         }
 
         loadedUrl = url
@@ -523,7 +402,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         updateSiteIdentity(focusSession.securityInfo.secure)
         hideFindInPage()
         // check if newer config exists whenever navigating to Browser screen
-        bottomBarViewModel.refresh()
+        bottomBarCtrl.refreshViewModel()
     }
 
     fun dismissAllMenus() {
@@ -755,11 +634,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         ViewUtils.updateStatusBarStyle(!enable, requireActivity().window)
     }
 
-    private fun dismissDownloadIndicatorIntroView() {
-        downloadIndicatorIntro?.visibility = View.GONE
-        downloadIndicatorIntro = null
-    }
-
     private fun showFindInPage() {
         val binding = this.binding ?: return
         val focusTab = sessionCtrl.getFocusSession() ?: return
@@ -780,34 +654,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private fun hideFindInPage() {
         findInPage.hide()
-    }
-
-    private fun sendTelemetryForBottomBarClick(type: Int, position: Int) {
-        when (type) {
-            BottomBarItemAdapter.TYPE_TAB_COUNTER ->
-                TelemetryWrapper.showTabTrayToolbar(EXTRA_WEB_VIEW, position, isInLandscape())
-            BottomBarItemAdapter.TYPE_MENU ->
-                TelemetryWrapper.showMenuToolbar(EXTRA_WEB_VIEW, position)
-            BottomBarItemAdapter.TYPE_HOME ->
-                TelemetryWrapper.clickAddTabToolbar(EXTRA_WEB_VIEW, position, isInLandscape())
-            BottomBarItemAdapter.TYPE_SEARCH ->
-                TelemetryWrapper.clickToolbarSearch(EXTRA_WEB_VIEW, position, isInLandscape())
-            BottomBarItemAdapter.TYPE_PIN_SHORTCUT ->
-                TelemetryWrapper.clickAddToHome(EXTRA_WEB_VIEW, position)
-            BottomBarItemAdapter.TYPE_REFRESH ->
-                TelemetryWrapper.clickToolbarReload(EXTRA_WEB_VIEW, position, isInLandscape())
-            BottomBarItemAdapter.TYPE_SHARE ->
-                TelemetryWrapper.clickToolbarShare(EXTRA_WEB_VIEW, position, isInLandscape())
-            BottomBarItemAdapter.TYPE_NEXT ->
-                TelemetryWrapper.clickToolbarForward(EXTRA_WEB_VIEW, position)
-            BottomBarItemAdapter.TYPE_BOOKMARK -> {
-                val bookmarkItem = bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_BOOKMARK)
-                val isActivated = bookmarkItem?.view?.isActivated == true
-                TelemetryWrapper.clickToolbarBookmark(isActivated, EXTRA_WEB_VIEW, position)
-            }
-            BottomBarItemAdapter.TYPE_CAPTURE -> Unit
-            else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
-        }
     }
 
     private fun ViewGroup?.findExistingTabView(): View? {

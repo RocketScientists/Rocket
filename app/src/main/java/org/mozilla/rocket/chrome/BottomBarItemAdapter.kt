@@ -37,66 +37,70 @@ class BottomBarItemAdapter(
 
     private fun convertToItem(itemData: ItemData): BottomBarItem {
         return when (val type = itemData.type) {
-            TYPE_TAB_COUNTER -> TabCounterItem(type, R.id.bottom_bar_tab_counter, theme)
-            TYPE_MENU -> MenuItem(type, R.id.bottom_bar_menu, theme)
-            TYPE_HOME -> ImageItem(
+            ItemType.TAB_COUNTER -> TabCounterItem(type, R.id.bottom_bar_tab_counter, theme)
+            ItemType.MENU -> MenuItem(type, R.id.bottom_bar_menu, theme)
+            ItemType.HOME -> ImageItem(
                 type,
                 R.id.bottom_bar_home,
                 R.drawable.action_home,
                 theme.buttonColorResId
             )
-            TYPE_SEARCH -> ImageItem(
+            ItemType.SEARCH -> ImageItem(
                 type,
                 R.id.bottom_bar_search,
                 R.drawable.action_search,
                 theme.buttonColorResId
             )
-            TYPE_CAPTURE -> ImageItem(
+            ItemType.CAPTURE -> ImageItem(
                 type,
                 R.id.bottom_bar_capture,
                 R.drawable.action_capture,
                 theme.buttonColorResId
             )
-            TYPE_PIN_SHORTCUT -> ImageItem(
+            ItemType.PIN_SHORTCUT -> ImageItem(
                 type,
                 R.id.bottom_bar_pin_shortcut,
                 R.drawable.action_add_to_home,
                 theme.buttonColorResId
             )
-            TYPE_BOOKMARK -> BookmarkItem(type, R.id.bottom_bar_bookmark, theme)
-            TYPE_REFRESH -> RefreshItem(type, R.id.bottom_bar_refresh, theme)
-            TYPE_SHARE -> ImageItem(
+            ItemType.BOOKMARK -> BookmarkItem(type, R.id.bottom_bar_bookmark, theme)
+            ItemType.REFRESH -> RefreshItem(type, R.id.bottom_bar_refresh, theme)
+            ItemType.SHARE -> ImageItem(
                 type,
                 R.id.bottom_bar_share,
                 R.drawable.action_share,
                 theme.buttonColorResId
             )
-            TYPE_NEXT -> ImageItem(
+            ItemType.NEXT -> ImageItem(
                 type,
                 R.id.bottom_bar_next,
                 R.drawable.action_next,
                 theme.buttonColorResId
             )
-            TYPE_PRIVATE_HOME -> PrivateHomeItem(type, R.id.bottom_bar_private_home)
-            TYPE_DELETE -> ImageItem(
+            ItemType.PRIVATE_HOME -> PrivateHomeItem(type, R.id.bottom_bar_private_home)
+            ItemType.DELETE -> ImageItem(
                 type,
                 R.id.bottom_bar_delete,
                 R.drawable.menu_delete,
                 theme.buttonColorResId
             )
-            TYPE_TRACKER -> TrackerItem(type, R.id.bottom_bar_tracker)
-            TYPE_BACK -> ImageItem(
+            ItemType.TRACKER -> TrackerItem(type, R.id.bottom_bar_tracker)
+            ItemType.BACK -> ImageItem(
                 type,
                 R.id.bottom_bar_back,
                 R.drawable.action_back,
                 theme.buttonColorResId
             )
-            TYPE_SHOPPING_SEARCH -> ShoppingSearchItem(type, R.id.bottom_bar_shopping_search, theme)
+            ItemType.SHOPPING_SEARCH -> ShoppingSearchItem(
+                type,
+                R.id.bottom_bar_shopping_search,
+                theme
+            )
             else -> error("Unexpected BottomBarItem ItemType: $type")
         }
     }
 
-    fun getItem(type: Int): BottomBarItem? = items?.find { it.type == type }
+    fun getItem(type: ItemType): BottomBarItem? = items?.find { it.type == type }
 
     fun setEnabled(enabled: Boolean) {
         items?.forEach {
@@ -121,10 +125,10 @@ class BottomBarItemAdapter(
             val type = it.type
             when {
                 view is ThemedImageButton -> view.setDarkTheme(isNight)
-                type == TYPE_TAB_COUNTER -> (view as TabCounter).setDarkTheme(isNight)
-                type == TYPE_MENU -> view?.findViewById<ThemedImageButton>(R.id.btn_menu)
+                type == ItemType.TAB_COUNTER -> (view as TabCounter).setDarkTheme(isNight)
+                type == ItemType.MENU -> view?.findViewById<ThemedImageButton>(R.id.btn_menu)
                     ?.setDarkTheme(isNight)
-                type == TYPE_REFRESH -> {
+                type == ItemType.REFRESH -> {
                     view?.findViewById<ThemedImageButton>(R.id.action_refresh)
                         ?.setDarkTheme(isNight)
                     view?.findViewById<ThemedImageButton>(R.id.action_stop)?.setDarkTheme(isNight)
@@ -135,7 +139,7 @@ class BottomBarItemAdapter(
 
     @JvmOverloads
     fun setTabCount(count: Int, animationEnabled: Boolean = false) {
-        getItem(TYPE_TAB_COUNTER)?.view?.apply {
+        getItem(ItemType.TAB_COUNTER)?.view?.apply {
             this as TabCounter
             if (animationEnabled) {
                 setCountWithAnimation(count)
@@ -152,17 +156,17 @@ class BottomBarItemAdapter(
         }
     }
 
-    fun setDownloadState(state: Int) {
-        getItem(TYPE_MENU)?.view?.apply {
+    fun setDownloadState(state: DownloadState) {
+        getItem(ItemType.MENU)?.view?.apply {
             val stateIcon = findViewById<ImageView>(R.id.download_unread_indicator)
             val downloadingAnimationView =
                 findViewById<LottieAnimationView>(R.id.downloading_indicator)
             when (state) {
-                DOWNLOAD_STATE_DEFAULT -> {
+                DownloadState.DEFAULT -> {
                     stateIcon.visibility = View.GONE
                     downloadingAnimationView.visibility = View.GONE
                 }
-                DOWNLOAD_STATE_DOWNLOADING -> {
+                DownloadState.DOWNLOADING -> {
                     stateIcon.visibility = View.GONE
                     downloadingAnimationView.apply {
                         visibility = View.VISIBLE
@@ -171,33 +175,32 @@ class BottomBarItemAdapter(
                         }
                     }
                 }
-                DOWNLOAD_STATE_UNREAD -> {
+                DownloadState.UNREAD -> {
                     stateIcon.apply {
                         visibility = View.VISIBLE
                         setImageResource(R.drawable.notify_download)
                     }
                     downloadingAnimationView.visibility = View.GONE
                 }
-                DOWNLOAD_STATE_WARNING -> {
+                DownloadState.WARNING -> {
                     stateIcon.apply {
                         visibility = View.VISIBLE
                         setImageResource(R.drawable.notify_notice)
                     }
                     downloadingAnimationView.visibility = View.GONE
                 }
-                else -> error("Unexpected download state")
             }
         }
     }
 
     fun setBookmark(isBookmark: Boolean) {
-        getItem(TYPE_BOOKMARK)?.view?.apply {
+        getItem(ItemType.BOOKMARK)?.view?.apply {
             isActivated = isBookmark
         }
     }
 
     fun setRefreshing(isRefreshing: Boolean) {
-        getItem(TYPE_REFRESH)?.view?.apply {
+        getItem(ItemType.REFRESH)?.view?.apply {
             val refreshIcon = findViewById<ThemedImageButton>(R.id.action_refresh)
             val stopIcon = findViewById<ThemedImageButton>(R.id.action_stop)
             if (isRefreshing) {
@@ -211,31 +214,31 @@ class BottomBarItemAdapter(
     }
 
     fun setCanGoForward(canGoForward: Boolean) {
-        getItem(TYPE_NEXT)?.view?.apply {
+        getItem(ItemType.NEXT)?.view?.apply {
             isEnabled = canGoForward
         }
     }
 
     fun setCanGoBack(canGoBack: Boolean) {
-        getItem(TYPE_BACK)?.view?.apply {
+        getItem(ItemType.BACK)?.view?.apply {
             isEnabled = canGoBack
         }
     }
 
     fun animatePrivateHome() {
-        getItem(TYPE_PRIVATE_HOME)?.view?.apply {
+        getItem(ItemType.PRIVATE_HOME)?.view?.apply {
             findViewById<LottieAnimationView>(R.id.pm_home_mask).playAnimation()
         }
     }
 
     fun endPrivateHomeAnimation() {
-        getItem(TYPE_PRIVATE_HOME)?.view?.apply {
+        getItem(ItemType.PRIVATE_HOME)?.view?.apply {
             findViewById<LottieAnimationView>(R.id.pm_home_mask).progress = 1f
         }
     }
 
     fun setTrackerSwitch(isOn: Boolean) {
-        getItem(TYPE_TRACKER)?.view?.apply {
+        getItem(ItemType.TRACKER)?.view?.apply {
             val trackerOn = findViewById<LottieAnimationView>(R.id.btn_tracker_on)
             val trackerOff = findViewById<ImageButton>(R.id.btn_tracker_off)
             if (isOn) {
@@ -249,7 +252,7 @@ class BottomBarItemAdapter(
     }
 
     fun setTrackerBadgeEnabled(isEnabled: Boolean) {
-        getItem(TYPE_TRACKER)?.view?.apply {
+        getItem(ItemType.TRACKER)?.view?.apply {
             val trackerOn = findViewById<LottieAnimationView>(R.id.btn_tracker_on)
             if (isEnabled) {
                 val isAnimating = trackerOn.isAnimating
@@ -263,7 +266,7 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class TabCounterItem(type: Int, id: Int, private val theme: Theme) :
+    private class TabCounterItem(type: ItemType, id: Int, private val theme: Theme) :
         BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val contextThemeWrapper = ContextThemeWrapper(context, R.style.MainMenuButton)
@@ -279,7 +282,9 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class MenuItem(type: Int, id: Int, private val theme: Theme) : BottomBarItem(type, id) {
+    private class MenuItem(
+        type: ItemType, id: Int, private val theme: Theme
+    ) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
                 .inflate(R.layout.button_more, parent, false)
@@ -298,14 +303,19 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class BookmarkItem(type: Int, id: Int, theme: Theme) : ImageItem(
+    private class BookmarkItem(
+        type: ItemType, id: Int, theme: Theme
+    ) : ImageItem(
         type,
         id,
         R.drawable.ic_add_bookmark,
-        if (theme == Theme.Light) R.color.ic_add_bookmark_tint_light else R.color.ic_add_bookmark_tint_dark
+        if (theme == Theme.Light)
+            R.color.ic_add_bookmark_tint_light
+        else
+            R.color.ic_add_bookmark_tint_dark
     )
 
-    private class RefreshItem(type: Int, id: Int, private val theme: Theme) :
+    private class RefreshItem(type: ItemType, id: Int, private val theme: Theme) :
         BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
@@ -322,21 +332,21 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class PrivateHomeItem(type: Int, id: Int) : BottomBarItem(type, id) {
+    private class PrivateHomeItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
                 .inflate(R.layout.button_private_to_normal, parent, false)
         }
     }
 
-    private class TrackerItem(type: Int, id: Int) : BottomBarItem(type, id) {
+    private class TrackerItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
                 .inflate(R.layout.button_tracker, parent, false)
         }
     }
 
-    private class ShoppingSearchItem(type: Int, id: Int, private val theme: Theme) :
+    private class ShoppingSearchItem(type: ItemType, id: Int, private val theme: Theme) :
         BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
@@ -358,30 +368,32 @@ class BottomBarItemAdapter(
         object ShoppingSearch : Theme(buttonColorResId = R.color.browser_menu_button)
     }
 
-    data class ItemData(val type: Int)
-
-    companion object {
-        const val TYPE_TAB_COUNTER = 0
-        const val TYPE_MENU = 1
-        const val TYPE_HOME = 2
-        const val TYPE_SEARCH = 3
-        const val TYPE_CAPTURE = 4
-        const val TYPE_PIN_SHORTCUT = 5
-        const val TYPE_BOOKMARK = 6
-        const val TYPE_REFRESH = 7
-        const val TYPE_SHARE = 8
-        const val TYPE_NEXT = 9
-        const val TYPE_PRIVATE_HOME = 10
-        const val TYPE_DELETE = 11
-        const val TYPE_TRACKER = 12
-        const val TYPE_BACK = 13
-        const val TYPE_SHOPPING_SEARCH = 14
-
-        const val DOWNLOAD_STATE_DEFAULT = 0
-        const val DOWNLOAD_STATE_DOWNLOADING = 1
-        const val DOWNLOAD_STATE_UNREAD = 2
-        const val DOWNLOAD_STATE_WARNING = 3
+    enum class DownloadState {
+        DEFAULT,
+        DOWNLOADING,
+        UNREAD,
+        WARNING
     }
+
+    enum class ItemType {
+        TAB_COUNTER,
+        MENU,
+        HOME,
+        SEARCH,
+        CAPTURE,
+        PIN_SHORTCUT,
+        BOOKMARK,
+        REFRESH,
+        SHARE,
+        NEXT,
+        PRIVATE_HOME,
+        DELETE,
+        TRACKER,
+        BACK,
+        SHOPPING_SEARCH,
+    }
+
+    data class ItemData(val type: ItemType)
 }
 
 private fun ImageView.setTint(context: Context, colorResId: Int) {

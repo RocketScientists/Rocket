@@ -26,6 +26,7 @@ import org.mozilla.focus.databinding.FragmentShoppingSearchResultTabBinding
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.common.ui.ContentTabFragment
@@ -242,11 +243,12 @@ class ShoppingSearchResultTabFragment : Fragment(), ContentTabViewContract, Back
     private fun setupBottomBar(binding: FragmentShoppingSearchResultTabBinding) {
         binding.bottomBar.setOnItemClickListener { type, position ->
             when (type) {
-                BottomBarItemAdapter.TYPE_HOME -> sendHomeIntent(requireContext())
-                BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
-                BottomBarItemAdapter.TYPE_SHOPPING_SEARCH -> shoppingSearchResultViewModel.onShoppingSearchButtonClick()
-                BottomBarItemAdapter.TYPE_NEXT -> chromeViewModel.goNext.call()
-                BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
+                ItemType.HOME -> sendHomeIntent(requireContext())
+                ItemType.REFRESH -> chromeViewModel.refreshOrStop.call()
+                ItemType.NEXT -> chromeViewModel.goNext.call()
+                ItemType.SHARE -> chromeViewModel.share.call()
+                ItemType.SHOPPING_SEARCH ->
+                    shoppingSearchResultViewModel.onShoppingSearchButtonClick()
                 else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             }
         }

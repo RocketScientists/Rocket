@@ -46,6 +46,7 @@ import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.permissionhandler.PermissionHandle
 import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.PrivateBottomBarViewModel
 import org.mozilla.rocket.content.app
@@ -176,9 +177,9 @@ class BrowserFragment :
 
                     if (PackageManager.PERMISSION_GRANTED ==
                         ContextCompat.checkSelfPermission(
-                                it,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            )
+                            it,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        )
                     ) {
                         // We do have the permission to write to the external storage. Proceed with the download.
                         queueDownload(download)
@@ -450,20 +451,21 @@ class BrowserFragment :
         val bottomBar = rootView.findViewById<BottomBar>(R.id.browser_bottom_bar)
         bottomBar.setOnItemClickListener { type, position ->
             when (type) {
-                BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.setValue(
+                ItemType.SEARCH -> chromeViewModel.showUrlInput.setValue(
                     chromeViewModel.currentUrl.value
                 )
-                BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
-                BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
-                BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
-                BottomBarItemAdapter.TYPE_NEXT -> chromeViewModel.goNext.call()
-                BottomBarItemAdapter.TYPE_PRIVATE_HOME -> {
+                ItemType.PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
+                ItemType.REFRESH -> chromeViewModel.refreshOrStop.call()
+                ItemType.SHARE -> chromeViewModel.share.call()
+                ItemType.NEXT -> chromeViewModel.goNext.call()
+                ItemType.PRIVATE_HOME -> {
                     chromeViewModel.togglePrivateMode.call()
                     TelemetryWrapper.togglePrivateMode(true)
                 }
-                BottomBarItemAdapter.TYPE_DELETE -> onDeleteClicked()
-                BottomBarItemAdapter.TYPE_TRACKER -> onTrackerButtonClicked()
-                else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
+                ItemType.DELETE -> onDeleteClicked()
+                ItemType.TRACKER -> onTrackerButtonClicked()
+                else ->
+                    throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             }
         }
         bottomBarItemAdapter =

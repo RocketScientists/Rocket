@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.mozilla.rocket.appupdate.InAppUpdateConfig;
 import org.mozilla.rocket.appupdate.InAppUpdateIntro;
 import org.mozilla.rocket.chrome.BottomBarItemAdapter;
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType;
 import org.mozilla.rocket.chrome.MenuItemAdapter;
 
 import java.util.ArrayList;
@@ -110,7 +111,8 @@ public class AppConfigWrapper {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject row = jsonArray.getJSONObject(i);
                 int type = row.getInt("type");
-                itemDataList.add(new BottomBarItemAdapter.ItemData(type));
+                ItemType itemType = ItemType.values()[type];
+                itemDataList.add(new BottomBarItemAdapter.ItemData(itemType));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -146,7 +148,8 @@ public class AppConfigWrapper {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject row = jsonArray.getJSONObject(i);
                 int type = row.getInt("type");
-                itemDataList.add(new BottomBarItemAdapter.ItemData(type));
+                ItemType itemType = ItemType.values()[type];
+                itemDataList.add(new BottomBarItemAdapter.ItemData(itemType));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -164,7 +167,8 @@ public class AppConfigWrapper {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject row = jsonArray.getJSONObject(i);
                 int type = row.getInt("type");
-                itemDataList.add(new BottomBarItemAdapter.ItemData(type));
+                ItemType itemType = ItemType.values()[type];
+                itemDataList.add(new BottomBarItemAdapter.ItemData(itemType));
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import org.mozilla.focus.R
 import org.mozilla.focus.widget.EqualDistributeGrid
+import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.extension.dpToPx
 import org.mozilla.rocket.nightmode.themed.ThemedImageButton
 
@@ -149,14 +150,14 @@ open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
     }
 
     fun interface OnItemClickListener {
-        fun onItemClick(type: Int, position: Int): Unit
+        fun onItemClick(type: BottomBarItemAdapter.ItemType, position: Int): Unit
     }
 
     fun interface OnItemLongClickListener {
-        fun onItemLongClick(type: Int, position: Int): Boolean
+        fun onItemLongClick(type: BottomBarItemAdapter.ItemType, position: Int): Boolean
     }
 
-    abstract class BottomBarItem(val type: Int, val viewId: Int) {
+    abstract class BottomBarItem(val type: BottomBarItemAdapter.ItemType, val viewId: Int) {
         var view: View? = null
 
         fun createView(context: Context, parent: ViewGroup): View {
@@ -168,7 +169,7 @@ open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
         abstract fun onCreateView(context: Context, parent: ViewGroup): View
 
         open class ImageItem(
-            type: Int,
+            type: BottomBarItemAdapter.ItemType,
             id: Int,
             private val drawableResId: Int,
             private val tintResId: Int

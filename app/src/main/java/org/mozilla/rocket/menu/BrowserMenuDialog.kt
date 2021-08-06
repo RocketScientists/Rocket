@@ -20,6 +20,7 @@ import org.mozilla.focus.databinding.BottomSheetBrowserMenuBinding
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.FormatUtils
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.MenuViewModel
 import org.mozilla.rocket.content.appComponent
@@ -231,47 +232,47 @@ class BrowserMenuDialog : LifecycleBottomSheetDialog {
         bottomBar.setOnItemClickListener { type, position ->
             cancel()
             when (type) {
-                BottomBarItemAdapter.TYPE_TAB_COUNTER -> {
+                ItemType.TAB_COUNTER -> {
                     chromeViewModel.showTabTray.call()
                     TelemetryWrapper.showTabTrayToolbar(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_MENU -> {
+                ItemType.MENU -> {
                     chromeViewModel.showBrowserMenu.call()
                     TelemetryWrapper.showMenuToolbar(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_HOME -> {
+                ItemType.HOME -> {
                     chromeViewModel.showNewTab.call()
                     TelemetryWrapper.clickAddTabToolbar(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_SEARCH -> {
+                ItemType.SEARCH -> {
                     chromeViewModel.showUrlInput.call()
                     TelemetryWrapper.clickToolbarSearch(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_CAPTURE -> chromeViewModel.onDoScreenshot(
+                ItemType.CAPTURE -> chromeViewModel.onDoScreenshot(
                     ChromeViewModel.ScreenCaptureTelemetryData(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 )
-                BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> {
+                ItemType.PIN_SHORTCUT -> {
                     chromeViewModel.pinShortcut.call()
                     TelemetryWrapper.clickAddToHome(TelemetryWrapper.Extra_Value.MENU, position)
                 }
-                BottomBarItemAdapter.TYPE_BOOKMARK -> {
-                    val isActivated =
-                        bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_BOOKMARK)?.view?.isActivated == true
+                ItemType.BOOKMARK -> {
+                    val nullableItem = bottomBarItemAdapter.getItem(ItemType.BOOKMARK)
+                    val isActivated = nullableItem?.view?.isActivated == true
                     TelemetryWrapper.clickToolbarBookmark(
                         !isActivated,
                         TelemetryWrapper.Extra_Value.MENU,
@@ -279,32 +280,36 @@ class BrowserMenuDialog : LifecycleBottomSheetDialog {
                     )
                     chromeViewModel.toggleBookmark()
                 }
-                BottomBarItemAdapter.TYPE_REFRESH -> {
+                ItemType.REFRESH -> {
                     chromeViewModel.refreshOrStop.call()
                     TelemetryWrapper.clickToolbarReload(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_SHARE -> {
+                ItemType.SHARE -> {
                     chromeViewModel.share.call()
                     TelemetryWrapper.clickToolbarShare(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_NEXT -> {
+                ItemType.NEXT -> {
                     chromeViewModel.goNext.call()
                     TelemetryWrapper.clickToolbarForward(
                         TelemetryWrapper.Extra_Value.MENU,
                         position
                     )
                 }
-                BottomBarItemAdapter.TYPE_BACK -> {
+                ItemType.BACK -> {
                     chromeViewModel.goBack.call()
                     TelemetryWrapper.clickToolbarBack(position)
                 }
-                else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
+                ItemType.PRIVATE_HOME,
+                ItemType.DELETE,
+                ItemType.TRACKER,
+                ItemType.SHOPPING_SEARCH ->
+                    throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             } // move Telemetry to ScreenCaptureTask doInBackground() cause we need to init category first.
         }
         bottomBarItemAdapter = BottomBarItemAdapter(bottomBar, BottomBarItemAdapter.Theme.Light)
@@ -330,7 +335,7 @@ class BrowserMenuDialog : LifecycleBottomSheetDialog {
             ShortcutManagerCompat.isRequestPinShortcutSupported(context)
         if (!requestPinShortcutSupported) {
             val pinShortcutItem =
-                bottomBarItemAdapter.getItem(BottomBarItemAdapter.TYPE_PIN_SHORTCUT)
+                bottomBarItemAdapter.getItem(ItemType.PIN_SHORTCUT)
             pinShortcutItem?.view?.apply {
                 visibility = View.GONE
             }

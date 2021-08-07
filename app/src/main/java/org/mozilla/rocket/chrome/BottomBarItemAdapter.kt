@@ -1,19 +1,22 @@
 package org.mozilla.rocket.chrome
 
-import android.content.Context
-import android.view.ContextThemeWrapper
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
 import org.mozilla.focus.R
 import org.mozilla.focus.tabs.TabCounter
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.BookmarkItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ImageItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.MenuItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.PrivateHomeItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.RefreshItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ShoppingSearchItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TabCounterItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TrackerItem
 import org.mozilla.rocket.content.view.BottomBar
-import org.mozilla.rocket.content.view.BottomBar.BottomBarItem
-import org.mozilla.rocket.content.view.BottomBar.BottomBarItem.ImageItem
 import org.mozilla.rocket.nightmode.themed.ThemedImageButton
 
 class BottomBarItemAdapter(
@@ -266,111 +269,6 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class TabCounterItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            val contextThemeWrapper = ContextThemeWrapper(context, R.style.MainMenuButton)
-            return TabCounter(contextThemeWrapper, null, 0).apply {
-                layoutParams = ViewGroup.LayoutParams(contextThemeWrapper, null)
-                tintDrawables(
-                    ContextCompat.getColorStateList(
-                        contextThemeWrapper,
-                        theme.buttonColorResId
-                    )
-                )
-            }
-        }
-    }
-
-    private class MenuItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_more, parent, false)
-                .apply {
-                    findViewById<ThemedImageButton>(R.id.btn_menu).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    val downloadColorResId =
-                        if (theme == Theme.Light)
-                            R.color.paletteDarkBlueC100
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.download_unread_indicator).setTint(
-                        context,
-                        downloadColorResId
-                    )
-                }
-        }
-    }
-
-    private class BookmarkItem(
-        type: ItemType,
-        id: Int,
-        theme: Theme
-    ) : ImageItem(
-        type,
-        id,
-        R.drawable.ic_add_bookmark,
-        if (theme == Theme.Light)
-            R.color.ic_add_bookmark_tint_light
-        else
-            R.color.ic_add_bookmark_tint_dark
-    )
-
-    private class RefreshItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_refresh, parent, false).apply {
-                    findViewById<ThemedImageButton>(R.id.action_refresh).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    findViewById<ThemedImageButton>(R.id.action_stop).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                }
-        }
-    }
-
-    private class PrivateHomeItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_private_to_normal, parent, false)
-        }
-    }
-
-    private class TrackerItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_tracker, parent, false)
-        }
-    }
-
-    private class ShoppingSearchItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_shopping_search, parent, false).apply {
-                    val shoppingSearchColorResId =
-                        if (theme == Theme.ShoppingSearch)
-                            R.color.shoppingSearchIcon
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.action_shopping_search).setTint(
-                        context,
-                        shoppingSearchColorResId
-                    )
-                }
-        }
-    }
-
     sealed class Theme(val buttonColorResId: Int) {
         object Light : Theme(buttonColorResId = R.color.browser_menu_button)
         object Dark : Theme(buttonColorResId = R.color.home_bottom_button)
@@ -404,9 +302,4 @@ class BottomBarItemAdapter(
     }
 
     data class ItemData(val type: ItemType)
-}
-
-private fun ImageView.setTint(context: Context, colorResId: Int) {
-    val contextThemeWrapper = ContextThemeWrapper(context, 0)
-    imageTintList = ContextCompat.getColorStateList(contextThemeWrapper, colorResId)
 }

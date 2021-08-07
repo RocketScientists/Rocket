@@ -3,10 +3,13 @@ package org.mozilla.rocket.extension
 import android.app.Activity
 import android.content.Context
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.LayoutRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 fun Context.dpToPx(value: Float): Int =
@@ -21,3 +24,8 @@ fun Activity.inflate(@LayoutRes layoutRes: Int, root: ViewGroup? = null): View =
 
 fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false): View =
     LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
+
+fun ImageView.setTint(context: Context, colorResId: Int) {
+    val contextThemeWrapper = ContextThemeWrapper(context, 0)
+    imageTintList = ContextCompat.getColorStateList(contextThemeWrapper, colorResId)
+}

@@ -1,6 +1,6 @@
 package org.mozilla.rocket.privately.browse
 
-import android.Manifest
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -188,10 +188,7 @@ class BrowserFragmentLegacy :
                     val download = params as Download
 
                     if (PackageManager.PERMISSION_GRANTED ==
-                        ContextCompat.checkSelfPermission(
-                            it,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        )
+                        ContextCompat.checkSelfPermission(it, WRITE_EXTERNAL_STORAGE)
                     ) {
                         // We do have the permission to write to the external storage. Proceed with the download.
                         queueDownload(download)
@@ -243,7 +240,7 @@ class BrowserFragmentLegacy :
 
             override fun requestPermissions(actionId: Int) {
                 this@BrowserFragmentLegacy.requestPermissions(
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    arrayOf(WRITE_EXTERNAL_STORAGE),
                     actionId
                 )
             }
@@ -649,7 +646,7 @@ class BrowserFragmentLegacy :
             )
             fragment.permissionHandler.tryAction(
                 fragment,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                WRITE_EXTERNAL_STORAGE,
                 ACTION_DOWNLOAD,
                 d
             )
@@ -700,7 +697,7 @@ class BrowserFragmentLegacy :
 
             fragment.permissionHandler.tryAction(
                 fragment,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                WRITE_EXTERNAL_STORAGE,
                 ACTION_DOWNLOAD,
                 download
             )

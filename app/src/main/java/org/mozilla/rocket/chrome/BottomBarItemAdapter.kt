@@ -283,7 +283,9 @@ class BottomBarItemAdapter(
     }
 
     private class MenuItem(
-        type: ItemType, id: Int, private val theme: Theme
+        type: ItemType,
+        id: Int,
+        private val theme: Theme
     ) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             return LayoutInflater.from(context)
@@ -294,7 +296,10 @@ class BottomBarItemAdapter(
                         theme.buttonColorResId
                     )
                     val downloadColorResId =
-                        if (theme == Theme.Light) R.color.paletteDarkBlueC100 else theme.buttonColorResId
+                        if (theme == Theme.Light)
+                            R.color.paletteDarkBlueC100
+                        else
+                            theme.buttonColorResId
                     findViewById<ThemedImageButton>(R.id.download_unread_indicator).setTint(
                         context,
                         downloadColorResId
@@ -304,7 +309,9 @@ class BottomBarItemAdapter(
     }
 
     private class BookmarkItem(
-        type: ItemType, id: Int, theme: Theme
+        type: ItemType,
+        id: Int,
+        theme: Theme
     ) : ImageItem(
         type,
         id,
@@ -352,7 +359,10 @@ class BottomBarItemAdapter(
             return LayoutInflater.from(context)
                 .inflate(R.layout.button_shopping_search, parent, false).apply {
                     val shoppingSearchColorResId =
-                        if (theme == Theme.ShoppingSearch) R.color.shoppingSearchIcon else theme.buttonColorResId
+                        if (theme == Theme.ShoppingSearch)
+                            R.color.shoppingSearchIcon
+                        else
+                            theme.buttonColorResId
                     findViewById<ThemedImageButton>(R.id.action_shopping_search).setTint(
                         context,
                         shoppingSearchColorResId

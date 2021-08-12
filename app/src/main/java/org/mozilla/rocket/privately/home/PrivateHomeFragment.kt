@@ -74,6 +74,11 @@ class PrivateHomeFragment :
             chromeViewModel.togglePrivateMode.call()
             TelemetryWrapper.togglePrivateMode(false)
         }
+
+        binding.homeFragmentTabCounter.setOnClickListener {
+            chromeViewModel.showTabTray.call()
+        }
+
         observeViewModel()
     }
 
@@ -106,6 +111,26 @@ class PrivateHomeFragment :
 
         chromeViewModel.isHomePageUrlInputShowing.observe(viewLifecycleOwner) { isShowing ->
             if (isShowing == true) hideFakeInput() else showFakeInput()
+        }
+        chromeViewModel.tabCount.observe(viewLifecycleOwner) {
+            setTabCount(it ?: 0)
+        }
+    }
+
+    private fun setTabCount(count: Int, animationEnabled: Boolean = false) {
+        binding?.homeFragmentTabCounter?.apply {
+            if (animationEnabled) {
+                setCountWithAnimation(count)
+            } else {
+                setCount(count)
+            }
+            if (count > 0) {
+                isEnabled = true
+                alpha = 1f
+            } else {
+                isEnabled = false
+                alpha = 0.3f
+            }
         }
     }
 

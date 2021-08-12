@@ -15,7 +15,8 @@ class MenuViewModel(
 ) : ViewModel() {
     val bottomItems = MutableLiveData<List<BottomBarItemAdapter.ItemData>>()
     val shouldShowNewMenuItemHint: LiveData<Boolean> = shouldShowNewMenuItemHintUseCase()
-    val isHomeScreenShoppingSearchEnabled = MutableLiveData<Boolean>().apply { value = isHomeScreenShoppingButtonEnabledUseCase() }
+    val isHomeScreenShoppingSearchEnabled =
+        MutableLiveData<Boolean>().apply { value = isHomeScreenShoppingButtonEnabledUseCase() }
 
     init {
         refresh()
@@ -30,7 +31,8 @@ class MenuViewModel(
         }
     }
 
-    private fun getConfiguredBottomBarItems(): List<BottomBarItemAdapter.ItemData>? = AppConfigWrapper.getMenuBottomBarItems()
+    private fun getConfiguredBottomBarItems(): List<BottomBarItemAdapter.ItemData>? =
+        AppConfigWrapper.getMenuBottomBarItems()
 
     fun onNewMenuItemDisplayed() {
         readNewMenuItemsUseCase()
@@ -39,11 +41,11 @@ class MenuViewModel(
     companion object {
         @JvmStatic
         val DEFAULT_MENU_BOTTOM_ITEMS: List<BottomBarItemAdapter.ItemData> = listOf(
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.TYPE_BACK),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.TYPE_NEXT),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.TYPE_BOOKMARK),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.TYPE_CAPTURE),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.TYPE_SHARE)
+            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.BACK),
+            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.NEXT),
+            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.BOOKMARK),
+            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.CAPTURE),
+            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.SHARE)
         )
     }
 }

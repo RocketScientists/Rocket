@@ -1,6 +1,6 @@
 package org.mozilla.rocket.privately.browse
 
-import android.Manifest
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -42,6 +42,7 @@ import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.permissionhandler.PermissionHandle
 import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.PrivateBottomBarViewModel
 import org.mozilla.rocket.content.appComponent
@@ -187,10 +188,7 @@ class BrowserFragmentLegacy :
                     val download = params as Download
 
                     if (PackageManager.PERMISSION_GRANTED ==
-                        ContextCompat.checkSelfPermission(
-                                it,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            )
+                        ContextCompat.checkSelfPermission(it, WRITE_EXTERNAL_STORAGE)
                     ) {
                         // We do have the permission to write to the external storage. Proceed with the download.
                         queueDownload(download)
@@ -242,7 +240,7 @@ class BrowserFragmentLegacy :
 
             override fun requestPermissions(actionId: Int) {
                 this@BrowserFragmentLegacy.requestPermissions(
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    arrayOf(WRITE_EXTERNAL_STORAGE),
                     actionId
                 )
             }
@@ -415,19 +413,19 @@ class BrowserFragmentLegacy :
         val bottomBar = rootView.findViewById<BottomBar>(R.id.browser_bottom_bar)
         bottomBar.setOnItemClickListener { type, position ->
             when (type) {
-                BottomBarItemAdapter.TYPE_SEARCH -> chromeViewModel.showUrlInput.setValue(
+                ItemType.SEARCH -> chromeViewModel.showUrlInput.setValue(
                     chromeViewModel.currentUrl.value
                 )
-                BottomBarItemAdapter.TYPE_PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
-                BottomBarItemAdapter.TYPE_REFRESH -> chromeViewModel.refreshOrStop.call()
-                BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
-                BottomBarItemAdapter.TYPE_NEXT -> chromeViewModel.goNext.call()
-                BottomBarItemAdapter.TYPE_PRIVATE_HOME -> {
+                ItemType.PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
+                ItemType.REFRESH -> chromeViewModel.refreshOrStop.call()
+                ItemType.SHARE -> chromeViewModel.share.call()
+                ItemType.NEXT -> chromeViewModel.goNext.call()
+                ItemType.PRIVATE_HOME -> {
                     chromeViewModel.togglePrivateMode.call()
                     TelemetryWrapper.togglePrivateMode(true)
                 }
-                BottomBarItemAdapter.TYPE_DELETE -> onDeleteClicked()
-                BottomBarItemAdapter.TYPE_TRACKER -> onTrackerButtonClicked()
+                ItemType.DELETE -> onDeleteClicked()
+                ItemType.TRACKER -> onTrackerButtonClicked()
                 else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             }
         }
@@ -509,7 +507,9 @@ class BrowserFragmentLegacy :
 
     class Observer(val fragment: BrowserFragmentLegacy) :
         SessionManager.Observer,
-        Session.Observer {
+        Session.Observer,
+        TabViewEngineSession.Client {
+
         override fun updateFailingUrl(url: String?, updateFromError: Boolean) {
             // do nothing, exist for interface compatibility only.
         }
@@ -646,7 +646,7 @@ class BrowserFragmentLegacy :
             )
             fragment.permissionHandler.tryAction(
                 fragment,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                WRITE_EXTERNAL_STORAGE,
                 ACTION_DOWNLOAD,
                 d
             )
@@ -697,7 +697,7 @@ class BrowserFragmentLegacy :
 
             fragment.permissionHandler.tryAction(
                 fragment,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                WRITE_EXTERNAL_STORAGE,
                 ACTION_DOWNLOAD,
                 download
             )

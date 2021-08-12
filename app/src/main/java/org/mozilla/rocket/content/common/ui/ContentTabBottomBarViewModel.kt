@@ -24,9 +24,9 @@ class ContentTabBottomBarViewModel : ViewModel() {
     companion object {
         @JvmStatic
         val DEFAULT_CONTENT_TAB_BOTTOM_BAR_ITEMS = listOf(
-            ItemData(BottomBarItemAdapter.TYPE_BACK),
-            ItemData(BottomBarItemAdapter.TYPE_REFRESH),
-            ItemData(BottomBarItemAdapter.TYPE_SHARE)
+            ItemData(BottomBarItemAdapter.ItemType.BACK),
+            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
+            ItemData(BottomBarItemAdapter.ItemType.SHARE)
         )
     }
 }

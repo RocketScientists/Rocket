@@ -211,12 +211,12 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
     private fun setupBottomBar(bottomBar: BottomBar) {
         bottomBar.setOnItemClickListener { type, position ->
             when (type) {
-                BottomBarItemAdapter.TYPE_BACK -> chromeViewModel.goBack.call()
-                BottomBarItemAdapter.TYPE_REFRESH -> {
+                BottomBarItemAdapter.ItemType.BACK -> chromeViewModel.goBack.call()
+                BottomBarItemAdapter.ItemType.REFRESH -> {
                     chromeViewModel.refreshOrStop.call()
                     telemetryViewModel.onReloadButtonClicked()
                 }
-                BottomBarItemAdapter.TYPE_SHARE -> chromeViewModel.share.call()
+                BottomBarItemAdapter.ItemType.SHARE -> chromeViewModel.share.call()
                 else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             }
         }

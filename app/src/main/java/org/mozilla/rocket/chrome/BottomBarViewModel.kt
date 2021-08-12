@@ -37,20 +37,20 @@ class BottomBarViewModel : ViewModel() {
     companion object {
         @JvmStatic
         val DEFAULT_BOTTOM_BAR_ITEMS: List<ItemData> = listOf(
-            ItemData(BottomBarItemAdapter.TYPE_HOME),
-            ItemData(BottomBarItemAdapter.TYPE_REFRESH),
-            ItemData(BottomBarItemAdapter.TYPE_SEARCH),
-            ItemData(BottomBarItemAdapter.TYPE_TAB_COUNTER),
-            ItemData(BottomBarItemAdapter.TYPE_MENU)
+            ItemData(BottomBarItemAdapter.ItemType.HOME),
+            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
+            ItemData(BottomBarItemAdapter.ItemType.SEARCH),
+            ItemData(BottomBarItemAdapter.ItemType.TAB_COUNTER),
+            ItemData(BottomBarItemAdapter.ItemType.MENU)
         )
 
         @JvmStatic
         val DEFAULT_LANDSCAPE_BOTTOM_BAR_ITEMS: List<ItemData> = listOf(
-            ItemData(BottomBarItemAdapter.TYPE_HOME),
-            ItemData(BottomBarItemAdapter.TYPE_REFRESH),
-            ItemData(BottomBarItemAdapter.TYPE_SEARCH),
-            ItemData(BottomBarItemAdapter.TYPE_TAB_COUNTER),
-            ItemData(BottomBarItemAdapter.TYPE_SHARE)
+            ItemData(BottomBarItemAdapter.ItemType.HOME),
+            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
+            ItemData(BottomBarItemAdapter.ItemType.SEARCH),
+            ItemData(BottomBarItemAdapter.ItemType.TAB_COUNTER),
+            ItemData(BottomBarItemAdapter.ItemType.SHARE)
         )
     }
 }

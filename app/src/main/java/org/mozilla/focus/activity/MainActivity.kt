@@ -376,7 +376,7 @@ class MainActivity :
             share.observe(
                 this@MainActivity,
                 Observer {
-                    visibleBrowserFragment?.let { shareText(it.url) }
+                    visibleBrowserFragment?.let { shareText(it.chromeUrl) }
                 }
             )
             showDownloadPanel.observe(
@@ -454,7 +454,7 @@ class MainActivity :
                                 }
                             }
                         }
-                        anchorView = browserFragment?.binding?.browserBottomBar
+                        anchorView = browserFragment?.getSnackBarAnchor()
                         show()
                     }
                 }
@@ -758,7 +758,7 @@ class MainActivity :
                     )
                 )
             }
-            anchorView = browserFragment?.binding?.browserBottomBar
+            anchorView = browserFragment?.getSnackBarAnchor()
         }.show()
     }
 

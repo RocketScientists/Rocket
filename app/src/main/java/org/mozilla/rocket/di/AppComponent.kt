@@ -81,6 +81,7 @@ interface AppComponent {
     fun inject(editBookmarkActivity: EditBookmarkActivity)
     fun inject(bookmarksFragment: BookmarksFragment)
     fun inject(browserFragment: BrowserFragment)
+    fun inject(bottomBarController: org.mozilla.rocket.browser.BottomBarController)
     fun inject(shoppingSearchController: ShoppingSearchController)
     fun inject(browserFragment: org.mozilla.rocket.privately.browse.BrowserFragment)
     fun inject(browserFragmentLegacy: org.mozilla.rocket.privately.browse.BrowserFragmentLegacy)

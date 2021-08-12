@@ -139,6 +139,10 @@ class PrivateModeActivity :
     override fun applyLocale() {}
 
     private fun observeChromeAction() {
+        chromeViewModel.showNewTab.observe(this) {
+            screenNavigator.addHomeScreen(true)
+        }
+
         chromeViewModel.showTabTray.observe(
             this,
             Observer {

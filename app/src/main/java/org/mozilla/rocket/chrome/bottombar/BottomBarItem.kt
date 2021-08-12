@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.ButtonMoreBinding
@@ -27,7 +28,7 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
 
     abstract fun onCreateView(context: Context, parent: ViewGroup): View
 
-    class PrivateHomeItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
+    class PrivateHomeItem : BottomBarItem(ItemType.PRIVATE_HOME, R.id.bottom_bar_private_home) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val inflater = LayoutInflater.from(context)
             return ButtonPrivateToNormalBinding.inflate(inflater, parent, false).root
@@ -51,13 +52,37 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         }
     }
 
-    class BookmarkItem(
-        type: ItemType,
-        id: Int,
-        theme: Theme
-    ) : ImageItem(
-        type,
-        id,
+    class HomeItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.HOME, R.id.bottom_bar_home, R.drawable.action_home, buttonColor)
+
+    class SearchItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.SEARCH, R.id.bottom_bar_search, R.drawable.action_search, buttonColor)
+
+    class CaptureItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.CAPTURE, R.id.bottom_bar_capture, R.drawable.action_capture, buttonColor)
+
+    class PinShortcutItem(@ColorRes buttonColor: Int) : ImageItem(
+        ItemType.PIN_SHORTCUT,
+        R.id.bottom_bar_pin_shortcut,
+        R.drawable.action_add_to_home,
+        buttonColor
+    )
+
+    class ShareItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.SHARE, R.id.bottom_bar_share, R.drawable.action_share, buttonColor)
+
+    class NextItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.NEXT, R.id.bottom_bar_next, R.drawable.action_next, buttonColor)
+
+    class BackItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.BACK, R.id.bottom_bar_back, R.drawable.action_back, buttonColor)
+
+    class DeleteItem(@ColorRes buttonColor: Int) :
+        ImageItem(ItemType.DELETE, R.id.bottom_bar_delete, R.drawable.menu_delete, buttonColor)
+
+    class BookmarkItem(theme: Theme) : ImageItem(
+        ItemType.BOOKMARK,
+        R.id.bottom_bar_bookmark,
         R.drawable.ic_add_bookmark,
         if (theme == Theme.Light)
             R.color.ic_add_bookmark_tint_light
@@ -65,25 +90,18 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
             R.color.ic_add_bookmark_tint_dark
     )
 
-    class RefreshItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) : BottomBarItem(type, id) {
+    class RefreshItem(@ColorRes val buttonColor: Int) :
+        BottomBarItem(ItemType.REFRESH, R.id.bottom_bar_refresh) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val inflater = LayoutInflater.from(context)
             val binding = ButtonRefreshBinding.inflate(inflater, parent, false)
-            binding.actionRefresh.setTint(context, theme.buttonColorResId)
-            binding.actionStop.setTint(context, theme.buttonColorResId)
+            binding.actionRefresh.setTint(context, buttonColor)
+            binding.actionStop.setTint(context, buttonColor)
             return binding.root
         }
     }
 
-    class MenuItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) : BottomBarItem(type, id) {
+    class MenuItem(private val theme: Theme) : BottomBarItem(ItemType.MENU, R.id.bottom_bar_menu) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val inflater = LayoutInflater.from(context)
             val binding = ButtonMoreBinding.inflate(inflater, parent, false)
@@ -95,38 +113,26 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         }
     }
 
-    class TabCounterItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) :
-        BottomBarItem(type, id) {
+    class TabCounterItem(@ColorRes val buttonColor: Int) :
+        BottomBarItem(ItemType.TAB_COUNTER, R.id.bottom_bar_tab_counter) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val contextThemeWrapper = ContextThemeWrapper(context, R.style.MainMenuButton)
             return TabCounter(contextThemeWrapper, null, 0).apply {
                 layoutParams = ViewGroup.LayoutParams(contextThemeWrapper, null)
-                tintDrawables(
-                    ContextCompat.getColorStateList(
-                        contextThemeWrapper,
-                        theme.buttonColorResId
-                    )
-                )
+                tintDrawables(ContextCompat.getColorStateList(contextThemeWrapper, buttonColor))
             }
         }
     }
 
-    class TrackerItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
+    class TrackerItem(id: Int) : BottomBarItem(ItemType.TRACKER, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val inflater = LayoutInflater.from(context)
             return ButtonTrackerBinding.inflate(inflater, parent, false).root
         }
     }
 
-    class ShoppingSearchItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) : BottomBarItem(type, id) {
+    class ShoppingSearchItem(private val theme: Theme) :
+        BottomBarItem(ItemType.SHOPPING_SEARCH, R.id.bottom_bar_shopping_search) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
             val inflater = LayoutInflater.from(context)
             val binding = ButtonShoppingSearchBinding.inflate(inflater, parent, false)

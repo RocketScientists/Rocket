@@ -26,8 +26,8 @@ import org.mozilla.focus.databinding.FragmentShoppingSearchResultTabBinding
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
-import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.common.ui.ContentTabFragment
 import org.mozilla.rocket.content.common.ui.ContentTabHelper

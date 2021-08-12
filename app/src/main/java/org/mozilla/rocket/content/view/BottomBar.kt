@@ -13,8 +13,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import org.mozilla.focus.R
 import org.mozilla.focus.widget.EqualDistributeGrid
-import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.extension.dpToPx
 
 open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
@@ -147,11 +147,11 @@ open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
     }
 
     fun interface OnItemClickListener {
-        fun onItemClick(type: BottomBarItemAdapter.ItemType, position: Int): Unit
+        fun onItemClick(type: ItemType, position: Int): Unit
     }
 
     fun interface OnItemLongClickListener {
-        fun onItemLongClick(type: BottomBarItemAdapter.ItemType, position: Int): Boolean
+        fun onItemLongClick(type: ItemType, position: Int): Boolean
     }
 
     override fun getBehavior(): CoordinatorLayout.Behavior<*> = bottomBarBehavior

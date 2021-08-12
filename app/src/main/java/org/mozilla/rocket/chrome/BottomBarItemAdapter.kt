@@ -10,6 +10,7 @@ import org.mozilla.focus.tabs.TabCounter
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.BookmarkItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ImageItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.MenuItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.PrivateHomeItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.RefreshItem
@@ -281,24 +282,6 @@ class BottomBarItemAdapter(
         DOWNLOADING,
         UNREAD,
         WARNING
-    }
-
-    enum class ItemType {
-        TAB_COUNTER,
-        MENU,
-        HOME,
-        SEARCH,
-        CAPTURE,
-        PIN_SHORTCUT,
-        BOOKMARK,
-        REFRESH,
-        SHARE,
-        NEXT,
-        PRIVATE_HOME,
-        DELETE,
-        TRACKER,
-        BACK,
-        SHOPPING_SEARCH,
     }
 
     data class ItemData(val type: ItemType)

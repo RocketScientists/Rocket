@@ -13,8 +13,8 @@ import org.json.JSONObject;
 import org.mozilla.rocket.appupdate.InAppUpdateConfig;
 import org.mozilla.rocket.appupdate.InAppUpdateIntro;
 import org.mozilla.rocket.chrome.BottomBarItemAdapter;
-import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType;
 import org.mozilla.rocket.chrome.MenuItemAdapter;
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType;
 
 import java.util.ArrayList;
 import java.util.List;

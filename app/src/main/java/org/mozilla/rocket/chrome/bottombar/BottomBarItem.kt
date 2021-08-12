@@ -14,7 +14,6 @@ import org.mozilla.focus.databinding.ButtonRefreshBinding
 import org.mozilla.focus.databinding.ButtonShoppingSearchBinding
 import org.mozilla.focus.databinding.ButtonTrackerBinding
 import org.mozilla.focus.tabs.TabCounter
-import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
 import org.mozilla.rocket.extension.setTint
 import org.mozilla.rocket.nightmode.themed.ThemedImageButton
@@ -139,5 +138,23 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
             binding.actionShoppingSearch.setTint(context, shoppingSearchColorResId)
             return binding.root
         }
+    }
+
+    enum class ItemType {
+        TAB_COUNTER,
+        MENU,
+        HOME,
+        SEARCH,
+        CAPTURE,
+        PIN_SHORTCUT,
+        BOOKMARK,
+        REFRESH,
+        SHARE,
+        NEXT,
+        PRIVATE_HOME,
+        DELETE,
+        TRACKER,
+        BACK,
+        SHOPPING_SEARCH,
     }
 }

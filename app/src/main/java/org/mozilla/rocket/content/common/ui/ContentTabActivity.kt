@@ -27,6 +27,7 @@ import org.mozilla.focus.widget.ResizableKeyboardLayout.OnKeyboardVisibilityChan
 import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.ChromeViewModel
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.common.data.ContentTabTelemetryData
 import org.mozilla.rocket.content.getViewModel
@@ -211,12 +212,12 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
     private fun setupBottomBar(bottomBar: BottomBar) {
         bottomBar.setOnItemClickListener { type, position ->
             when (type) {
-                BottomBarItemAdapter.ItemType.BACK -> chromeViewModel.goBack.call()
-                BottomBarItemAdapter.ItemType.REFRESH -> {
+                ItemType.BACK -> chromeViewModel.goBack.call()
+                ItemType.REFRESH -> {
                     chromeViewModel.refreshOrStop.call()
                     telemetryViewModel.onReloadButtonClicked()
                 }
-                BottomBarItemAdapter.ItemType.SHARE -> chromeViewModel.share.call()
+                ItemType.SHARE -> chromeViewModel.share.call()
                 else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             }
         }

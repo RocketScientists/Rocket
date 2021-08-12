@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mozilla.focus.utils.AppConfigWrapper
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.chrome.domain.ReadNewMenuItemsUseCase
 import org.mozilla.rocket.chrome.domain.ShouldShowNewMenuItemHintUseCase
 import org.mozilla.rocket.home.domain.IsHomeScreenShoppingButtonEnabledUseCase
@@ -41,11 +42,11 @@ class MenuViewModel(
     companion object {
         @JvmStatic
         val DEFAULT_MENU_BOTTOM_ITEMS: List<BottomBarItemAdapter.ItemData> = listOf(
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.BACK),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.NEXT),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.BOOKMARK),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.CAPTURE),
-            BottomBarItemAdapter.ItemData(BottomBarItemAdapter.ItemType.SHARE)
+            BottomBarItemAdapter.ItemData(ItemType.BACK),
+            BottomBarItemAdapter.ItemData(ItemType.NEXT),
+            BottomBarItemAdapter.ItemData(ItemType.BOOKMARK),
+            BottomBarItemAdapter.ItemData(ItemType.CAPTURE),
+            BottomBarItemAdapter.ItemData(ItemType.SHARE)
         )
     }
 }

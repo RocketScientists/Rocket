@@ -42,9 +42,9 @@ import org.mozilla.focus.widget.BackKeyHandleable
 import org.mozilla.permissionhandler.PermissionHandle
 import org.mozilla.permissionhandler.PermissionHandler
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
-import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.PrivateBottomBarViewModel
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.content.view.BottomBar

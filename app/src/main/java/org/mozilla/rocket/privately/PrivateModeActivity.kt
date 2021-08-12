@@ -33,6 +33,7 @@ import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.SafeIntent
 import org.mozilla.focus.utils.ShortcutUtils
 import org.mozilla.focus.utils.SupportUtils
+import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.OpenUrlAction
 import org.mozilla.rocket.component.LaunchIntentDispatcher
@@ -61,7 +62,11 @@ class PrivateModeActivity :
     @Inject
     lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
 
+    @Inject
+    lateinit var bottomBarViewModelCreator: Lazy<BottomBarViewModel>
+
     private lateinit var sessionManager: SessionManager
+
     // TODO: remove after AC browser engine is stable
     private var sessionManagerLegacy: org.mozilla.rocket.tabs.SessionManager? = null
     private lateinit var chromeViewModel: ChromeViewModel
@@ -79,6 +84,9 @@ class PrivateModeActivity :
         super.onCreate(null)
 
         chromeViewModel = getViewModel(chromeViewModelCreator)
+        chromeViewModel.isInPrivateMode = true
+        val bottomBarViewModel = getViewModel(bottomBarViewModelCreator)
+        bottomBarViewModel.isInPrivateMode = true
         if (isAcBrowserEngineEnabled()) {
             sessionManager = app().sessionManager
         }

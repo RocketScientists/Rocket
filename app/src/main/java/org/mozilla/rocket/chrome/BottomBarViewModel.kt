@@ -8,6 +8,8 @@ import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 
 class BottomBarViewModel : ViewModel() {
     val items = MutableLiveData<List<ItemData>>()
+    var isInPrivateMode = false
+
     private var isLandscapeMode = false
 
     init {

@@ -42,6 +42,7 @@ class ChromeViewModel(
     private val storageHelper: StorageHelper,
     private val downloadsRepository: DownloadsRepository
 ) : ViewModel() {
+    var isInPrivateMode = false
     val isNightMode: LiveData<NightModeSettings> = settings.isNightModeEnablLiveData.map {
         NightModeSettings(
             it,

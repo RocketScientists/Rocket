@@ -8,6 +8,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import org.mozilla.focus.R
+import org.mozilla.focus.databinding.ButtonMoreBinding
+import org.mozilla.focus.databinding.ButtonPrivateToNormalBinding
+import org.mozilla.focus.databinding.ButtonRefreshBinding
+import org.mozilla.focus.databinding.ButtonShoppingSearchBinding
+import org.mozilla.focus.databinding.ButtonTrackerBinding
 import org.mozilla.focus.tabs.TabCounter
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemType
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
@@ -25,8 +30,8 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
 
     class PrivateHomeItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_private_to_normal, parent, false)
+            val inflater = LayoutInflater.from(context)
+            return ButtonPrivateToNormalBinding.inflate(inflater, parent, false).root
         }
     }
 
@@ -67,17 +72,11 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         private val theme: Theme
     ) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_refresh, parent, false).apply {
-                    findViewById<ThemedImageButton>(R.id.action_refresh).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    findViewById<ThemedImageButton>(R.id.action_stop).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                }
+            val inflater = LayoutInflater.from(context)
+            val binding = ButtonRefreshBinding.inflate(inflater, parent, false)
+            binding.actionRefresh.setTint(context, theme.buttonColorResId)
+            binding.actionStop.setTint(context, theme.buttonColorResId)
+            return binding.root
         }
     }
 
@@ -87,23 +86,13 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         private val theme: Theme
     ) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_more, parent, false)
-                .apply {
-                    findViewById<ThemedImageButton>(R.id.btn_menu).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    val downloadColorResId =
-                        if (theme == Theme.Light)
-                            R.color.paletteDarkBlueC100
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.download_unread_indicator).setTint(
-                        context,
-                        downloadColorResId
-                    )
-                }
+            val inflater = LayoutInflater.from(context)
+            val binding = ButtonMoreBinding.inflate(inflater, parent, false)
+            binding.btnMenu.setTint(context, theme.buttonColorResId)
+            val downloadColorResId =
+                if (theme == Theme.Light) R.color.paletteDarkBlueC100 else theme.buttonColorResId
+            binding.downloadUnreadIndicator.setTint(context, downloadColorResId)
+            return binding.root
         }
     }
 
@@ -129,8 +118,8 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
 
     class TrackerItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_tracker, parent, false)
+            val inflater = LayoutInflater.from(context)
+            return ButtonTrackerBinding.inflate(inflater, parent, false).root
         }
     }
 
@@ -140,18 +129,15 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         private val theme: Theme
     ) : BottomBarItem(type, id) {
         override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_shopping_search, parent, false).apply {
-                    val shoppingSearchColorResId =
-                        if (theme == Theme.ShoppingSearch)
-                            R.color.shoppingSearchIcon
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.action_shopping_search).setTint(
-                        context,
-                        shoppingSearchColorResId
-                    )
-                }
+            val inflater = LayoutInflater.from(context)
+            val binding = ButtonShoppingSearchBinding.inflate(inflater, parent, false)
+            val shoppingSearchColorResId =
+                if (theme == Theme.ShoppingSearch)
+                    R.color.shoppingSearchIcon
+                else
+                    theme.buttonColorResId
+            binding.actionShoppingSearch.setTint(context, shoppingSearchColorResId)
+            return binding.root
         }
     }
 }

@@ -33,6 +33,7 @@ import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.SafeIntent
 import org.mozilla.focus.utils.ShortcutUtils
 import org.mozilla.focus.utils.SupportUtils
+import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.OpenUrlAction
@@ -45,8 +46,6 @@ import org.mozilla.rocket.download.data.DownloadsRepository
 import org.mozilla.rocket.landing.NavigationModel
 import org.mozilla.rocket.landing.OrientationState
 import org.mozilla.rocket.landing.PortraitStateModel
-import org.mozilla.rocket.privately.browse.BrowserFragment
-import org.mozilla.rocket.privately.browse.BrowserFragmentLegacy
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.tabs.TabsSessionProvider
 import org.mozilla.rocket.theme.ThemeManager
@@ -153,7 +152,7 @@ class PrivateModeActivity :
                 action?.run {
                     dismissUrlInput()
                     startPrivateMode()
-                    screenNavigator.showBrowserScreen(url, false, isFromExternal)
+                    screenNavigator.showBrowserScreen(url, true, isFromExternal)
                 }
             }
         )
@@ -323,13 +322,8 @@ class PrivateModeActivity :
 
     override fun getScreenNavigator(): ScreenNavigator = screenNavigator
 
-    override fun getBrowserScreen(): BrowserScreen {
-        return if (isAcBrowserEngineEnabled()) {
-            supportFragmentManager.findFragmentById(R.id.browser) as BrowserFragment
-        } else {
-            supportFragmentManager.findFragmentById(R.id.browser) as BrowserFragmentLegacy
-        }
-    }
+    override fun getBrowserScreen(): BrowserScreen =
+        supportFragmentManager.findFragmentById(R.id.browser) as BrowserFragment
 
     override fun createFirstRunScreen(): ScreenNavigator.FirstrunScreen {
         if (BuildConfig.DEBUG) {

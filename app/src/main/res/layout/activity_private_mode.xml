@@ -13,7 +13,7 @@
     android:layout_height="match_parent"
     tools:ignore="MergeRootFrame">
 
-    <fragment android:name="org.mozilla.rocket.privately.browse.BrowserFragment"
+    <fragment android:name="org.mozilla.rocket.browser.BrowserFragment"
         android:id="@+id/browser"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

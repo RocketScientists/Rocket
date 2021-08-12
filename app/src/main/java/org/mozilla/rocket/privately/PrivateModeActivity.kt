@@ -26,6 +26,7 @@ import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
 import org.mozilla.focus.navigation.ScreenNavigator.HomeScreen
 import org.mozilla.focus.navigation.ScreenNavigator.UrlInputScreen
+import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.urlinput.UrlInputFragment
 import org.mozilla.focus.utils.AppConstants
@@ -107,6 +108,9 @@ class PrivateModeActivity :
         observeChromeAction()
 
         monitorOrientationState()
+
+        chromeViewModel.onRestoreTabCountCompleted()
+        chromeViewModel.onTabCountChanged(0)
     }
 
     override fun onResume() {
@@ -128,6 +132,13 @@ class PrivateModeActivity :
     override fun applyLocale() {}
 
     private fun observeChromeAction() {
+        chromeViewModel.showTabTray.observe(
+            this,
+            Observer {
+                TabTray.show(supportFragmentManager)
+            }
+        )
+
         chromeViewModel.openUrl.observe(
             this,
             Observer { action ->

@@ -107,4 +107,14 @@
         android:textColor="@color/paletteWhite60"
         android:textSize="16sp" />
 
+    <org.mozilla.focus.tabs.TabCounter
+        android:id="@+id/home_fragment_tab_counter"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/ripple_circle"
+        android:elevation="1dp"
+        app:drawableColor="@color/paletteWhite100"
+        app:layout_constraintBottom_toBottomOf="@id/pm_home_fake_input"
+        app:layout_constraintEnd_toEndOf="@id/pm_home_fake_input" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

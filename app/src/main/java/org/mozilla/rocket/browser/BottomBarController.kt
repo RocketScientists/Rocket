@@ -171,6 +171,7 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         ItemType.TAB_COUNTER -> chromeViewModel.showTabTray.call()
         ItemType.MENU -> chromeViewModel.showBrowserMenu.call()
         ItemType.HOME -> chromeViewModel.showNewTab.call()
+        ItemType.PRIVATE_HOME -> chromeViewModel.showNewTab.call()
         ItemType.SEARCH -> chromeViewModel.showUrlInput.value = fragment.chromeUrl
         ItemType.PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
         ItemType.BOOKMARK -> chromeViewModel.toggleBookmark()
@@ -208,7 +209,9 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
                 val isActivated = isBookmarkItemActivated()
                 TelemetryWrapper.clickToolbarBookmark(isActivated, EXTRA_WEB_VIEW, position)
             }
-            ItemType.CAPTURE -> Unit
+            ItemType.PRIVATE_HOME,
+            ItemType.CAPTURE ->
+                Unit
             else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
         }
     }

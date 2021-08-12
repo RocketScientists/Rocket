@@ -77,7 +77,12 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
 
     private fun setupBottomBar(binding: FragmentBrowserBinding) {
         val browserBottomBar = binding.browserBottomBar
-        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, Theme.Light)
+        val theme = if (bottomBarViewModel.isInPrivateMode)
+            Theme.PrivateMode
+        else
+            Theme.Light
+
+        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, theme)
 
         browserBottomBar.setOnItemClickListener { type, position ->
             updateChromeViewModelForBottomBarClick(type, position)

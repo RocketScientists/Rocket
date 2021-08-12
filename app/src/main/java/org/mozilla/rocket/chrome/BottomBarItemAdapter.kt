@@ -33,6 +33,12 @@ class BottomBarItemAdapter(
 ) {
     private var items: List<BottomBarItem>? = null
 
+    init {
+        if (theme == Theme.PrivateMode) {
+            bottomBar.setBackgroundResource(R.color.privateBackground)
+        }
+    }
+
     fun setItems(types: List<ItemData>) {
         val hasDuplicate = types.groupBy { it }.size < types.size
         require(!hasDuplicate) { "Cannot set duplicated items to BottomBarItemAdapter" }

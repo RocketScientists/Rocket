@@ -55,6 +55,7 @@ import org.mozilla.focus.telemetry.TelemetryWrapper.privateModeTray
 import org.mozilla.focus.telemetry.TelemetryWrapper.swipeTabFromTabTray
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.ViewUtils
+import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.home.HomeViewModel
@@ -77,12 +78,16 @@ class TabTrayFragment :
     @Inject
     lateinit var homeViewModelCreator: Lazy<HomeViewModel>
 
+    @Inject
+    lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
+
     private lateinit var presenter: TabTrayContract.Presenter
     private lateinit var adapter: TabTrayAdapter
     private lateinit var itemDecoration: ShoppingSearchItemDecoration
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var tabTrayViewModel: TabTrayViewModel
     private lateinit var homeViewModel: HomeViewModel
+    private lateinit var chromeViewModel: ChromeViewModel
 
     private var binding: FragmentTabTrayBinding? = null
     private var closeShoppingSearchDialog: AlertDialog? = null
@@ -101,6 +106,8 @@ class TabTrayFragment :
         super.onCreate(savedInstanceState)
         tabTrayViewModel = getActivityViewModel(tabTrayViewModelCreator)
         homeViewModel = getActivityViewModel(homeViewModelCreator)
+        chromeViewModel = getActivityViewModel(chromeViewModelCreator)
+
         setStyle(STYLE_NO_TITLE, R.style.TabTrayTheme)
         adapter = TabTrayAdapter(Glide.with(this))
         val sessionManager = TabsSessionProvider.getOrThrow(activity)
@@ -770,7 +777,8 @@ class TabTrayFragment :
         binding.tabTrayRecyclerView.setDarkTheme(enable)
         itemDecoration.setDarkTheme(enable)
         dialog?.window?.let {
-            ViewUtils.updateStatusBarStyle(!enable, it)
+            val isLightStatusBarIcon = !enable && !chromeViewModel.isInPrivateMode
+            ViewUtils.updateStatusBarStyle(isLightStatusBarIcon, it)
         }
         binding.starBackground.visibility = if (enable) View.VISIBLE else View.GONE
     }

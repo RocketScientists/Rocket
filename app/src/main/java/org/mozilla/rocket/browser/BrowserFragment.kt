@@ -631,7 +631,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         binding.toolbar.siteIdentity.setDarkTheme(enable)
         binding.urlbar.setDarkTheme(enable)
         binding.urlBarDivider.setDarkTheme(enable)
-        ViewUtils.updateStatusBarStyle(!enable, requireActivity().window)
+        val isLightStatusBarIcon = !enable && !chromeViewModel.isInPrivateMode
+        ViewUtils.updateStatusBarStyle(isLightStatusBarIcon, requireActivity().window)
     }
 
     private fun showFindInPage() {

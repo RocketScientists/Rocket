@@ -5,5 +5,5 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
     <item android:drawable="@color/paletteDarkGreyC100" app:state_night="true" />
-    <item android:drawable="@android:color/transparent" />
+    <item android:drawable="@color/themeGradientEndPrivate" />
 </selector>

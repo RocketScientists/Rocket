@@ -24,6 +24,7 @@ public class ThemeManager {
 
     public enum ThemeSet {
         Default(R.style.ThemeToyDefault),
+        Private(R.style.ThemeToyPrivate),
 
         Theme1(R.style.ThemeToy01),
         Theme2(R.style.ThemeToy02),
@@ -43,8 +44,16 @@ public class ThemeManager {
     private boolean dirty = true;
 
     public ThemeManager(Context appContext) {
+        this(appContext, null);
+    }
+
+    public ThemeManager(Context appContext, ThemeSet themeSet) {
         baseContext = appContext;
-        currentThemeSet = loadCurrentTheme(getSharedPreferences(baseContext));
+        if (themeSet == null) {
+            currentThemeSet = loadCurrentTheme(getSharedPreferences(baseContext));
+        } else {
+            currentThemeSet = themeSet;
+        }
     }
 
     private static SharedPreferences getSharedPreferences(Context context) {

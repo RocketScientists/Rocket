@@ -169,7 +169,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             v.setPadding(0, 0, 0, insets.systemWindowInsetTop)
             insets
         }
-        appBarBgTransition = binding.urlbar.background as TransitionDrawable
+        appBarBgTransition = binding.toolbar.toolbarRoot.background as TransitionDrawable
         statusBarBgTransition = binding.insetCover.background as TransitionDrawable
         observeChromeAction()
         findInPage = FindInPage(container)

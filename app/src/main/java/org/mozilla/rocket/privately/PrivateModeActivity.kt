@@ -7,6 +7,7 @@ package org.mozilla.rocket.privately
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -46,10 +47,12 @@ import org.mozilla.rocket.privately.browse.BrowserFragment
 import org.mozilla.rocket.privately.browse.BrowserFragmentLegacy
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.tabs.TabsSessionProvider
+import org.mozilla.rocket.theme.ThemeManager
 import javax.inject.Inject
 
 class PrivateModeActivity :
     BaseActivity(),
+    ThemeManager.ThemeHost,
     ScreenNavigator.Provider,
     ScreenNavigator.HostActivity,
     TabsSessionProvider.SessionHost {
@@ -67,6 +70,8 @@ class PrivateModeActivity :
 
     private val portraitStateModel = PortraitStateModel()
 
+    private var themeManager: ThemeManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // we don't keep any state if user leave Private-mode
         appComponent().inject(this)
@@ -78,6 +83,8 @@ class PrivateModeActivity :
         }
         tabViewProvider = PrivateTabViewProvider(this)
         screenNavigator = ScreenNavigator(this)
+
+        themeManager = ThemeManager(this, ThemeManager.ThemeSet.Private)
 
         if (isSanitizeIntent(intent)) {
             sanitize()
@@ -325,6 +332,18 @@ class PrivateModeActivity :
 
     override fun createUrlInputScreen(url: String?, parentFragmentTag: String): UrlInputScreen {
         return UrlInputFragment.create(url, null, allowSuggestion = false, privateMode = true)
+    }
+
+    override fun getThemeManager(): ThemeManager? = themeManager
+
+    override fun getTheme(): Resources.Theme {
+        val theme = super.getTheme()
+
+        //  Oppo with android 5.1 call getTheme before activity onCreate invoked.
+        //  So themeManager is not initialized and cause NPE
+        themeManager?.applyCurrentTheme(theme)
+
+        return theme
     }
 
     private fun pushToBack() {

@@ -22,16 +22,16 @@ class SessionObserver(
 
     private var observingSession: Session? = null
 
-    private val historyInserter = SessionHistoryInserter()
+    private var historyInserter: SessionHistoryInserter? = SessionHistoryInserter()
 
     // Some url may report progress from 0 again for the same url. filter them out to avoid
     // progress bar regression when scrolling.
     override fun onLoadingStateChanged(session: Session, loading: Boolean) {
         if (loading) {
-            historyInserter.onTabStarted(session)
+            historyInserter?.onTabStarted(session)
         } else {
             sessionCtrl.chromeGetUrl()?.let {
-                historyInserter.onTabFinished(session, it)
+                historyInserter?.onTabFinished(session, it)
             }
         }
         if (session.isFocusing()) {
@@ -60,7 +60,7 @@ class SessionObserver(
 
     override fun updateFailingUrl(url: String?, updateFromError: Boolean) {
         val observing = observingSession ?: return
-        historyInserter.updateFailingUrl(observing, url, updateFromError)
+        historyInserter?.updateFailingUrl(observing, url, updateFromError)
     }
 
     override fun onProgress(session: Session, progress: Int) {
@@ -148,6 +148,10 @@ class SessionObserver(
         if (observingSession.isFocusing()) {
             sessionCtrl.chromeShowGeolocationPermission(origin, callback)
         }
+    }
+
+    fun disableHistoryInsertion() {
+        historyInserter = null
     }
 
     fun changeObservingSession(nextSession: Session?) {

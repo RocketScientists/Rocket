@@ -14,7 +14,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.Lazy
 import mozilla.components.browser.session.SessionManager
@@ -37,12 +36,15 @@ import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.OpenUrlAction
-import org.mozilla.rocket.component.LaunchIntentDispatcher
+import org.mozilla.rocket.component.LaunchIntentDispatcher.LaunchMethod
 import org.mozilla.rocket.component.PrivateSessionNotificationService
 import org.mozilla.rocket.content.app
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getViewModel
-import org.mozilla.rocket.download.data.DownloadsRepository
+import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.FileNotSupported
+import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.GeneralError
+import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.StorageUnavailable
+import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.Success
 import org.mozilla.rocket.landing.NavigationModel
 import org.mozilla.rocket.landing.OrientationState
 import org.mozilla.rocket.landing.PortraitStateModel
@@ -86,9 +88,11 @@ class PrivateModeActivity :
         chromeViewModel.isInPrivateMode = true
         val bottomBarViewModel = getViewModel(bottomBarViewModelCreator)
         bottomBarViewModel.isInPrivateMode = true
+
         if (isAcBrowserEngineEnabled()) {
             sessionManager = app().sessionManager
         }
+
         tabViewProvider = PrivateTabViewProvider(this)
         screenNavigator = ScreenNavigator(this)
 
@@ -102,11 +106,12 @@ class PrivateModeActivity :
 
         handleIntent(intent)
 
-        if (isAcBrowserEngineEnabled()) {
-            setContentView(R.layout.activity_private_mode)
+        val layoutRes = if (isAcBrowserEngineEnabled()) {
+            R.layout.activity_private_mode
         } else {
-            setContentView(R.layout.activity_private_mode_legacy)
+            R.layout.activity_private_mode_legacy
         }
+        setContentView(layoutRes)
 
         snackBarContainer = findViewById(R.id.container)
         makeStatusBarTransparent()
@@ -143,85 +148,64 @@ class PrivateModeActivity :
             screenNavigator.addHomeScreen(true)
         }
 
-        chromeViewModel.showTabTray.observe(
-            this,
-            Observer {
-                TabTray.show(supportFragmentManager)
-            }
-        )
+        chromeViewModel.showTabTray.observe(this) {
+            TabTray.show(supportFragmentManager)
+        }
 
-        chromeViewModel.openUrl.observe(
-            this,
-            Observer { action ->
-                action?.run {
-                    dismissUrlInput()
-                    startPrivateMode()
-                    screenNavigator.showBrowserScreen(url, true, isFromExternal)
-                }
+        chromeViewModel.openUrl.observe(this) { action ->
+            dismissUrlInput()
+            startPrivateMode()
+            screenNavigator.showBrowserScreen(action.url, true, action.isFromExternal)
+        }
+
+        chromeViewModel.showUrlInput.observe(this) { url ->
+            if (!supportFragmentManager.isStateSaved) {
+                screenNavigator.addUrlScreen(url)
             }
-        )
-        chromeViewModel.showUrlInput.observe(
-            this,
-            Observer { url ->
-                if (!supportFragmentManager.isStateSaved) {
-                    screenNavigator.addUrlScreen(url)
-                }
-            }
-        )
-        chromeViewModel.dismissUrlInput.observe(
-            this,
-            Observer {
-                dismissUrlInput()
-            }
-        )
+        }
+
+        chromeViewModel.dismissUrlInput.observe(this) {
+            dismissUrlInput()
+        }
+
         // Reserve to handle more chrome actions for the bottom bar A/B testing
-        chromeViewModel.pinShortcut.observe(
-            this,
-            Observer {
-                onAddToHomeClicked()
+        chromeViewModel.pinShortcut.observe(this) { onAddToHomeClicked() }
+
+        chromeViewModel.share.observe(this) {
+            chromeViewModel.currentUrl.value?.let { url ->
+                onShareClicked(url)
             }
-        )
-        chromeViewModel.share.observe(
-            this,
-            Observer {
-                chromeViewModel.currentUrl.value?.let { url ->
-                    onShareClicked(url)
-                }
+        }
+
+        chromeViewModel.togglePrivateMode.observe(this) {
+            checkShortcutPromotion { pushToBack() }
+        }
+
+        chromeViewModel.dropCurrentPage.observe(this) {
+            dropBrowserFragment()
+        }
+
+        chromeViewModel.downloadState.observe(this) { downloadState ->
+            val msgResId = when (downloadState) {
+                is GeneralError -> return@observe
+                is StorageUnavailable -> R.string.message_storage_unavailable_cancel_download
+                is FileNotSupported -> R.string.download_file_not_supported
+                is Success ->
+                    if (!downloadState.isStartFromContextMenu) {
+                        R.string.download_started
+                    } else {
+                        return@observe
+                    }
             }
-        )
-        chromeViewModel.togglePrivateMode.observe(
-            this,
-            Observer {
-                checkShortcutPromotion { pushToBack() }
-            }
-        )
-        chromeViewModel.dropCurrentPage.observe(
-            this,
-            Observer {
-                dropBrowserFragment()
-            }
-        )
-        chromeViewModel.downloadState.observe(
-            this,
-            Observer { downloadState ->
-                when (downloadState) {
-                    is DownloadsRepository.DownloadState.StorageUnavailable ->
-                        Toast.makeText(this, R.string.message_storage_unavailable_cancel_download, Toast.LENGTH_LONG).show()
-                    is DownloadsRepository.DownloadState.FileNotSupported ->
-                        Toast.makeText(this, R.string.download_file_not_supported, Toast.LENGTH_LONG).show()
-                    is DownloadsRepository.DownloadState.Success ->
-                        if (!downloadState.isStartFromContextMenu) {
-                            Toast.makeText(this, R.string.download_started, Toast.LENGTH_LONG).show()
-                        }
-                }
-            }
-        )
+
+            Toast.makeText(this, msgResId, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun onAddToHomeClicked() {
-        var sessionUrl: String = ""
+        var sessionUrl = ""
+        var sessionTitle = ""
         var sessionIcon: Bitmap? = null
-        var sessionTitle: String = ""
         if (isAcBrowserEngineEnabled()) {
             sessionManager.selectedSession?.let {
                 sessionUrl = it.url
@@ -241,12 +225,13 @@ class PrivateModeActivity :
         if (!SupportUtils.isUrl(sessionUrl)) {
             return
         }
+
         val shortcut = Intent(Intent.ACTION_VIEW)
         // Use activity-alias name here so we can start whoever want to control launching behavior
         // Besides, RocketLauncherActivity not exported so using the alias-name is required.
         shortcut.setClassName(this, AppConstants.LAUNCHER_ACTIVITY_ALIAS)
         shortcut.data = Uri.parse(sessionUrl)
-        shortcut.putExtra(LaunchIntentDispatcher.LaunchMethod.EXTRA_BOOL_HOME_SCREEN_SHORTCUT.value, true)
+        shortcut.putExtra(LaunchMethod.EXTRA_BOOL_HOME_SCREEN_SHORTCUT.value, true)
 
         ShortcutUtils.requestPinShortcut(this, shortcut, sessionTitle, sessionUrl, sessionIcon)
     }
@@ -304,19 +289,16 @@ class PrivateModeActivity :
         val orientationState = OrientationState(
             object : NavigationModel {
                 override val navigationState: LiveData<ScreenNavigator.NavigationState>
-                    get() = ScreenNavigator.get(this@PrivateModeActivity).navigationState
+                    get() = ScreenNavigator[this@PrivateModeActivity].navigationState
             },
             portraitStateModel
         )
 
-        orientationState.observe(
-            this,
-            Observer { orientation ->
-                orientation?.let {
-                    requestedOrientation = it
-                }
+        orientationState.observe(this) { orientation ->
+            if (orientation != null) {
+                requestedOrientation = orientation
             }
-        )
+        }
     }
 
     private fun dropBrowserFragment() {
@@ -375,10 +357,9 @@ class PrivateModeActivity :
     }
 
     private fun makeStatusBarTransparent() {
-        var visibility = window.decorView.systemUiVisibility
+        val appended = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
         // do not overwrite existing value
-        visibility = visibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        window.decorView.systemUiVisibility = visibility
+        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or appended
     }
 
     private fun startPrivateMode() {
@@ -419,11 +400,12 @@ class PrivateModeActivity :
     private fun onReceiveViewIntent(intent: SafeIntent) {
         TelemetryWrapper.launchByPrivateModeShortcut(TelemetryWrapper.Extra_Value.EXTERNAL_APP)
         val fromHistory = (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
-        if (!fromHistory) {
-            intent.dataString?.let { url ->
-                chromeViewModel.openUrl.value = OpenUrlAction(url, withNewTab = false, isFromExternal = true)
-            }
+        if (fromHistory) {
+            return
         }
+        val url = intent.dataString ?: return
+        val openUrlAction = OpenUrlAction(url, withNewTab = false, isFromExternal = true)
+        chromeViewModel.openUrl.value = openUrlAction
     }
 
     private fun onReceiveMainIntent(intent: SafeIntent) {
@@ -433,28 +415,26 @@ class PrivateModeActivity :
     }
 
     private fun isIntentFromPrivateShortcut(intent: SafeIntent): Boolean {
-        return intent.getBooleanExtra(
-            LaunchIntentDispatcher.LaunchMethod.EXTRA_BOOL_PRIVATE_MODE_SHORTCUT.value,
-            false
-        )
+        return intent.getBooleanExtra(LaunchMethod.EXTRA_BOOL_PRIVATE_MODE_SHORTCUT.value, false)
     }
 
     private fun checkShortcutPromotion(continuation: () -> Unit) {
         ViewModelProvider(this)
             .get(ShortcutViewModel::class.java)
             .interceptLeavingAndCheckShortcut(this)
-            .observe(
-                this,
-                Observer {
-                    continuation()
-                }
-            )
+            .observe(this) {
+                continuation()
+            }
     }
 
     companion object {
-        fun getStartIntent(context: Context): Intent = Intent(context, PrivateModeActivity::class.java)
+        fun getStartIntent(context: Context): Intent =
+            Intent(context, PrivateModeActivity::class.java)
 
         // TODO: remove after AC browser engine is stable
-        private fun isAcBrowserEngineEnabled() = AppConstants.isNightlyBuild() || AppConstants.isDevBuild() || AppConstants.isFirebaseBuild()
+        private fun isAcBrowserEngineEnabled() =
+            AppConstants.isNightlyBuild() ||
+                AppConstants.isDevBuild() ||
+                AppConstants.isFirebaseBuild()
     }
 }

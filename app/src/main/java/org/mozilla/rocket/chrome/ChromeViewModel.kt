@@ -63,6 +63,7 @@ class ChromeViewModel(
     val canGoForward = MutableLiveData<Boolean>()
     val isHomePageUrlInputShowing = MutableLiveData<Boolean>()
     val isMyShotOnBoardingPending = MutableLiveData<Boolean>()
+    val isPrivateTurboModeEnabled = MutableLiveData(false)
     val isTurboModeEnabled: LiveData<Boolean> = settings.shouldUseTurboModeLiveData()
     val isBlockImageEnabled: LiveData<Boolean> = settings.shouldBlockImagesLiveData()
     val isBlockJavaScriptEnabled: LiveData<Boolean> = settings.shouldBlockJavaScriptLiveData()

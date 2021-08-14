@@ -57,6 +57,10 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
         chromeViewModel = browserFragment.chromeViewModel
         sessionManager = TabsSessionProvider.getOrThrow(browserFragment.requireActivity())
         sessionManager.register(managerObserver)
+
+        if (chromeViewModel.isInPrivateMode) {
+            sessionObserver.disableHistoryInsertion()
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

@@ -446,7 +446,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         if (activity == null || download == null) {
             return
         }
-        chromeViewModel.onEnqueueDownload(download, chromeUrl)
+        val shouldBeRecorded = !chromeViewModel.isInPrivateMode
+        chromeViewModel.onEnqueueDownload(download, chromeUrl, shouldBeRecorded)
     }
 
     fun enterFullScreen(callback: FullscreenCallback, view: View) {

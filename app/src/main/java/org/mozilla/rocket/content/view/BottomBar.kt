@@ -5,20 +5,17 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.SparseIntArray
-import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import org.mozilla.focus.R
 import org.mozilla.focus.widget.EqualDistributeGrid
-import org.mozilla.rocket.chrome.BottomBarItemAdapter
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.extension.dpToPx
-import org.mozilla.rocket.nightmode.themed.ThemedImageButton
 
 open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
     protected lateinit var dividerView: View
@@ -150,40 +147,11 @@ open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
     }
 
     fun interface OnItemClickListener {
-        fun onItemClick(type: BottomBarItemAdapter.ItemType, position: Int): Unit
+        fun onItemClick(type: ItemType, position: Int): Unit
     }
 
     fun interface OnItemLongClickListener {
-        fun onItemLongClick(type: BottomBarItemAdapter.ItemType, position: Int): Boolean
-    }
-
-    abstract class BottomBarItem(val type: BottomBarItemAdapter.ItemType, val viewId: Int) {
-        var view: View? = null
-
-        fun createView(context: Context, parent: ViewGroup): View {
-            return onCreateView(context, parent).apply {
-                id = viewId
-            }
-        }
-
-        abstract fun onCreateView(context: Context, parent: ViewGroup): View
-
-        open class ImageItem(
-            type: BottomBarItemAdapter.ItemType,
-            id: Int,
-            private val drawableResId: Int,
-            private val tintResId: Int
-        ) : BottomBarItem(type, id) {
-            override fun onCreateView(context: Context, parent: ViewGroup): View {
-                val contextThemeWrapper = ContextThemeWrapper(context, R.style.MainMenuButton)
-                return ThemedImageButton(contextThemeWrapper, null, 0).apply {
-                    layoutParams = ViewGroup.LayoutParams(contextThemeWrapper, null)
-                    scaleType = ImageView.ScaleType.CENTER
-                    setImageResource(drawableResId)
-                    imageTintList = ContextCompat.getColorStateList(contextThemeWrapper, tintResId)
-                }
-            }
-        }
+        fun onItemLongClick(type: ItemType, position: Int): Boolean
     }
 
     override fun getBehavior(): CoordinatorLayout.Behavior<*> = bottomBarBehavior

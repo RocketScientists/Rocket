@@ -2,8 +2,8 @@ package org.mozilla.rocket.shopping.search.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemData
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 
 class ShoppingSearchBottomBarViewModel : ViewModel() {
     val items = MutableLiveData<List<ItemData>>()
@@ -24,11 +24,11 @@ class ShoppingSearchBottomBarViewModel : ViewModel() {
     companion object {
         @JvmStatic
         val DEFAULT_CONTENT_TAB_BOTTOM_BAR_ITEMS = listOf(
-            ItemData(BottomBarItemAdapter.ItemType.HOME),
-            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
-            ItemData(BottomBarItemAdapter.ItemType.SHOPPING_SEARCH),
-            ItemData(BottomBarItemAdapter.ItemType.NEXT),
-            ItemData(BottomBarItemAdapter.ItemType.SHARE)
+            ItemData(ItemType.HOME),
+            ItemData(ItemType.REFRESH),
+            ItemData(ItemType.SHOPPING_SEARCH),
+            ItemData(ItemType.NEXT),
+            ItemData(ItemType.SHARE)
         )
     }
 }

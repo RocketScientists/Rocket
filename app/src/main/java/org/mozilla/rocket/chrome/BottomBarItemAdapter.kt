@@ -1,19 +1,30 @@
 package org.mozilla.rocket.chrome
 
-import android.content.Context
-import android.view.ContextThemeWrapper
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
 import org.mozilla.focus.R
 import org.mozilla.focus.tabs.TabCounter
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.BackItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.BookmarkItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.CaptureItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.DeleteItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.HomeItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.MenuItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.NextItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.PinShortcutItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.PrivateHomeItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.RefreshItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.SearchItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ShareItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ShoppingSearchItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TabCounterItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TrackerItem
 import org.mozilla.rocket.content.view.BottomBar
-import org.mozilla.rocket.content.view.BottomBar.BottomBarItem
-import org.mozilla.rocket.content.view.BottomBar.BottomBarItem.ImageItem
 import org.mozilla.rocket.nightmode.themed.ThemedImageButton
 
 class BottomBarItemAdapter(
@@ -36,67 +47,22 @@ class BottomBarItemAdapter(
         types.map(this::convertToItem)
 
     private fun convertToItem(itemData: ItemData): BottomBarItem {
-        return when (val type = itemData.type) {
-            ItemType.TAB_COUNTER -> TabCounterItem(type, R.id.bottom_bar_tab_counter, theme)
-            ItemType.MENU -> MenuItem(type, R.id.bottom_bar_menu, theme)
-            ItemType.HOME -> ImageItem(
-                type,
-                R.id.bottom_bar_home,
-                R.drawable.action_home,
-                theme.buttonColorResId
-            )
-            ItemType.SEARCH -> ImageItem(
-                type,
-                R.id.bottom_bar_search,
-                R.drawable.action_search,
-                theme.buttonColorResId
-            )
-            ItemType.CAPTURE -> ImageItem(
-                type,
-                R.id.bottom_bar_capture,
-                R.drawable.action_capture,
-                theme.buttonColorResId
-            )
-            ItemType.PIN_SHORTCUT -> ImageItem(
-                type,
-                R.id.bottom_bar_pin_shortcut,
-                R.drawable.action_add_to_home,
-                theme.buttonColorResId
-            )
-            ItemType.BOOKMARK -> BookmarkItem(type, R.id.bottom_bar_bookmark, theme)
-            ItemType.REFRESH -> RefreshItem(type, R.id.bottom_bar_refresh, theme)
-            ItemType.SHARE -> ImageItem(
-                type,
-                R.id.bottom_bar_share,
-                R.drawable.action_share,
-                theme.buttonColorResId
-            )
-            ItemType.NEXT -> ImageItem(
-                type,
-                R.id.bottom_bar_next,
-                R.drawable.action_next,
-                theme.buttonColorResId
-            )
-            ItemType.PRIVATE_HOME -> PrivateHomeItem(type, R.id.bottom_bar_private_home)
-            ItemType.DELETE -> ImageItem(
-                type,
-                R.id.bottom_bar_delete,
-                R.drawable.menu_delete,
-                theme.buttonColorResId
-            )
-            ItemType.TRACKER -> TrackerItem(type, R.id.bottom_bar_tracker)
-            ItemType.BACK -> ImageItem(
-                type,
-                R.id.bottom_bar_back,
-                R.drawable.action_back,
-                theme.buttonColorResId
-            )
-            ItemType.SHOPPING_SEARCH -> ShoppingSearchItem(
-                type,
-                R.id.bottom_bar_shopping_search,
-                theme
-            )
-            else -> error("Unexpected BottomBarItem ItemType: $type")
+        return when (itemData.type) {
+            ItemType.TAB_COUNTER -> TabCounterItem(theme.buttonColorResId)
+            ItemType.HOME -> HomeItem(theme.buttonColorResId)
+            ItemType.SEARCH -> SearchItem(theme.buttonColorResId)
+            ItemType.CAPTURE -> CaptureItem(theme.buttonColorResId)
+            ItemType.PIN_SHORTCUT -> PinShortcutItem(theme.buttonColorResId)
+            ItemType.BOOKMARK -> BookmarkItem(theme)
+            ItemType.REFRESH -> RefreshItem(theme.buttonColorResId)
+            ItemType.SHARE -> ShareItem(theme.buttonColorResId)
+            ItemType.NEXT -> NextItem(theme.buttonColorResId)
+            ItemType.PRIVATE_HOME -> PrivateHomeItem()
+            ItemType.DELETE -> DeleteItem(theme.buttonColorResId)
+            ItemType.TRACKER -> TrackerItem(R.id.bottom_bar_tracker)
+            ItemType.BACK -> BackItem(theme.buttonColorResId)
+            ItemType.MENU -> MenuItem(theme)
+            ItemType.SHOPPING_SEARCH -> ShoppingSearchItem(theme)
         }
     }
 
@@ -266,111 +232,6 @@ class BottomBarItemAdapter(
         }
     }
 
-    private class TabCounterItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            val contextThemeWrapper = ContextThemeWrapper(context, R.style.MainMenuButton)
-            return TabCounter(contextThemeWrapper, null, 0).apply {
-                layoutParams = ViewGroup.LayoutParams(contextThemeWrapper, null)
-                tintDrawables(
-                    ContextCompat.getColorStateList(
-                        contextThemeWrapper,
-                        theme.buttonColorResId
-                    )
-                )
-            }
-        }
-    }
-
-    private class MenuItem(
-        type: ItemType,
-        id: Int,
-        private val theme: Theme
-    ) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_more, parent, false)
-                .apply {
-                    findViewById<ThemedImageButton>(R.id.btn_menu).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    val downloadColorResId =
-                        if (theme == Theme.Light)
-                            R.color.paletteDarkBlueC100
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.download_unread_indicator).setTint(
-                        context,
-                        downloadColorResId
-                    )
-                }
-        }
-    }
-
-    private class BookmarkItem(
-        type: ItemType,
-        id: Int,
-        theme: Theme
-    ) : ImageItem(
-        type,
-        id,
-        R.drawable.ic_add_bookmark,
-        if (theme == Theme.Light)
-            R.color.ic_add_bookmark_tint_light
-        else
-            R.color.ic_add_bookmark_tint_dark
-    )
-
-    private class RefreshItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_refresh, parent, false).apply {
-                    findViewById<ThemedImageButton>(R.id.action_refresh).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                    findViewById<ThemedImageButton>(R.id.action_stop).setTint(
-                        context,
-                        theme.buttonColorResId
-                    )
-                }
-        }
-    }
-
-    private class PrivateHomeItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_private_to_normal, parent, false)
-        }
-    }
-
-    private class TrackerItem(type: ItemType, id: Int) : BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_tracker, parent, false)
-        }
-    }
-
-    private class ShoppingSearchItem(type: ItemType, id: Int, private val theme: Theme) :
-        BottomBarItem(type, id) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            return LayoutInflater.from(context)
-                .inflate(R.layout.button_shopping_search, parent, false).apply {
-                    val shoppingSearchColorResId =
-                        if (theme == Theme.ShoppingSearch)
-                            R.color.shoppingSearchIcon
-                        else
-                            theme.buttonColorResId
-                    findViewById<ThemedImageButton>(R.id.action_shopping_search).setTint(
-                        context,
-                        shoppingSearchColorResId
-                    )
-                }
-        }
-    }
-
     sealed class Theme(val buttonColorResId: Int) {
         object Light : Theme(buttonColorResId = R.color.browser_menu_button)
         object Dark : Theme(buttonColorResId = R.color.home_bottom_button)
@@ -385,28 +246,5 @@ class BottomBarItemAdapter(
         WARNING
     }
 
-    enum class ItemType {
-        TAB_COUNTER,
-        MENU,
-        HOME,
-        SEARCH,
-        CAPTURE,
-        PIN_SHORTCUT,
-        BOOKMARK,
-        REFRESH,
-        SHARE,
-        NEXT,
-        PRIVATE_HOME,
-        DELETE,
-        TRACKER,
-        BACK,
-        SHOPPING_SEARCH,
-    }
-
     data class ItemData(val type: ItemType)
-}
-
-private fun ImageView.setTint(context: Context, colorResId: Int) {
-    val contextThemeWrapper = ContextThemeWrapper(context, 0)
-    imageTintList = ContextCompat.getColorStateList(contextThemeWrapper, colorResId)
 }

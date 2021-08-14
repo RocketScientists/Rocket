@@ -2,8 +2,8 @@ package org.mozilla.rocket.content.common.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemData
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 
 class ContentTabBottomBarViewModel : ViewModel() {
     val items = MutableLiveData<List<ItemData>>()
@@ -24,9 +24,9 @@ class ContentTabBottomBarViewModel : ViewModel() {
     companion object {
         @JvmStatic
         val DEFAULT_CONTENT_TAB_BOTTOM_BAR_ITEMS = listOf(
-            ItemData(BottomBarItemAdapter.ItemType.BACK),
-            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
-            ItemData(BottomBarItemAdapter.ItemType.SHARE)
+            ItemData(ItemType.BACK),
+            ItemData(ItemType.REFRESH),
+            ItemData(ItemType.SHARE)
         )
     }
 }

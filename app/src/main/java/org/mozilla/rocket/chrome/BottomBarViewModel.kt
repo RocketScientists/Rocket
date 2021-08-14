@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mozilla.focus.utils.AppConfigWrapper
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.ItemData
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 
 class BottomBarViewModel : ViewModel() {
     val items = MutableLiveData<List<ItemData>>()
@@ -37,20 +38,20 @@ class BottomBarViewModel : ViewModel() {
     companion object {
         @JvmStatic
         val DEFAULT_BOTTOM_BAR_ITEMS: List<ItemData> = listOf(
-            ItemData(BottomBarItemAdapter.ItemType.HOME),
-            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
-            ItemData(BottomBarItemAdapter.ItemType.SEARCH),
-            ItemData(BottomBarItemAdapter.ItemType.TAB_COUNTER),
-            ItemData(BottomBarItemAdapter.ItemType.MENU)
+            ItemData(ItemType.HOME),
+            ItemData(ItemType.REFRESH),
+            ItemData(ItemType.SEARCH),
+            ItemData(ItemType.TAB_COUNTER),
+            ItemData(ItemType.MENU)
         )
 
         @JvmStatic
         val DEFAULT_LANDSCAPE_BOTTOM_BAR_ITEMS: List<ItemData> = listOf(
-            ItemData(BottomBarItemAdapter.ItemType.HOME),
-            ItemData(BottomBarItemAdapter.ItemType.REFRESH),
-            ItemData(BottomBarItemAdapter.ItemType.SEARCH),
-            ItemData(BottomBarItemAdapter.ItemType.TAB_COUNTER),
-            ItemData(BottomBarItemAdapter.ItemType.SHARE)
+            ItemData(ItemType.HOME),
+            ItemData(ItemType.REFRESH),
+            ItemData(ItemType.SEARCH),
+            ItemData(ItemType.TAB_COUNTER),
+            ItemData(ItemType.SHARE)
         )
     }
 }

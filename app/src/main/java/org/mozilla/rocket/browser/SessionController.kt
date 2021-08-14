@@ -81,6 +81,18 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
         }
     }
 
+    fun stopLoadingTabs() {
+        for (session in sessionManager.getTabs()) {
+            session.engineSession?.tabView?.stopLoading()
+        }
+    }
+
+    fun reloadingTabs() {
+        for (session in sessionManager.getTabs()) {
+            session.engineSession?.tabView?.reload()
+        }
+    }
+
     fun chromeEnterFullScreen(callback: TabView.FullscreenCallback, view: View) {
         browserFragment.enterFullScreen(callback, view)
     }

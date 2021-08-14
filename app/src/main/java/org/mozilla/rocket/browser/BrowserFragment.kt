@@ -203,6 +203,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     private fun observeChromeAction() {
+        chromeViewModel.isPrivateTurboModeEnabled.observeOnViewLifecycle {
+            if(chromeViewModel.isInPrivateMode) {
+                sessionCtrl.setContentBlockingEnabled(it)
+                sessionCtrl.stopLoadingTabs()
+                sessionCtrl.reloadingTabs()
+            }
+        }
         chromeViewModel.isTurboModeEnabled.observeOnViewLifecycle {
             sessionCtrl.setContentBlockingEnabled(it)
         }

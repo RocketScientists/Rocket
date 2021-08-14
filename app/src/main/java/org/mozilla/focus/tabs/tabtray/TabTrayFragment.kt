@@ -143,7 +143,11 @@ class TabTrayFragment :
 
         binding.newTabButton.setOnClickListener(this)
         binding.closeAllTabsBtn.setOnClickListener(this)
-        binding.privateBrowsingBtn.setOnClickListener(this)
+        if (chromeViewModel.isInPrivateMode) {
+            binding.privateBrowsingBtn.visibility = View.GONE
+        } else {
+            binding.privateBrowsingBtn.setOnClickListener(this)
+        }
         setupTapBackgroundToExpand()
         view.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {

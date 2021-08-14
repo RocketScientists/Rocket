@@ -24,7 +24,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 class DownloadsLocalDataSource(private val appContext: Context) {
 
-    private val queryHandler by lazy { DownloadInfoQueryHandler(appContext) }
+    private val queryHandler = DownloadInfoQueryHandler(appContext)
 
     suspend fun enqueue(downloadId: Long): Boolean = withContext(Dispatchers.IO) {
         val downloadInfo = DownloadInfo()

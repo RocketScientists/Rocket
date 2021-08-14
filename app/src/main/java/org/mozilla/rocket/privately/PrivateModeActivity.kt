@@ -155,7 +155,7 @@ class PrivateModeActivity :
         chromeViewModel.openUrl.observe(this) { action ->
             dismissUrlInput()
             startPrivateMode()
-            screenNavigator.showBrowserScreen(action.url, true, action.isFromExternal)
+            screenNavigator.showBrowserScreen(action.url, action.withNewTab, action.isFromExternal)
         }
 
         chromeViewModel.showUrlInput.observe(this) { url ->
@@ -329,9 +329,8 @@ class PrivateModeActivity :
         return PrivateHomeFragment.create()
     }
 
-    override fun createUrlInputScreen(url: String?, parentFragmentTag: String): UrlInputScreen {
-        return UrlInputFragment.create(url, null, allowSuggestion = false, privateMode = true)
-    }
+    override fun createUrlInputScreen(url: String?, parentFragmentTag: String): UrlInputScreen =
+        UrlInputFragment.create(url, parentFragmentTag, allowSuggestion = false, privateMode = true)
 
     override fun getThemeManager(): ThemeManager? = themeManager
 

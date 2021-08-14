@@ -92,9 +92,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private val geolocationController = GeolocationPermissionController(this)
     private val captureCtrl = CaptureController(this)
-    private val shoppingSearchCtrl = ShoppingSearchController(this)
     private val fileChooseController = FileChooseController(this)
     private val downloadCtrl = DownloadController(this)
+
+    private var shoppingSearchCtrl: ShoppingSearchController? = null
 
     private var tabTransitionAnimator: ValueAnimator? = null
 
@@ -112,9 +113,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         lifecycle.addObserver(sessionCtrl)
         lifecycle.addObserver(captureCtrl)
         lifecycle.addObserver(geolocationController)
-        lifecycle.addObserver(shoppingSearchCtrl)
         lifecycle.addObserver(fileChooseController)
         lifecycle.addObserver(downloadCtrl)
+
+        if (chromeViewModel.isInPrivateMode) {
+            shoppingSearchCtrl = ShoppingSearchController(this).also { lifecycle.addObserver(it) }
+        }
     }
 
     override fun onCreateView(
@@ -137,7 +141,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             return
         }
         binding?.toolbar?.displayUrl?.text = UrlUtils.stripUserInfo(url)
-        shoppingSearchCtrl.notifyUrlChanged()
+        shoppingSearchCtrl?.notifyUrlChanged()
     }
 
     fun updateLoadingState(isLoading: Boolean) {
@@ -174,7 +178,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         observeChromeAction()
         findInPage = FindInPage(container)
         initialiseNormalBrowserUi()
-        shoppingSearchCtrl.onViewCreated(binding.shoppingSearchStub)
+        shoppingSearchCtrl?.onViewCreated(binding.shoppingSearchStub)
 
         // maybe Fragment was destroyed
         sessionCtrl.maybeRestoreWebViewState(savedInstanceState)
@@ -204,7 +208,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private fun observeChromeAction() {
         chromeViewModel.isPrivateTurboModeEnabled.observeOnViewLifecycle {
-            if(chromeViewModel.isInPrivateMode) {
+            if (chromeViewModel.isInPrivateMode) {
                 sessionCtrl.setContentBlockingEnabled(it)
                 sessionCtrl.stopLoadingTabs()
                 sessionCtrl.reloadingTabs()
@@ -337,7 +341,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     override fun onDestroyView() {
-        shoppingSearchCtrl.onDestroyView()
+        shoppingSearchCtrl?.onDestroyView()
         binding = null
         super.onDestroyView()
     }
@@ -622,11 +626,11 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     private fun showPluggableUi() {
-        shoppingSearchCtrl.setVisible()
+        shoppingSearchCtrl?.setVisible()
     }
 
     private fun hidePluggableUi() {
-        shoppingSearchCtrl.setInvisible()
+        shoppingSearchCtrl?.setInvisible()
     }
 
     private fun setDarkThemeEnabled(enable: Boolean) {

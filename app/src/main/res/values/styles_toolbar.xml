@@ -14,11 +14,11 @@
     <attr name="colorProgressBarEndGradient" format="color" />
 
     <style name="ToolBarStyle">
-        <item name="android:background">@drawable/toolbar_background</item>
+        <item name="android:background">@drawable/animated_background</item>
     </style>
 
     <style name="ToolBarPrivateStyle">
-        <item name="android:background">#38383D</item>
+        <item name="android:background">@drawable/private_animated_background</item>
     </style>
 
     <style name="SiteIdentityStyle">

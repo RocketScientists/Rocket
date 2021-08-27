@@ -1,5 +1,6 @@
 package org.mozilla.rocket.browser
 
+import android.content.Context
 import android.content.res.Configuration
 import android.view.View
 import androidx.lifecycle.Lifecycle
@@ -9,20 +10,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.OnLifecycleEvent
 import dagger.Lazy
+import mozilla.components.concept.engine.EngineSession
+import org.mozilla.focus.FocusApplication
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.Settings
+import org.mozilla.focus.web.BrowsingSession
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.DownloadState
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
+import org.mozilla.rocket.content.app
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.download.DownloadIndicatorIntroViewHelper.initDownloadIndicatorIntroView
 import org.mozilla.rocket.download.DownloadIndicatorViewModel
 import org.mozilla.rocket.extension.switchFrom
+import org.mozilla.rocket.privately.browse.TrackerPopup
 import javax.inject.Inject
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value.WEBVIEW as EXTRA_WEB_VIEW
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status as IndicatorStatus
@@ -42,6 +48,8 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
     private lateinit var bottomBarViewModel: BottomBarViewModel
     private lateinit var downloadIndicatorViewModel: DownloadIndicatorViewModel
 
+    private lateinit var trackerPopup: TrackerPopup
+
     private var bottomBarItemAdapter: BottomBarItemAdapter? = null
     private var downloadIndicatorIntro: View? = null
 
@@ -52,9 +60,13 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         bottomBarViewModel = fragment.getActivityViewModel(bottomBarViewModelCreator)
         chromeViewModel = fragment.getActivityViewModel(chromeViewModelCreator)
 
+        chromeViewModel.isPrivateTurboModeEnabled.value =
+            isTurboModeEnabledInPrivateMode(fragment.requireContext())
+
         val binding = fragment.binding ?: return
         setupBottomBar(binding)
         setupDownloadIndicator(binding)
+        initTrackerView(binding.root)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -77,7 +89,12 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
 
     private fun setupBottomBar(binding: FragmentBrowserBinding) {
         val browserBottomBar = binding.browserBottomBar
-        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, Theme.Light)
+        val theme = if (bottomBarViewModel.isInPrivateMode)
+            Theme.PrivateMode
+        else
+            Theme.Light
+
+        bottomBarItemAdapter = BottomBarItemAdapter(browserBottomBar, theme)
 
         browserBottomBar.setOnItemClickListener { type, position ->
             updateChromeViewModelForBottomBarClick(type, position)
@@ -98,6 +115,8 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         // if items in ViewModel changed, update adapter
         bottomBarViewModel.items.observeOnViewLifecycle { items ->
             bottomBarItemAdapter?.setItems(items)
+            val isTurboModeEnabled = isTurboModeEnabledInPrivateMode(binding.root.context)
+            bottomBarItemAdapter?.setTrackerSwitch(isTurboModeEnabled)
         }
 
         // This equals to of using switchMap. LiveData of tabCount will be RECREATED
@@ -127,6 +146,42 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
             .observeOnViewLifecycle { isBookmark: Boolean ->
                 bottomBarItemAdapter?.setBookmark(isBookmark)
             }
+    }
+
+    private fun onTrackerButtonClicked() {
+        fragment.binding?.root?.let { parentView -> trackerPopup.show(parentView) }
+    }
+
+    private fun initTrackerView(parentView: View) {
+        trackerPopup = TrackerPopup(parentView.context)
+        val isTurboModeEnabled = isTurboModeEnabledInPrivateMode(fragment.requireContext())
+        trackerPopup.setSwitchToggled(isTurboModeEnabled)
+        trackerPopup.onSwitchToggled = { isEnabled -> setTurboModeSettingInPrivateMode(isEnabled) }
+        // monitorTrackerBlocked
+        BrowsingSession.getInstance().blockedTrackerCount.observe(fragment.viewLifecycleOwner) {
+            val count = it ?: return@observe
+            bottomBarItemAdapter?.setTrackerBadgeEnabled(count > 0)
+            trackerPopup.blockedCount = count
+        }
+    }
+
+    private fun setTurboModeSettingInPrivateMode(isEnabled: Boolean) {
+        chromeViewModel.isPrivateTurboModeEnabled.value = isEnabled
+        val policy = if (isEnabled) {
+            EngineSession.TrackingProtectionPolicy.all()
+        } else {
+            null
+        }
+        fragment.app().settings.privateBrowsingSettings.setTurboMode(isEnabled)
+        fragment.app().engineSettings.trackingProtectionPolicy = policy
+        // TODO: move to Session.Observer.onTrackerBlockingEnabledChanged
+        // for now the callback has a bug in version 0.52.0
+        bottomBarItemAdapter?.setTrackerSwitch(isEnabled)
+    }
+
+    private fun isTurboModeEnabledInPrivateMode(context: Context): Boolean {
+        val appContext = context.applicationContext as? FocusApplication ?: return false
+        return appContext.settings.privateBrowsingSettings.shouldUseTurboMode()
     }
 
     private fun setupDownloadIndicator(binding: FragmentBrowserBinding) {
@@ -166,6 +221,7 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         ItemType.TAB_COUNTER -> chromeViewModel.showTabTray.call()
         ItemType.MENU -> chromeViewModel.showBrowserMenu.call()
         ItemType.HOME -> chromeViewModel.showNewTab.call()
+        ItemType.PRIVATE_HOME -> chromeViewModel.showNewTab.call()
         ItemType.SEARCH -> chromeViewModel.showUrlInput.value = fragment.chromeUrl
         ItemType.PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
         ItemType.BOOKMARK -> chromeViewModel.toggleBookmark()
@@ -178,6 +234,7 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
                 position
             )
         )
+        ItemType.TRACKER -> onTrackerButtonClicked()
         else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $t")
     }
 
@@ -203,7 +260,10 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
                 val isActivated = isBookmarkItemActivated()
                 TelemetryWrapper.clickToolbarBookmark(isActivated, EXTRA_WEB_VIEW, position)
             }
-            ItemType.CAPTURE -> Unit
+            ItemType.PRIVATE_HOME,
+            ItemType.TRACKER,
+            ItemType.CAPTURE ->
+                Unit
             else -> throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
         }
     }

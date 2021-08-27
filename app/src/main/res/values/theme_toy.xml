@@ -41,6 +41,12 @@
         <item name="themeGradientEnd">@color/themeGradientEnd04</item>
     </style>
 
+    <style name="ThemeToyPrivate" parent="ThemeToy.Light">
+        <item name="themeGradientStart">@color/themeGradientStartPrivate</item>
+        <item name="themeGradientCenter">@color/themeGradientCenterPrivate</item>
+        <item name="themeGradientEnd">@color/themeGradientEndPrivate</item>
+    </style>
+
     <!-- Default theme color -->
     <color name="themeGradientStart">#36DFB4</color>
     <color name="themeGradientCenter">#31CFCC</color>

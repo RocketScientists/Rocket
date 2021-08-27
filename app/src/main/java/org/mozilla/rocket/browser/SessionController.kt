@@ -57,6 +57,10 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
         chromeViewModel = browserFragment.chromeViewModel
         sessionManager = TabsSessionProvider.getOrThrow(browserFragment.requireActivity())
         sessionManager.register(managerObserver)
+
+        if (chromeViewModel.isInPrivateMode) {
+            sessionObserver.disableHistoryInsertion()
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -78,6 +82,18 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
     fun onStop() {
         if (browserFragment.isSystemUiChanged()) {
             chromeExitFullScreen()
+        }
+    }
+
+    fun stopLoadingTabs() {
+        for (session in sessionManager.getTabs()) {
+            session.engineSession?.tabView?.stopLoading()
+        }
+    }
+
+    fun reloadingTabs() {
+        for (session in sessionManager.getTabs()) {
+            session.engineSession?.tabView?.reload()
         }
     }
 

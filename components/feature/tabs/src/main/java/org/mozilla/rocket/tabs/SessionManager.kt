@@ -251,7 +251,7 @@ class SessionManager @JvmOverloads constructor(
         }
     }
 
-    private fun initializeEngineView(session: Session) {
+    private fun initializeEngineView(session: Session, shouldLoadUrl: Boolean = true) {
         if (session.engineSession == null) {
             getOrCreateEngineSession(session)
         }
@@ -263,7 +263,9 @@ class SessionManager @JvmOverloads constructor(
         if (webViewState != null) {
             tabView.restoreViewState(webViewState)
         } else {
-            url?.let { tabView.loadUrl(it) }
+            if (shouldLoadUrl) {
+                url?.let { tabView.loadUrl(it) }
+            }
         }
     }
 
@@ -296,7 +298,8 @@ class SessionManager @JvmOverloads constructor(
         parentId: String?,
         fromExternal: Boolean,
         toFocus: Boolean,
-        arguments: Bundle?
+        arguments: Bundle?,
+        shouldLoadUrl: Boolean = true
     ): String {
 
         val tab = Session()
@@ -315,7 +318,7 @@ class SessionManager @JvmOverloads constructor(
         focusRef = if (toFocus || fromExternal) WeakReference(tab) else focusRef
 
         getOrCreateEngineSession(tab)
-        initializeEngineView(tab)
+        initializeEngineView(tab, shouldLoadUrl = shouldLoadUrl)
 
         if (toFocus || fromExternal) {
             notifier.notifyTabFocused(tab, FACTOR_TAB_ADDED)
@@ -386,11 +389,15 @@ class SessionManager @JvmOverloads constructor(
                 return false
             }
 
+            // a WebView instance is just created and will be filled by Message instance, so no need
+            // to load url manually. Otherwise we will got a crash.
             val id = addTabInternal(
                 null,
                 source.id,
                 false,
-                isUserGesture, null
+                isUserGesture,
+                null,
+                shouldLoadUrl = false
             )
 
             val tab = getTab(id) ?: return false // FIXME: why null?

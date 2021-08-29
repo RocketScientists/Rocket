@@ -120,13 +120,6 @@ class PrivateBrowserMenuDialog : LifecycleBottomSheetDialog {
     }
 
     private fun initTrackerView() {
-        binding.trackerContentView.setBackgroundDrawable(
-            ContextCompat.getDrawable(
-                context,
-                R.drawable.background_tracker_popup
-            )
-        )
-
         val switchView = binding.trackerSwitch
         DrawableCompat.setTintList(
             switchView.thumbDrawable,

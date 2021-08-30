@@ -4,12 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.rocket.browser
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.res.Configuration
-import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -23,7 +19,6 @@ import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -72,13 +67,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     var binding: FragmentBrowserBinding? = null
 
-    private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
     private var isLoading = false
 
     private lateinit var findInPage: FindInPage
-
-    private lateinit var appBarBgTransition: TransitionDrawable
-    private lateinit var statusBarBgTransition: TransitionDrawable
 
     var loadedUrl: String? = null
 
@@ -88,6 +79,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private var landscapeStartTime = 0L
 
     private val sessionCtrl = SessionController(this)
+    private val viewController = BrowserFragmentViewController(this)
     private val bottomBarCtrl = BottomBarController(this)
 
     private val geolocationController = GeolocationPermissionController(this)
@@ -96,8 +88,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private val downloadCtrl = DownloadController(this)
 
     private var shoppingSearchCtrl: ShoppingSearchController? = null
-
-    private var tabTransitionAnimator: ValueAnimator? = null
 
     // This is used for things like sharing the current Url. We could try to access Url of WebView,
     // but sometimes itself is null, and sometimes it returns a null Url. Sometimes it returns a
@@ -146,14 +136,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     fun updateLoadingState(isLoading: Boolean) {
         this.isLoading = isLoading
+        viewController.updateLoadingState(isLoading)
 
         if (isLoading) {
             loadedUrl = null
-            appBarBgTransition.resetTransition()
-            statusBarBgTransition.resetTransition()
-        } else {
-            appBarBgTransition.startTransition(ANIMATION_DURATION)
-            statusBarBgTransition.startTransition(ANIMATION_DURATION)
         }
     }
 
@@ -162,6 +148,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val binding = this.binding ?: return
 
         viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
+        viewLifecycleOwner.lifecycle.addObserver(viewController)
 
         binding.appBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
             (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
@@ -173,8 +160,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             v.setPadding(0, 0, 0, insets.systemWindowInsetTop)
             insets
         }
-        appBarBgTransition = binding.toolbar.toolbarRoot.background as TransitionDrawable
-        statusBarBgTransition = binding.insetCover.background as TransitionDrawable
+
         observeChromeAction()
         findInPage = FindInPage(container)
         initialiseNormalBrowserUi()
@@ -186,24 +172,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateBottomBarLayout()
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bottomBarCtrl.screenRotateToLandscape(true)
-            onLandscapeModeStart()
-        } else {
-            bottomBarCtrl.screenRotateToLandscape(false)
-            onLandscapeModeFinish()
-        }
-        refreshVideoContainer()
-    }
-
-    private fun updateBottomBarLayout() {
-        val browserBottomBar = binding?.browserBottomBar ?: return
-        val bottomBarHeight: Int = resources.getDimensionPixelOffset(R.dimen.fixed_menu_height)
-        browserBottomBar.layoutParams = browserBottomBar.layoutParams.apply {
-            height = bottomBarHeight
-        }
-        browserBottomBar.onScreenRotated()
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        bottomBarCtrl.updateForScreenRotation(isLandscape)
+        viewController.refreshVideoContainer()
+        recordLandscapeModeTime(isLandscape)
     }
 
     private fun observeChromeAction() {
@@ -254,34 +226,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
-    // Workaround for full-screen WebView issue that the video doesn't fit the viewport
-    // after rotating the device from portrait to landscape and vice versa. It could reduce
-    // the issue happened rate by changing the video view layout size to a slight smaller size
-    // then add to the full screen size again when the device is rotated.
-    private fun refreshVideoContainer() {
-        val videoContainer = binding?.videoContainer ?: return
-        if (videoContainer.visibility != View.VISIBLE) {
-            return
-        }
-
-        val width = (videoContainer.width * 0.99).toInt()
-        val height = (videoContainer.height * 0.99).toInt()
-        // height, width interchanged
-        val workaroundParams = FrameLayout.LayoutParams(height, width)
-        updateVideoContainerWithLayoutParams(workaroundParams)
-
-        videoContainer.post {
-            if (videoContainer.visibility != View.VISIBLE) {
-                return@post
-            }
-            val fullParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            updateVideoContainerWithLayoutParams(fullParams)
-        }
-    }
-
     private fun startCapture(params: Parcelable?) {
         val currentTab = sessionCtrl.getFocusSession() ?: return
         val currentWebView = currentTab.engineSession?.tabView as? WebView ?: return
@@ -291,25 +235,22 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
     }
 
-    private fun updateVideoContainerWithLayoutParams(params: FrameLayout.LayoutParams) {
-        val videoContainer = binding?.videoContainer ?: return
-        val fullscreenContentView = videoContainer.getChildAt(0) ?: return
-        videoContainer.removeAllViews()
-        videoContainer.addView(fullscreenContentView, params)
-    }
-
-    private fun onLandscapeModeStart() {
-        landscapeStartTime = System.currentTimeMillis()
-        TelemetryWrapper.enterLandscapeMode()
-    }
-
-    private fun onLandscapeModeFinish() {
-        if (landscapeStartTime == 0L) {
+    private fun recordLandscapeModeTime(isLandscape: Boolean) {
+        if (chromeViewModel.isInPrivateMode) {
             return
         }
-        val duration = System.currentTimeMillis() - landscapeStartTime
-        TelemetryWrapper.exitLandscapeMode(duration)
-        landscapeStartTime = 0L
+
+        if (isLandscape) {
+            landscapeStartTime = System.currentTimeMillis()
+            TelemetryWrapper.enterLandscapeMode()
+        } else {
+            if (landscapeStartTime == 0L) {
+                return
+            }
+            val duration = System.currentTimeMillis() - landscapeStartTime
+            TelemetryWrapper.exitLandscapeMode(duration)
+            landscapeStartTime = 0L
+        }
     }
 
     override fun goBackground() {
@@ -354,7 +295,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         // After we apply the full screen rotation workaround - 'refreshVideoContainer',
         // it may not be able to get 'onExitFullScreen' callback from WebChromeClient. Just call it here
         // to leave the full screen mode.
-        if (binding?.videoContainer?.visibility == View.VISIBLE) {
+        if (viewController.isInVideoFullScreen()) {
             sessionCtrl.chromeExitFullScreen()
             return true
         }
@@ -456,39 +397,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     fun enterFullScreen(callback: FullscreenCallback, view: View) {
         fullscreenCallback = callback
-        val binding = binding ?: return
-        // Hide browser UI and web content
-        binding.appBar.visibility = View.INVISIBLE
-        binding.webviewContainer.visibility = View.INVISIBLE
-        binding.browserBottomBar.visibility = View.INVISIBLE
-
-        // Add view to video container and make it visible
-        val params = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        binding.videoContainer.addView(view, params)
-        binding.videoContainer.visibility = View.VISIBLE
-
+        viewController.enterVideoFullScreen(view)
         hidePluggableUi()
-
-        // Switch to immersive mode: Hide system bars other UI controls
-        systemVisibility = ViewUtils.switchToImmersiveMode(activity)
     }
 
     fun exitFullScreen() {
-        val binding = binding ?: return
-        // Remove custom video views and hide container
-        binding.videoContainer.removeAllViews()
-        binding.videoContainer.visibility = View.GONE
-
-        // Show browser UI and web content again
-        binding.appBar.visibility = View.VISIBLE
-        binding.webviewContainer.visibility = View.VISIBLE
-        binding.browserBottomBar.visibility = View.VISIBLE
-        if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
-            // TODO: check, should we reset systemVisibility after exiting immersive mode?
-            ViewUtils.exitImmersiveMode(systemVisibility, activity)
-        }
+        viewController.exitVideoFullScreen()
         showPluggableUi()
 
         // Notify renderer that we left fullscreen mode.
@@ -556,7 +470,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     fun isSystemUiChanged(): Boolean {
-        return systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE
+        return viewController.isSystemUiChanged()
     }
 
     fun setReceivedFindResult(result: MozillaFindResult) {
@@ -564,51 +478,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     fun transitToTab(inView: View?) {
-        val webViewSlot = binding?.webviewSlot ?: return
-
-        val outView = webViewSlot.findExistingTabView()
-        webViewSlot.removeView(outView)
-        webViewSlot.addView(inView)
-
-        if (inView != null) {
-            startTransitionAnimation(null, inView)
-        }
-    }
-
-    private fun startTransitionAnimation(outView: View?, inView: View) {
-        stopTabTransition()
-        inView.alpha = 0f
-        outView?.alpha = 1f
-
-        tabTransitionAnimator = createTransitionAnimator(inView, outView)
-        tabTransitionAnimator?.start()
-    }
-
-    private fun createTransitionAnimator(inView: View, outView: View?): ValueAnimator {
-        val duration = resources.getInteger(R.integer.tab_transition_time).toLong()
-        val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(duration)
-        animator.addUpdateListener { animation ->
-            val alpha = animation.animatedValue as Float
-            inView.alpha = alpha
-            outView?.alpha = 1 - alpha
-        }
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                inView.alpha = 1f
-                outView?.alpha = 1f
-                tabTransitionAnimator = null
-            }
-        })
-
-        return animator
-    }
-
-    private fun stopTabTransition() {
-        val animator = tabTransitionAnimator ?: return
-        if (animator.isRunning) {
-            animator.end()
-        }
-        tabTransitionAnimator = null
+        viewController.transitToTab(inView)
     }
 
     private fun initialiseNormalBrowserUi() {
@@ -669,18 +539,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         findInPage.hide()
     }
 
-    private fun ViewGroup?.findExistingTabView(): View? {
-        val parent = this ?: return null
-        val viewCount = parent.childCount
-        for (childIdx in 0 until viewCount) {
-            val childView = parent.getChildAt(childIdx)
-            if (childView is TabView) {
-                return (childView as TabView).getView()
-            }
-        }
-        return null
-    }
-
     /**
      * A helper function to observer a LiveData via View's lifecycle
      */
@@ -706,7 +564,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         const val EXTRA_NEW_TAB_SRC = "extra_bkg_tab_src"
         const val SRC_CONTEXT_MENU = 0
 
-        const val ANIMATION_DURATION = 300
         const val SITE_GLOBE = 0
         const val SITE_LOCK = 1
     }

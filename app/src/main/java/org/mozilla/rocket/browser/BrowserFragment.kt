@@ -4,12 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.rocket.browser
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.res.Configuration
-import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -77,9 +73,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     private lateinit var findInPage: FindInPage
 
-    private lateinit var appBarBgTransition: TransitionDrawable
-    private lateinit var statusBarBgTransition: TransitionDrawable
-
     var loadedUrl: String? = null
 
     private var fullscreenCallback: FullscreenCallback? = null
@@ -88,6 +81,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private var landscapeStartTime = 0L
 
     private val sessionCtrl = SessionController(this)
+    private val viewController = BrowserFragmentViewController(this)
     private val bottomBarCtrl = BottomBarController(this)
 
     private val geolocationController = GeolocationPermissionController(this)
@@ -96,8 +90,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private val downloadCtrl = DownloadController(this)
 
     private var shoppingSearchCtrl: ShoppingSearchController? = null
-
-    private var tabTransitionAnimator: ValueAnimator? = null
 
     // This is used for things like sharing the current Url. We could try to access Url of WebView,
     // but sometimes itself is null, and sometimes it returns a null Url. Sometimes it returns a
@@ -146,14 +138,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     fun updateLoadingState(isLoading: Boolean) {
         this.isLoading = isLoading
+        viewController.updateLoadingState(isLoading)
 
         if (isLoading) {
             loadedUrl = null
-            appBarBgTransition.resetTransition()
-            statusBarBgTransition.resetTransition()
-        } else {
-            appBarBgTransition.startTransition(ANIMATION_DURATION)
-            statusBarBgTransition.startTransition(ANIMATION_DURATION)
         }
     }
 
@@ -162,6 +150,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val binding = this.binding ?: return
 
         viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
+        viewLifecycleOwner.lifecycle.addObserver(viewController)
 
         binding.appBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
             (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
@@ -173,8 +162,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             v.setPadding(0, 0, 0, insets.systemWindowInsetTop)
             insets
         }
-        appBarBgTransition = binding.toolbar.toolbarRoot.background as TransitionDrawable
-        statusBarBgTransition = binding.insetCover.background as TransitionDrawable
+
         observeChromeAction()
         findInPage = FindInPage(container)
         initialiseNormalBrowserUi()
@@ -554,51 +542,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     fun transitToTab(inView: View?) {
-        val webViewSlot = binding?.webviewSlot ?: return
-
-        val outView = webViewSlot.findExistingTabView()
-        webViewSlot.removeView(outView)
-        webViewSlot.addView(inView)
-
-        if (inView != null) {
-            startTransitionAnimation(null, inView)
-        }
-    }
-
-    private fun startTransitionAnimation(outView: View?, inView: View) {
-        stopTabTransition()
-        inView.alpha = 0f
-        outView?.alpha = 1f
-
-        tabTransitionAnimator = createTransitionAnimator(inView, outView)
-        tabTransitionAnimator?.start()
-    }
-
-    private fun createTransitionAnimator(inView: View, outView: View?): ValueAnimator {
-        val duration = resources.getInteger(R.integer.tab_transition_time).toLong()
-        val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(duration)
-        animator.addUpdateListener { animation ->
-            val alpha = animation.animatedValue as Float
-            inView.alpha = alpha
-            outView?.alpha = 1 - alpha
-        }
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                inView.alpha = 1f
-                outView?.alpha = 1f
-                tabTransitionAnimator = null
-            }
-        })
-
-        return animator
-    }
-
-    private fun stopTabTransition() {
-        val animator = tabTransitionAnimator ?: return
-        if (animator.isRunning) {
-            animator.end()
-        }
-        tabTransitionAnimator = null
+        viewController.transitToTab(inView)
     }
 
     private fun initialiseNormalBrowserUi() {
@@ -659,18 +603,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         findInPage.hide()
     }
 
-    private fun ViewGroup?.findExistingTabView(): View? {
-        val parent = this ?: return null
-        val viewCount = parent.childCount
-        for (childIdx in 0 until viewCount) {
-            val childView = parent.getChildAt(childIdx)
-            if (childView is TabView) {
-                return (childView as TabView).getView()
-            }
-        }
-        return null
-    }
-
     /**
      * A helper function to observer a LiveData via View's lifecycle
      */
@@ -696,7 +628,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         const val EXTRA_NEW_TAB_SRC = "extra_bkg_tab_src"
         const val SRC_CONTEXT_MENU = 0
 
-        const val ANIMATION_DURATION = 300
         const val SITE_GLOBE = 0
         const val SITE_LOCK = 1
     }

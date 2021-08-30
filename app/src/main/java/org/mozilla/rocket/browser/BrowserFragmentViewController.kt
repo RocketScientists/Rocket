@@ -6,11 +6,13 @@ import android.animation.ValueAnimator
 import android.graphics.drawable.TransitionDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentBrowserBinding
+import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.rocket.tabs.TabView
 
 private const val ANIMATION_DURATION = 300
@@ -22,6 +24,7 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : LifecycleOb
 
     private var appBarBgTransition: TransitionDrawable? = null
     private var statusBarBgTransition: TransitionDrawable? = null
+    private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onViewCreated() {
@@ -33,6 +36,84 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : LifecycleOb
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroyView() {
         this.binding = null
+    }
+
+    fun isSystemUiChanged(): Boolean {
+        return systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE
+    }
+
+    fun isInVideoFullScreen(): Boolean {
+        return binding?.videoContainer?.visibility == View.VISIBLE
+    }
+
+    fun enterVideoFullScreen(videoView: View) {
+        val binding = binding ?: return
+        // Hide browser UI and web content
+        binding.appBar.visibility = View.INVISIBLE
+        binding.webviewContainer.visibility = View.INVISIBLE
+        binding.browserBottomBar.visibility = View.INVISIBLE
+
+        // Add view to video container and make it visible
+        val params = FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        binding.videoContainer.addView(videoView, params)
+        binding.videoContainer.visibility = View.VISIBLE
+
+        // Switch to immersive mode: Hide system bars other UI controls
+        systemVisibility = ViewUtils.switchToImmersiveMode(fragment.activity)
+    }
+
+    fun exitVideoFullScreen() {
+        val binding = binding ?: return
+
+        // Remove custom video views and hide container
+        binding.videoContainer.removeAllViews()
+        binding.videoContainer.visibility = View.GONE
+
+        // Show browser UI and web content again
+        binding.appBar.visibility = View.VISIBLE
+        binding.webviewContainer.visibility = View.VISIBLE
+        binding.browserBottomBar.visibility = View.VISIBLE
+        if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
+            // TODO: check, should we reset systemVisibility after exiting immersive mode?
+            ViewUtils.exitImmersiveMode(systemVisibility, fragment.activity)
+        }
+    }
+
+    // Workaround for full-screen WebView issue that the video doesn't fit the viewport
+    // after rotating the device from portrait to landscape and vice versa. It could reduce
+    // the issue happened rate by changing the video view layout size to a slight smaller size
+    // then add to the full screen size again when the device is rotated.
+    fun refreshVideoContainer() {
+        val videoContainer = binding?.videoContainer ?: return
+        if (videoContainer.visibility != View.VISIBLE) {
+            return
+        }
+
+        val width = (videoContainer.width * 0.99).toInt()
+        val height = (videoContainer.height * 0.99).toInt()
+        // height, width interchanged
+        val workaroundParams = FrameLayout.LayoutParams(height, width)
+        updateVideoContainerWithLayoutParams(workaroundParams)
+
+        videoContainer.post {
+            if (videoContainer.visibility != View.VISIBLE) {
+                return@post
+            }
+            val fullParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            updateVideoContainerWithLayoutParams(fullParams)
+        }
+    }
+
+    private fun updateVideoContainerWithLayoutParams(params: FrameLayout.LayoutParams) {
+        val videoContainer = binding?.videoContainer ?: return
+        val fullscreenContentView = videoContainer.getChildAt(0) ?: return
+        videoContainer.removeAllViews()
+        videoContainer.addView(fullscreenContentView, params)
     }
 
     fun updateLoadingState(isLoading: Boolean) {

@@ -19,7 +19,6 @@ import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -68,7 +67,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     var binding: FragmentBrowserBinding? = null
 
-    private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
     private var isLoading = false
 
     private lateinit var findInPage: FindInPage
@@ -181,7 +179,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         } else {
             onLandscapeModeFinish()
         }
-        refreshVideoContainer()
+        viewController.refreshVideoContainer()
     }
 
     private fun observeChromeAction() {
@@ -232,34 +230,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
-    // Workaround for full-screen WebView issue that the video doesn't fit the viewport
-    // after rotating the device from portrait to landscape and vice versa. It could reduce
-    // the issue happened rate by changing the video view layout size to a slight smaller size
-    // then add to the full screen size again when the device is rotated.
-    private fun refreshVideoContainer() {
-        val videoContainer = binding?.videoContainer ?: return
-        if (videoContainer.visibility != View.VISIBLE) {
-            return
-        }
-
-        val width = (videoContainer.width * 0.99).toInt()
-        val height = (videoContainer.height * 0.99).toInt()
-        // height, width interchanged
-        val workaroundParams = FrameLayout.LayoutParams(height, width)
-        updateVideoContainerWithLayoutParams(workaroundParams)
-
-        videoContainer.post {
-            if (videoContainer.visibility != View.VISIBLE) {
-                return@post
-            }
-            val fullParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            updateVideoContainerWithLayoutParams(fullParams)
-        }
-    }
-
     private fun startCapture(params: Parcelable?) {
         val currentTab = sessionCtrl.getFocusSession() ?: return
         val currentWebView = currentTab.engineSession?.tabView as? WebView ?: return
@@ -267,13 +237,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             // My shot on boarding didn't show before and capture is succeed, skip to show toast
             chromeViewModel.checkToShowMyShotOnBoarding()
         }
-    }
-
-    private fun updateVideoContainerWithLayoutParams(params: FrameLayout.LayoutParams) {
-        val videoContainer = binding?.videoContainer ?: return
-        val fullscreenContentView = videoContainer.getChildAt(0) ?: return
-        videoContainer.removeAllViews()
-        videoContainer.addView(fullscreenContentView, params)
     }
 
     private fun onLandscapeModeStart() {
@@ -332,7 +295,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         // After we apply the full screen rotation workaround - 'refreshVideoContainer',
         // it may not be able to get 'onExitFullScreen' callback from WebChromeClient. Just call it here
         // to leave the full screen mode.
-        if (binding?.videoContainer?.visibility == View.VISIBLE) {
+        if (viewController.isInVideoFullScreen()) {
             sessionCtrl.chromeExitFullScreen()
             return true
         }
@@ -434,39 +397,12 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     fun enterFullScreen(callback: FullscreenCallback, view: View) {
         fullscreenCallback = callback
-        val binding = binding ?: return
-        // Hide browser UI and web content
-        binding.appBar.visibility = View.INVISIBLE
-        binding.webviewContainer.visibility = View.INVISIBLE
-        binding.browserBottomBar.visibility = View.INVISIBLE
-
-        // Add view to video container and make it visible
-        val params = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        binding.videoContainer.addView(view, params)
-        binding.videoContainer.visibility = View.VISIBLE
-
+        viewController.enterVideoFullScreen(view)
         hidePluggableUi()
-
-        // Switch to immersive mode: Hide system bars other UI controls
-        systemVisibility = ViewUtils.switchToImmersiveMode(activity)
     }
 
     fun exitFullScreen() {
-        val binding = binding ?: return
-        // Remove custom video views and hide container
-        binding.videoContainer.removeAllViews()
-        binding.videoContainer.visibility = View.GONE
-
-        // Show browser UI and web content again
-        binding.appBar.visibility = View.VISIBLE
-        binding.webviewContainer.visibility = View.VISIBLE
-        binding.browserBottomBar.visibility = View.VISIBLE
-        if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
-            // TODO: check, should we reset systemVisibility after exiting immersive mode?
-            ViewUtils.exitImmersiveMode(systemVisibility, activity)
-        }
+        viewController.exitVideoFullScreen()
         showPluggableUi()
 
         // Notify renderer that we left fullscreen mode.
@@ -534,7 +470,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     fun isSystemUiChanged(): Boolean {
-        return systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE
+        return viewController.isSystemUiChanged()
     }
 
     fun setReceivedFindResult(result: MozillaFindResult) {

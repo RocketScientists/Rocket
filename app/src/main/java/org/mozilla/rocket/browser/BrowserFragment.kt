@@ -186,24 +186,14 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateBottomBarLayout()
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        bottomBarCtrl.updateForScreenRotation(isLandscape)
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bottomBarCtrl.screenRotateToLandscape(true)
             onLandscapeModeStart()
         } else {
-            bottomBarCtrl.screenRotateToLandscape(false)
             onLandscapeModeFinish()
         }
         refreshVideoContainer()
-    }
-
-    private fun updateBottomBarLayout() {
-        val browserBottomBar = binding?.browserBottomBar ?: return
-        val bottomBarHeight: Int = resources.getDimensionPixelOffset(R.dimen.fixed_menu_height)
-        browserBottomBar.layoutParams = browserBottomBar.layoutParams.apply {
-            height = bottomBarHeight
-        }
-        browserBottomBar.onScreenRotated()
     }
 
     private fun observeChromeAction() {

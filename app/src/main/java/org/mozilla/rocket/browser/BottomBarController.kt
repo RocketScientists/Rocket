@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.OnLifecycleEvent
 import dagger.Lazy
 import org.mozilla.focus.FocusApplication
+import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.Settings
@@ -67,7 +68,8 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         bottomBarItemAdapter = null
     }
 
-    fun screenRotateToLandscape(isLandscape: Boolean) {
+    fun updateForScreenRotation(isLandscape: Boolean) {
+        updateBottomBarLayout()
         bottomBarViewModel.onScreenRotatedToLandscape(isLandscape)
     }
 
@@ -78,6 +80,15 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
     fun dismissDownloadIndicatorIntroView() {
         downloadIndicatorIntro?.visibility = View.GONE
         downloadIndicatorIntro = null
+    }
+
+    private fun updateBottomBarLayout() {
+        val browserBottomBar = fragment.binding?.browserBottomBar ?: return
+        val bottomBarHeight = fragment.resources.getDimensionPixelOffset(R.dimen.fixed_menu_height)
+        browserBottomBar.layoutParams = browserBottomBar.layoutParams.apply {
+            height = bottomBarHeight
+        }
+        browserBottomBar.onScreenRotated()
     }
 
     private fun setupBottomBar(binding: FragmentBrowserBinding) {

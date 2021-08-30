@@ -174,12 +174,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         super.onConfigurationChanged(newConfig)
         val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
         bottomBarCtrl.updateForScreenRotation(isLandscape)
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            onLandscapeModeStart()
-        } else {
-            onLandscapeModeFinish()
-        }
         viewController.refreshVideoContainer()
+        recordLandscapeModeTime(isLandscape)
     }
 
     private fun observeChromeAction() {
@@ -239,18 +235,22 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
     }
 
-    private fun onLandscapeModeStart() {
-        landscapeStartTime = System.currentTimeMillis()
-        TelemetryWrapper.enterLandscapeMode()
-    }
-
-    private fun onLandscapeModeFinish() {
-        if (landscapeStartTime == 0L) {
+    private fun recordLandscapeModeTime(isLandscape: Boolean) {
+        if (chromeViewModel.isInPrivateMode) {
             return
         }
-        val duration = System.currentTimeMillis() - landscapeStartTime
-        TelemetryWrapper.exitLandscapeMode(duration)
-        landscapeStartTime = 0L
+
+        if (isLandscape) {
+            landscapeStartTime = System.currentTimeMillis()
+            TelemetryWrapper.enterLandscapeMode()
+        } else {
+            if (landscapeStartTime == 0L) {
+                return
+            }
+            val duration = System.currentTimeMillis() - landscapeStartTime
+            TelemetryWrapper.exitLandscapeMode(duration)
+            landscapeStartTime = 0L
+        }
     }
 
     override fun goBackground() {

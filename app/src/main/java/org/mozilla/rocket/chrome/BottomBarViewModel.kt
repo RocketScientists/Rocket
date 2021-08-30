@@ -46,7 +46,7 @@ class BottomBarViewModel : ViewModel() {
             ItemData(ItemType.REFRESH),
             ItemData(ItemType.SEARCH),
             ItemData(ItemType.TAB_COUNTER),
-            ItemData(ItemType.TRACKER),
+            ItemData(ItemType.MENU)
         )
 
         val NORMAL_PORTRAIT_ITEMS: List<ItemData> = listOf(

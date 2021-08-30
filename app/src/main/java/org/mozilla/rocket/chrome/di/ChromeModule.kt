@@ -14,6 +14,7 @@ import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.MenuViewModel
 import org.mozilla.rocket.chrome.PrivateBottomBarViewModel
+import org.mozilla.rocket.chrome.PrivateMenuViewModel
 import org.mozilla.rocket.chrome.data.MenuRepo
 import org.mozilla.rocket.chrome.domain.ReadNewMenuItemsUseCase
 import org.mozilla.rocket.chrome.domain.ShouldShowNewMenuItemHintUseCase
@@ -104,6 +105,10 @@ object ChromeModule {
         readNewMenuItemsUseCase,
         isHomeScreenShoppingButtonEnabledUseCase
     )
+
+    @JvmStatic
+    @Provides
+    fun providePrivateMenuViewModel(): PrivateMenuViewModel = PrivateMenuViewModel()
 
     @JvmStatic
     @Provides

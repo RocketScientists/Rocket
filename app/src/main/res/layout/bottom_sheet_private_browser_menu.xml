@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_tracker_popup"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/menu_horizontal_margin"
+        android:layout_marginTop="@dimen/menu_layout_top_margin"
+        android:layout_marginEnd="@dimen/menu_horizontal_margin"
+        android:layout_marginBottom="@dimen/menu_bottom_margin">
+
+        <FrameLayout
+            android:id="@+id/tracker_count_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_m4"
+            android:layout_marginEnd="@dimen/common_margin_m2"
+            android:background="@drawable/ic_trackerblocked_frame"
+            android:backgroundTint="@color/palettePurple100"
+            app:layout_constraintBottom_toTopOf="@id/horizontal_guideline"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/tracker_title"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tracker_count"
+                style="@style/Body1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:textColor="@color/paletteWhite100"
+                android:textSize="14dp"
+                tools:ignore="SpUsage"
+                tools:text="99" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_trackerblocked_info"
+            android:backgroundTint="@color/paletteWhite100"
+            app:layout_constraintBottom_toBottomOf="@id/tracker_count_container"
+            app:layout_constraintLeft_toLeftOf="@id/tracker_count_container"
+            app:layout_constraintRight_toRightOf="@id/tracker_count_container"
+            app:layout_constraintTop_toTopOf="@id/tracker_count_container" />
+
+        <TextView
+            android:id="@+id/tracker_title"
+            style="@style/Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/common_margin_m2"
+            android:text="@string/private_browsing_tracker_blocked"
+            android:textColor="@color/paletteWhite100"
+            app:layout_constraintBottom_toTopOf="@id/tracker_description"
+            app:layout_constraintLeft_toRightOf="@id/tracker_count_container"
+            app:layout_constraintRight_toLeftOf="@+id/tracker_switch"
+            app:layout_constraintTop_toTopOf="@id/tracker_count_container" />
+
+        <TextView
+            android:id="@+id/tracker_description"
+            style="@style/Body5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/common_margin_m5"
+            android:text="@string/private_browsing_tracker_blocked_description"
+            android:textColor="@color/paletteDarkGreyE100"
+            app:layout_constraintBottom_toTopOf="@id/horizontal_guideline"
+            app:layout_constraintLeft_toLeftOf="@id/tracker_title"
+            app:layout_constraintRight_toRightOf="@id/tracker_title"
+            app:layout_constraintTop_toBottomOf="@id/tracker_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/tracker_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_m2"
+            android:layout_marginEnd="@dimen/common_margin_m4"
+            android:checked="true"
+            app:layout_constraintLeft_toRightOf="@id/tracker_title"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tracker_title" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/horizontal_guideline"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="49dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_trackerblocked_info"
+            android:backgroundTint="@color/paletteWhite100"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/horizontal_guideline" />
+
+        <org.mozilla.rocket.content.view.BottomBar
+            android:id="@+id/menu_bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="1dp"
+            android:paddingStart="21dp"
+            android:paddingEnd="21dp"
+            app:dividerColor="@color/paletteLightGreyA100"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/horizontal_guideline" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

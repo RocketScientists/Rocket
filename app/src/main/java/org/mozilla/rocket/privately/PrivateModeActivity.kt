@@ -47,7 +47,9 @@ import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.Storag
 import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.Success
 import org.mozilla.rocket.landing.NavigationModel
 import org.mozilla.rocket.landing.OrientationState
+import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
+import org.mozilla.rocket.menu.PrivateBrowserMenuDialog
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.tabs.TabsSessionProvider
 import org.mozilla.rocket.theme.ThemeManager
@@ -74,6 +76,7 @@ class PrivateModeActivity :
     private lateinit var tabViewProvider: PrivateTabViewProvider
     private lateinit var screenNavigator: ScreenNavigator
     private lateinit var snackBarContainer: View
+    private lateinit var browserMenu: PrivateBrowserMenuDialog
 
     private val portraitStateModel = PortraitStateModel()
 
@@ -113,6 +116,7 @@ class PrivateModeActivity :
         }
         setContentView(layoutRes)
 
+        setUpMenu()
         snackBarContainer = findViewById(R.id.container)
         makeStatusBarTransparent()
 
@@ -142,8 +146,19 @@ class PrivateModeActivity :
     }
 
     override fun applyLocale() {}
+    private fun setUpMenu() {
+        if (::browserMenu.isInitialized) {
+            browserMenu.release()
+        }
+        browserMenu = PrivateBrowserMenuDialog(this, R.style.BottomSheetTheme).apply {
+            setCanceledOnTouchOutside(true)
+            setOnShowListener { portraitStateModel.request(PortraitComponent.BottomMenu) }
+            setOnDismissListener { portraitStateModel.cancelRequest(PortraitComponent.BottomMenu) }
+        }
+    }
 
     private fun observeChromeAction() {
+        chromeViewModel.showBrowserMenu.observe(this) { browserMenu.show() }
         chromeViewModel.showNewTab.observe(this) {
             screenNavigator.addHomeScreen(true)
         }

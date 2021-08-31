@@ -17,6 +17,7 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.webkit.PermissionRequest
 import org.mozilla.focus.BuildConfig
+import org.mozilla.focus.FocusApplication
 import org.mozilla.focus.R
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_NEXT
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_PREVIOUS
@@ -3498,7 +3499,11 @@ object TelemetryWrapper {
         }
 
         fun queue() {
-            firebaseEvent.event(appContext)
+            val isInPrivateProcess = (appContext as? FocusApplication)?.isInPrivateProcess ?: false
+            // do not send telemetry data in private process
+            if (!isInPrivateProcess) {
+                firebaseEvent.event(appContext)
+            }
         }
 
         companion object {

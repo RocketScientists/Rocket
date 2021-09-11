@@ -51,6 +51,7 @@ import org.mozilla.rocket.menu.PrivateBrowserMenuDialog
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.tabs.TabsSessionProvider
 import org.mozilla.rocket.theme.ThemeManager
+import org.mozilla.rocket.util.IntentUtil
 import javax.inject.Inject
 
 class PrivateModeActivity :
@@ -391,6 +392,7 @@ class PrivateModeActivity :
         when (safeIntent.action) {
             Intent.ACTION_VIEW -> onReceiveViewIntent(safeIntent)
             Intent.ACTION_MAIN -> onReceiveMainIntent(safeIntent)
+            Intent.ACTION_SEND -> onReceiveSendIntent(safeIntent)
         }
     }
 
@@ -408,6 +410,15 @@ class PrivateModeActivity :
     private fun onReceiveMainIntent(intent: SafeIntent) {
         if (isIntentFromPrivateShortcut(intent)) {
             TelemetryWrapper.launchByPrivateModeShortcut(TelemetryWrapper.Extra_Value.LAUNCHER)
+        }
+    }
+
+    private fun onReceiveSendIntent(intent: SafeIntent) {
+        val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        val url = IntentUtil.parseExternalTextToUriString(this, extraText)
+        if (url != null) {
+            val openUrlAction = OpenUrlAction(url, withNewTab = true, isFromExternal = true)
+            chromeViewModel.openUrl.value = openUrlAction
         }
     }
 

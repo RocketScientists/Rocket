@@ -122,24 +122,6 @@ public class AppConfigWrapper {
         return itemDataList;
     }
 
-    public static List<MenuItemAdapter.ItemData> getMenuItems() {
-        List<MenuItemAdapter.ItemData> itemDataList = new ArrayList<>();
-        String jsonString = FirebaseHelper.getFirebase().getRcString(FirebaseHelper.STR_MENU_ITEMS);
-        try {
-            JSONArray jsonArray = new JSONArray(jsonString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject row = jsonArray.getJSONObject(i);
-                int type = row.getInt("type");
-                itemDataList.add(new MenuItemAdapter.ItemData(type));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return itemDataList;
-    }
-
     public static List<BottomBarItemAdapter.ItemData> getMenuBottomBarItems() {
         List<BottomBarItemAdapter.ItemData> itemDataList = new ArrayList<>();
         String jsonString = FirebaseHelper.getFirebase().getRcString(FirebaseHelper.STR_MENU_BOTTOM_BAR_ITEMS_V2_5);

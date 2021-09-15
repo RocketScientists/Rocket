@@ -20,7 +20,6 @@ class BottomBarViewModel : ViewModel() {
         val configuredItems = when {
             isInPrivateMode -> PRIVATE_ITEMS
             !isInPrivateMode && isLandscapeMode -> NORMAL_LANDSCAPE_ITEMS
-            !isInPrivateMode && !isLandscapeMode -> NORMAL_PORTRAIT_ITEMS
             else ->
                 getConfiguredItems() ?: NORMAL_PORTRAIT_ITEMS
         }

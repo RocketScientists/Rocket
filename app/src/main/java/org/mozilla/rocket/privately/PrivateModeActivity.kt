@@ -269,14 +269,20 @@ class PrivateModeActivity :
         }
 
         if (!this.screenNavigator.canGoBack()) {
-            checkShortcutPromotion {
-                TelemetryWrapper.exitPrivateMode(TelemetryWrapper.Extra_Value.SYSTEM_BACK)
-                finish()
-            }
+            checkShortcutPromotion { maybeClosePrivateMode() }
             return
         }
 
         super.onBackPressed()
+    }
+
+    private fun maybeClosePrivateMode() {
+        TelemetryWrapper.exitPrivateMode(TelemetryWrapper.Extra_Value.SYSTEM_BACK)
+        if (chromeViewModel.tabCount.value == 0) {
+            finish()
+        } else {
+            pushToBack()
+        }
     }
 
     override fun getSessionManager(): org.mozilla.rocket.tabs.SessionManager {

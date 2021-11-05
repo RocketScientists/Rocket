@@ -16,6 +16,7 @@ import android.content.IntentFilter
 import android.content.res.Resources
 import android.database.ContentObserver
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -612,6 +613,12 @@ class MainActivity :
 
     private fun consumeByExitToast(): Boolean {
         var handled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Toast.getView() will always return null here on Android R devices
+            // after targetSDK was updated to 30.
+            // So, temporally disable this feature for Android R and above.
+            return handled
+        }
         val isToastShowing = exitToast?.view?.windowToken != null
         if (!isToastShowing) {
             Toast.makeText(this, R.string.message_exit_app, Toast.LENGTH_LONG)

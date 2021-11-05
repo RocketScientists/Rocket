@@ -17,7 +17,6 @@ android {
     }
 
     compileSdkVersion Versions.compile_sdk
-    buildToolsVersion Versions.build_tools
     defaultConfig {
         applicationId "dev.rocketscientists.rocket"
         minSdkVersion Versions.min_sdk

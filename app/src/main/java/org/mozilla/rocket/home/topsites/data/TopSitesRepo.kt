@@ -1,5 +1,6 @@
 package org.mozilla.rocket.home.topsites.data
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -210,6 +211,7 @@ class TopSitesRepo(
             PreferenceManager.getDefaultSharedPreferences(appContext).edit().putBoolean(TOP_SITES_V2_PREF, true).apply()
         }
 
+        @SuppressLint("Range")
         private fun parseCursorToSite(cursor: Cursor, urls: MutableList<String>, icons: MutableList<ByteArray>) {
             val url = cursor.getString(cursor.getColumnIndex(HistoryContract.BrowsingHistory.URL))
             val icon = cursor.getBlob(cursor.getColumnIndex(HistoryContract.BrowsingHistory.FAV_ICON))

@@ -71,6 +71,7 @@ import org.mozilla.rocket.download.data.DownloadsRepository
 import org.mozilla.rocket.extension.nonNullObserve
 import org.mozilla.rocket.firstrun.FirstrunFragment
 import org.mozilla.rocket.home.HomeFragment
+import org.mozilla.rocket.home.topsites.domain.PinTopSiteUseCase
 import org.mozilla.rocket.home.topsites.ui.AddNewTopSitesActivity
 import org.mozilla.rocket.landing.DialogQueue
 import org.mozilla.rocket.landing.NavigationModel
@@ -572,7 +573,7 @@ class MainActivity :
                 maybeNotifyScreenshotFragment(data)
             } else if (resultCode == ScreenshotViewerActivity.RESULT_OPEN_URL) {
                 if (data != null) {
-                    val url = data.getStringExtra(ScreenshotViewerActivity.EXTRA_URL)
+                    val url = data.getStringExtra(ScreenshotViewerActivity.EXTRA_URL) ?: ""
                     getListPanelFragment()?.dismissAllowingStateLoss()
                     chromeViewModel.openUrl.value =
                         OpenUrlAction(url, withNewTab = true, isFromExternal = false)
@@ -582,12 +583,11 @@ class MainActivity :
             if (resultCode == AddNewTopSitesActivity.RESULT_CODE_ADD_NEW_TOP_SITES) {
                 val fragment =
                     supportFragmentManager.findFragmentByTag(ScreenNavigator.HOME_FRAGMENT_TAG)
-                if (fragment is HomeFragment && data != null) {
-                    fragment.notifyAddNewTopSiteResult(
-                        data.getParcelableExtra(
-                            AddNewTopSitesActivity.ADD_NEW_TOP_SITES_EXTRA
-                        )
-                    )
+                val pinTopSiteResult = data?.getParcelableExtra<PinTopSiteUseCase.PinTopSiteResult>(
+                    AddNewTopSitesActivity.ADD_NEW_TOP_SITES_EXTRA
+                )
+                if (fragment is HomeFragment && pinTopSiteResult != null) {
+                    fragment.notifyAddNewTopSiteResult(pinTopSiteResult)
                 }
             }
         }

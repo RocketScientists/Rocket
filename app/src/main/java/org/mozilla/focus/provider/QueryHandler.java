@@ -5,6 +5,7 @@
 
 package org.mozilla.focus.provider;
 
+import android.annotation.SuppressLint;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -189,6 +190,7 @@ public class QueryHandler extends AsyncQueryHandler {
         return values;
     }
 
+    @SuppressLint("Range")
     private static Site cursorToSite(Cursor cursor) {
         final long id = cursor.getLong(cursor.getColumnIndex(HistoryContract.BrowsingHistory._ID));
         final String title = cursor.getString(cursor.getColumnIndex(HistoryContract.BrowsingHistory.TITLE));
@@ -199,6 +201,7 @@ public class QueryHandler extends AsyncQueryHandler {
         return new Site(id, title, url, viewCount, lastViewTimsTamp, faviconUri);
     }
 
+    @SuppressLint("Range")
     private static Screenshot cursorToScreenshot(Cursor cursor) {
         Screenshot screenshot = new Screenshot();
         screenshot.setId(cursor.getLong(cursor.getColumnIndex(ScreenshotContract.Screenshot._ID)));

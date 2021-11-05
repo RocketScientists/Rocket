@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.rocket.download.data
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.AsyncQueryHandler
 import android.content.ContentValues
@@ -254,6 +255,7 @@ class DownloadsLocalDataSource(private val appContext: Context) {
             }
         }
 
+        @SuppressLint("Range")
         override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
             val downloadInfoList: MutableList<DownloadInfo> = ArrayList()
             cursor?.use { safeCursor ->

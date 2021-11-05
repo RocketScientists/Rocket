@@ -6,6 +6,7 @@
 package org.mozilla.focus.screenshot;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -314,6 +315,7 @@ public class ScreenshotViewerActivity extends BaseActivity implements View.OnCli
                 ContentResolver cr = getContentResolver();
                 Cursor ca = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.MediaColumns._ID}, MediaStore.MediaColumns.DATA + "=?", new String[]{mScreenshot.getImageUri()}, null);
                 if (ca != null && ca.moveToFirst()) {
+                    @SuppressLint("Range")
                     int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
                     ca.close();
                     Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
@@ -331,6 +333,7 @@ public class ScreenshotViewerActivity extends BaseActivity implements View.OnCli
         });
     }
 
+    @SuppressLint("Range")
     private void onShareClick() {
         if (mImgScreenshot.isImageLoaded()) {
             ThreadUtils.postToBackgroundThread(new Runnable() {

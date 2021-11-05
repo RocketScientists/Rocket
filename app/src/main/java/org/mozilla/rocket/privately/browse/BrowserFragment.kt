@@ -319,8 +319,10 @@ class BrowserFragment :
     override fun applyLocale() {
         // We create and destroy a new WebView here to force the internal state of WebView to know
         // about the new language. See issue #666.
-        val unneeded = WebView(context)
-        unneeded.destroy()
+        context?.let {
+            val unneeded = WebView(it)
+            unneeded.destroy()
+        }
     }
 
     override fun onBackPressed(): Boolean {

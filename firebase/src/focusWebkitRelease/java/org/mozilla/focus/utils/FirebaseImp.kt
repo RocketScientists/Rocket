@@ -14,7 +14,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import java.io.IOException
@@ -48,7 +48,7 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
 
     override fun getInstanceId(): String? = try {
         // This method is synchronized and runs in background thread
-        FirebaseInstanceId.getInstance().id
+        FirebaseMessaging.getInstance().token.result
 
         // below catch is important, if the app starts with Firebase disabled, calling getInstance()
         // will throw IllegalStateException
@@ -58,9 +58,9 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
 
     override fun getRegisterToekn(callback: (String?) -> Unit) {
         try {
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 val result = if (task.isSuccessful) {
-                    task.result?.token
+                    task.result
                 } else {
                     null
                 }
@@ -76,7 +76,7 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
     override fun deleteInstanceId() {
         try {
             // This method is synchronized and runs in background thread
-            FirebaseInstanceId.getInstance().deleteInstanceId()
+            FirebaseMessaging.getInstance().deleteToken()
 
             // below catch is important, if the app starts with Firebase disabled, calling getInstance()
             // will throw IllegalStateException
@@ -123,7 +123,7 @@ open class FirebaseImp(fromResourceString: HashMap<String, Any>) : FirebaseContr
 
     override fun getFcmToken(): String? {
         return try {
-            FirebaseInstanceId.getInstance().token
+            FirebaseMessaging.getInstance().token.result
         } catch (e: Exception) {
             Log.e(TAG, "getGcmToken: ", e)
             ""

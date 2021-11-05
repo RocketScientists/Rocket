@@ -42,7 +42,7 @@ object Versions {
     const val test_runner = "1.4.0"
     const val uiautomator = "2.2.0"
     const val mockwebserver = "3.7.0"
-    const val firebase_bom = "27.0.0"
+    const val firebase_bom = "29.0.0"
     const val google_services_plugin = "3.1.1"
     const val fabric_plugin = "1.25.1"
     const val fastlane_screengrab = "2.1.0"

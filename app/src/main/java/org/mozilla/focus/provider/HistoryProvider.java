@@ -10,6 +10,8 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.room.OnConflictStrategy;
+
+import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -122,6 +124,7 @@ public class HistoryProvider extends ContentProvider {
         return count;
     }
 
+    @SuppressLint("Range")
     private long insertWithUrlUnique(SupportSQLiteDatabase db, ContentValues values) {
         long id = -1;
         Cursor c = null;

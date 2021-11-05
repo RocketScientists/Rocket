@@ -1,5 +1,6 @@
 package org.mozilla.rocket.download.data
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -117,6 +118,7 @@ class AndroidDownloadManagerDataSource(private val appContext: Context) {
             )
         }
 
+    @SuppressLint("Range")
     suspend fun getDownload(downloadId: Long): DownloadInfo? = withContext(Dispatchers.IO) {
         val query = DownloadManager.Query()
         query.setFilterById(downloadId)
@@ -162,6 +164,7 @@ class AndroidDownloadManagerDataSource(private val appContext: Context) {
         return@withContext null
     }
 
+    @SuppressLint("Range")
     suspend fun getDownloadingItems(runningIds: LongArray): List<DownloadInfo> =
         withContext(Dispatchers.IO) {
             val query = DownloadManager.Query()

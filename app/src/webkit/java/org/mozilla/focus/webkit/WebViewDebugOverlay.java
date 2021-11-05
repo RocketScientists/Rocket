@@ -123,7 +123,7 @@ public class WebViewDebugOverlay {
             DrawerLayout.LayoutParams params = new DrawerLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
-            params.gravity = Gravity.START;
+            params.gravity = GravityCompat.START;
             panelLayout.setLayoutParams(params);
             drawerLayout.addView(panelLayout);
         }

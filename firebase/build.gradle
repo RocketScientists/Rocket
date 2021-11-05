@@ -82,7 +82,7 @@ dependencies {
     implementation platform("com.google.firebase:firebase-bom:${Versions.firebase_bom}")
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-config'
-    api 'com.google.firebase:firebase-messaging:17.4.0'
+    api 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-auth'
     previewImplementation 'com.google.firebase:firebase-perf'

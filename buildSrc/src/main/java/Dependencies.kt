@@ -4,8 +4,8 @@ object Versions {
     const val compile_sdk = 30
     const val version_code = 1
     const val version_name = "2.6.2"
-    const val android_gradle_plugin = "4.2.1"
-    const val gms_oss_licenses_plugin = "0.10.2"
+    const val android_gradle_plugin = "7.0.3"
+    const val gms_oss_licenses_plugin = "0.10.4"
     const val support = "1.0.0"
     const val appcompat = "1.3.1"
     const val material = "1.1.0-alpha05"
@@ -25,7 +25,7 @@ object Versions {
     const val ktlint = "0.41.0"
     const val ktx = "1.2.0"
     const val gms = "11.8.0"
-    const val navigation = "2.2.1"
+    const val navigation = "2.3.5"
     const val paging = "2.1.2"
     const val lottie = "3.4.0"
     const val leakcanary = "2.7"

@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    def junitVersion = hasProperty('JUNIT_VERSION') ? JUNIT_VERSION : '4.11';
-    testCompile "junit:junit:${junitVersion}"
-    testCompile 'commons-io:commons-io:2.1'
-    testCompile 'org.easytesting:fest-assert-core:2.0M10'
+    def junitVersion = hasProperty('JUNIT_VERSION') ? JUNIT_VERSION : "${Versions.junit}";
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation 'commons-io:commons-io:2.1'
+    testImplementation 'org.easytesting:fest-assert-core:2.0M10'
 }

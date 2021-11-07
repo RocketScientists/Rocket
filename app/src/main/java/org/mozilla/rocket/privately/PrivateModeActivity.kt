@@ -70,7 +70,7 @@ class PrivateModeActivity :
 
     private lateinit var sessionManager: SessionManager
 
-    // TODO: remove after AC browser engine is stable
+    // TODO: remove it after the SessionController interface has been refactored
     private var sessionManagerLegacy: org.mozilla.rocket.tabs.SessionManager? = null
     private lateinit var chromeViewModel: ChromeViewModel
     private lateinit var tabViewProvider: PrivateTabViewProvider
@@ -92,9 +92,7 @@ class PrivateModeActivity :
         val bottomBarViewModel = getViewModel(bottomBarViewModelCreator)
         bottomBarViewModel.isInPrivateMode = true
 
-        if (isAcBrowserEngineEnabled()) {
-            sessionManager = app().sessionManager
-        }
+        sessionManager = app().sessionManager
 
         tabViewProvider = PrivateTabViewProvider(this)
         screenNavigator = ScreenNavigator(this)
@@ -109,12 +107,7 @@ class PrivateModeActivity :
 
         handleIntent(intent)
 
-        val layoutRes = if (isAcBrowserEngineEnabled()) {
-            R.layout.activity_private_mode
-        } else {
-            R.layout.activity_private_mode_legacy
-        }
-        setContentView(layoutRes)
+        setContentView(R.layout.activity_private_mode)
 
         setUpMenu()
         snackBarContainer = findViewById(R.id.container)
@@ -221,19 +214,11 @@ class PrivateModeActivity :
         var sessionUrl = ""
         var sessionTitle = ""
         var sessionIcon: Bitmap? = null
-        if (isAcBrowserEngineEnabled()) {
-            sessionManager.selectedSession?.let {
-                sessionUrl = it.url
-                sessionIcon = it.icon
-                sessionTitle = it.title
-            }
-        } else {
-            getSessionManager().focusSession?.let {
-                sessionUrl = it.url ?: ""
-                sessionIcon = it.favicon
-                sessionTitle = it.title
-            }
-        } ?: return
+        sessionManager.selectedSession?.let {
+            sessionUrl = it.url
+            sessionIcon = it.icon
+            sessionTitle = it.title
+        }
 
         // If we pin an invalid url as shortcut, the app will not function properly.
         // TODO: only enable the bottom menu item if the page is valid and loaded.
@@ -387,9 +372,7 @@ class PrivateModeActivity :
     }
 
     private fun stopPrivateMode(removeTask: Boolean) {
-        if (isAcBrowserEngineEnabled()) {
-            sessionManager.removeAll()
-        }
+        sessionManager.removeAll()
         PrivateSessionNotificationService.stop(this)
         PrivateMode.getInstance(this).sanitize()
         tabViewProvider.purify(this)
@@ -450,11 +433,5 @@ class PrivateModeActivity :
     companion object {
         fun getStartIntent(context: Context): Intent =
             Intent(context, PrivateModeActivity::class.java)
-
-        // TODO: remove after AC browser engine is stable
-        private fun isAcBrowserEngineEnabled() =
-            AppConstants.isNightlyBuild() ||
-                AppConstants.isDevBuild() ||
-                AppConstants.isFirebaseBuild()
     }
 }

@@ -152,6 +152,11 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
     }
 
     fun getFocusSession(): Session? {
+        // TODO: Temporally workaround it.
+        // Should check the why the call sequence doesn't make sure it be initialized
+        if (!this::sessionManager.isInitialized) {
+            return null
+        }
         return sessionManager.focusSession
     }
 

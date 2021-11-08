@@ -16,7 +16,6 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import dagger.Lazy
-import mozilla.components.browser.session.SessionManager
 import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.BaseActivity
@@ -38,7 +37,6 @@ import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.OpenUrlAction
 import org.mozilla.rocket.component.LaunchIntentDispatcher.LaunchMethod
 import org.mozilla.rocket.component.PrivateSessionNotificationService
-import org.mozilla.rocket.content.app
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getViewModel
 import org.mozilla.rocket.download.data.DownloadsRepository.DownloadState.FileNotSupported
@@ -68,10 +66,9 @@ class PrivateModeActivity :
     @Inject
     lateinit var bottomBarViewModelCreator: Lazy<BottomBarViewModel>
 
-    private lateinit var sessionManager: SessionManager
-
-    // TODO: remove it after the SessionController interface has been refactored
+    // TODO: apply new AC SessionManager
     private var sessionManagerLegacy: org.mozilla.rocket.tabs.SessionManager? = null
+
     private lateinit var chromeViewModel: ChromeViewModel
     private lateinit var tabViewProvider: PrivateTabViewProvider
     private lateinit var screenNavigator: ScreenNavigator
@@ -91,8 +88,6 @@ class PrivateModeActivity :
         chromeViewModel.isInPrivateMode = true
         val bottomBarViewModel = getViewModel(bottomBarViewModelCreator)
         bottomBarViewModel.isInPrivateMode = true
-
-        sessionManager = app().sessionManager
 
         tabViewProvider = PrivateTabViewProvider(this)
         screenNavigator = ScreenNavigator(this)
@@ -214,9 +209,9 @@ class PrivateModeActivity :
         var sessionUrl = ""
         var sessionTitle = ""
         var sessionIcon: Bitmap? = null
-        sessionManager.selectedSession?.let {
-            sessionUrl = it.url
-            sessionIcon = it.icon
+        getSessionManager().focusSession?.let {
+            sessionUrl = it.url ?: ""
+            sessionIcon = it.favicon
             sessionTitle = it.title
         }
 
@@ -372,7 +367,6 @@ class PrivateModeActivity :
     }
 
     private fun stopPrivateMode(removeTask: Boolean) {
-        sessionManager.removeAll()
         PrivateSessionNotificationService.stop(this)
         PrivateMode.getInstance(this).sanitize()
         tabViewProvider.purify(this)

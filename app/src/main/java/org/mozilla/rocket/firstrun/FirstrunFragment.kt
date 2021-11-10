@@ -149,8 +149,8 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
     }
 
     private fun showAnimation() {
-        val binding = this.binding ?: return
-        binding.animationLayout.isVisible = true
+        val capturedBinding = this.binding ?: return
+        capturedBinding.animationLayout.isVisible = true
 
         var textIndex = 0
         var nextText = TEXT_SHOWING_LIST[0]
@@ -160,11 +160,11 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
             interpolator = LinearInterpolator()
             addUpdateListener { valueAnimator: ValueAnimator ->
                 val progress = valueAnimator.animatedValue as Float
-                binding.animationView.progress = progress
+                binding?.animationView?.progress = progress
 
                 val time = (progress * ANIMATION_DURATION).toInt()
                 if (time >= nextText.first) {
-                    binding.animationDescription.text = getString(nextText.second)
+                    binding?.animationDescription?.text = getString(nextText.second)
                     nextText = if (++textIndex < TEXT_SHOWING_LIST.size) {
                         TEXT_SHOWING_LIST[textIndex]
                     } else {
@@ -187,14 +187,14 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
                 }
             })
         }
-        binding.progressBar.max = PROGRESS_BAR_MAX
+        capturedBinding.progressBar.max = PROGRESS_BAR_MAX
         val progressAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = PROGRESS_BAR_DURATION
             startDelay = PROGRESS_BAR_START_DELAY
             interpolator = AccelerateInterpolator(PROGRESS_BAR_ACCELERATE_FACTOR)
             addUpdateListener { valueAnimator: ValueAnimator ->
                 val progress = valueAnimator.animatedValue as Float
-                binding.progressBar.progress = (progress * PROGRESS_BAR_MAX).toInt()
+                binding?.progressBar?.progress = (progress * PROGRESS_BAR_MAX).toInt()
             }
         }
 
@@ -218,13 +218,13 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
                 }
 
                 override fun onAnimationEnd(animation: Animation?) {
-                    binding.progressBar.visibility = View.INVISIBLE
-                    binding.animationDescription.visibility = View.INVISIBLE
+                    binding?.progressBar?.visibility = View.INVISIBLE
+                    binding?.animationDescription?.visibility = View.INVISIBLE
                 }
 
                 override fun onAnimationStart(animation: Animation?) {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.animationDescription.visibility = View.VISIBLE
+                    binding?.progressBar?.visibility = View.VISIBLE
+                    binding?.animationDescription?.visibility = View.VISIBLE
                 }
             })
         }
@@ -232,8 +232,8 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
         AnimatorSet().apply {
             playTogether(animationAnimator, progressAnimator)
         }.start()
-        binding.progressBar.animation = fadeInFadeOutAnimation
-        binding.animationDescription.animation = fadeInFadeOutAnimation
+        capturedBinding.progressBar.animation = fadeInFadeOutAnimation
+        capturedBinding.animationDescription.animation = fadeInFadeOutAnimation
     }
 
     override fun isAnimationRunning(): Boolean = binding?.animationLayout?.isVisible == true

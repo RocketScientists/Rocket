@@ -79,6 +79,18 @@ public class BrowsingHistoryManager {
         mQueryHandler.startQuery(QueryHandler.SITE_TOKEN, listener, Uri.parse(BrowsingHistory.CONTENT_URI.toString() + "?offset=" + offset + "&limit=" + limit), null, null, null, BrowsingHistory.LAST_VIEW_TIMESTAMP + " DESC");
     }
 
+    public void querySitesByUrl(String url, AsyncQueryListener listener) {
+        mQueryHandler.startQuery(
+                QueryHandler.SITE_TOKEN,
+                listener,
+                BrowsingHistory.CONTENT_URI,
+                null,
+                BrowsingHistory.URL + " LIKE ?",
+                new String[]{"%" + url + "%"},
+                BrowsingHistory.LAST_VIEW_TIMESTAMP + " DESC"
+        );
+    }
+
     public void queryTopSites(int limit, int minViewCount, AsyncQueryListener listener) {
         mQueryHandler.startQuery(QueryHandler.SITE_TOKEN, listener, Uri.parse(BrowsingHistory.CONTENT_URI.toString() + "?limit=" + limit), null, BrowsingHistory.VIEW_COUNT + " >= ?", new String[]{Integer.toString(minViewCount)}, BrowsingHistory.VIEW_COUNT + " DESC");
     }

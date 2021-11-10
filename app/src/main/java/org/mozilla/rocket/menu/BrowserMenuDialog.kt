@@ -161,7 +161,7 @@ class BrowserMenuDialog : LifecycleBottomSheetDialog {
             binding.menuPinSite.setOnClickListener {
                 postDelayClickEvent {
                     cancel()
-                    Toast.makeText(context, "Not Implemented: Pin", Toast.LENGTH_SHORT).show()
+                    chromeViewModel.pinSite.call()
                 }
             }
             binding.menuNightMode.setOnClickListener {

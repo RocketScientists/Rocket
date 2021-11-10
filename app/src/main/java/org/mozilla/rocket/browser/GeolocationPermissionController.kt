@@ -9,33 +9,30 @@ import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.R
 import org.mozilla.focus.web.GeoPermissionCache
 import org.mozilla.rocket.permission.Action
 import org.mozilla.rocket.permission.PermissionHelper
 import org.mozilla.threadutils.ThreadUtils
 
-class GeolocationPermissionController(private val hostFragment: Fragment) : LifecycleObserver {
+class GeolocationPermissionController(
+    private val hostFragment: Fragment
+) : DefaultLifecycleObserver {
     private var geolocationOrigin: String? = null
     private var geolocationCallback: GeolocationPermissions.Callback? = null
     private var geoDialog: AlertDialog? = null
 
     private lateinit var helper: PermissionHelper
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         helper = PermissionHelper.createHelperOnCreateStage(
             hostFragment,
             Manifest.permission.ACCESS_FINE_LOCATION,
             R.string.permission_toast_location
         )
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
     }
 
     fun showGeolocationDialog(origin: String, callback: GeolocationPermissions.Callback?) {

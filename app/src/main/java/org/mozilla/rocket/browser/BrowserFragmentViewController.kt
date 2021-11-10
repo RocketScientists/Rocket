@@ -7,9 +7,8 @@ import android.graphics.drawable.TransitionDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.utils.ViewUtils
@@ -17,7 +16,7 @@ import org.mozilla.rocket.tabs.TabView
 
 private const val ANIMATION_DURATION = 300
 
-class BrowserFragmentViewController(val fragment: BrowserFragment) : LifecycleObserver {
+class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLifecycleObserver {
 
     private var binding: FragmentBrowserBinding? = null
     private var tabTransitionAnimator: ValueAnimator? = null
@@ -26,15 +25,15 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : LifecycleOb
     private var statusBarBgTransition: TransitionDrawable? = null
     private var systemVisibility = ViewUtils.SYSTEM_UI_VISIBILITY_NONE
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onViewCreated() {
+    // onViewCreated
+    override fun onCreate(owner: LifecycleOwner) {
         this.binding = fragment.binding ?: return
         appBarBgTransition = binding?.toolbar?.toolbarRoot?.background as? TransitionDrawable
         statusBarBgTransition = binding?.insetCover?.background as? TransitionDrawable
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyView() {
+    // onDestroyView
+    override fun onDestroy(owner: LifecycleOwner) {
         this.binding = null
     }
 

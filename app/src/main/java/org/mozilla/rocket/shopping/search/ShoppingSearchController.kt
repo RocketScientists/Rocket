@@ -4,12 +4,10 @@ import android.view.View
 import android.view.ViewStub
 import android.widget.Button
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
@@ -24,7 +22,7 @@ import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
 import javax.inject.Inject
 
-class ShoppingSearchController(private val fragment: BrowserFragment) : LifecycleObserver {
+class ShoppingSearchController(private val fragment: BrowserFragment) : DefaultLifecycleObserver {
 
     @Inject
     lateinit var promptMessageViewModelCreator: Lazy<ShoppingSearchPromptViewModel>
@@ -34,14 +32,10 @@ class ShoppingSearchController(private val fragment: BrowserFragment) : Lifecycl
 
     private var promptViewStub: ViewStub? = null
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         fragment.appComponent().inject(this)
         shoppingSearchPromptViewModel = fragment.getActivityViewModel(promptMessageViewModelCreator)
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
     }
 
     fun onViewCreated(stub: ViewStub) {

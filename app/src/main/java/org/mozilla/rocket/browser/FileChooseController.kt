@@ -13,23 +13,22 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.R
 import org.mozilla.focus.utils.FilePickerUtil
 import org.mozilla.rocket.permission.Action
 import org.mozilla.rocket.permission.PermissionHelper
 
-class FileChooseController(private val hostFragment: Fragment) : LifecycleObserver {
+class FileChooseController(private val hostFragment: Fragment) : DefaultLifecycleObserver {
 
     private lateinit var helper: PermissionHelper
     private lateinit var chooserLauncher: ActivityResultLauncher<FileChooserParams>
     private var callback: ValueCallback<Array<Uri>>? = null
     private var params: FileChooserParams? = null
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         helper = PermissionHelper.createHelperOnCreateStage(
             hostFragment,
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -50,8 +49,8 @@ class FileChooseController(private val hostFragment: Fragment) : LifecycleObserv
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
+    // onDestroyFragment
+    override fun onDestroy(owner: LifecycleOwner) {
         clearReferences()
     }
 

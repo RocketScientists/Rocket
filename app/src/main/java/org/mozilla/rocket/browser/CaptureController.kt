@@ -5,9 +5,8 @@ import android.os.Handler
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
@@ -24,7 +23,7 @@ import java.lang.ref.WeakReference
 private const val TAG_CAPTURE_FRAGMENT = "capturingFragment"
 private const val CAPTURE_WAIT_INTERVAL = 150L
 
-class CaptureController(private val hostFragment: Fragment) : LifecycleObserver {
+class CaptureController(private val hostFragment: Fragment) : DefaultLifecycleObserver {
 
     private lateinit var helper: PermissionHelper
 
@@ -33,8 +32,8 @@ class CaptureController(private val hostFragment: Fragment) : LifecycleObserver 
     private var refTelemetryData: WeakReference<ScreenCaptureTelemetryData?>? = null
     private var refCallback: WeakReference<SuccessPromotionCallback?>? = null
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         helper = PermissionHelper.createHelperOnCreateStage(
             hostFragment,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -42,13 +41,13 @@ class CaptureController(private val hostFragment: Fragment) : LifecycleObserver 
         )
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
+    // onDestroyFragment
+    override fun onDestroy(owner: LifecycleOwner) {
         clearReferences()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onResumeFragment() {
+    // onResumeFragment
+    override fun onResume(owner: LifecycleOwner) {
         if (isPendingCaptureRequest) {
             restartCapture()
         }

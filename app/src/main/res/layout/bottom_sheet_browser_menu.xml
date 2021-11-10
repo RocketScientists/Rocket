@@ -326,6 +326,34 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/menu_pin_site"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="24dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="@dimen/menu_item_size"
+                        android:layout_height="@dimen/menu_item_size"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_pin"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/paletteLightBlack100"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/pin_site"/>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/menu_pin_shortcut"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

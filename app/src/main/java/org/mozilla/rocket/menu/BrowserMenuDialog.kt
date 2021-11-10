@@ -158,6 +158,12 @@ class BrowserMenuDialog : LifecycleBottomSheetDialog {
                     TelemetryWrapper.clickMenuPinShortcut()
                 }
             }
+            binding.menuPinSite.setOnClickListener {
+                postDelayClickEvent {
+                    cancel()
+                    Toast.makeText(context, "Not Implemented: Pin", Toast.LENGTH_SHORT).show()
+                }
+            }
             binding.menuNightMode.setOnClickListener {
                 chromeViewModel.adjustNightMode()
             }

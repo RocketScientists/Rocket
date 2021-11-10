@@ -4,21 +4,21 @@ import android.Manifest
 import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.R
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.rocket.permission.Action
 import org.mozilla.rocket.permission.PermissionHelper
 import org.mozilla.rocket.tabs.web.Download
 
-class DownloadController(private val hostFragment: BrowserFragment) : LifecycleObserver {
+class DownloadController(private val hostFragment: BrowserFragment) : DefaultLifecycleObserver {
 
     private lateinit var helper: PermissionHelper
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         helper = PermissionHelper.createHelperOnCreateStage(
             hostFragment,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -26,8 +26,8 @@ class DownloadController(private val hostFragment: BrowserFragment) : LifecycleO
         )
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
+    // onDestroyFragment
+    override fun onDestroy(owner: LifecycleOwner) {
         clearReferences()
     }
 

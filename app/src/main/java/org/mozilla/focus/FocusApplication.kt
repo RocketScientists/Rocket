@@ -10,9 +10,8 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.preference.PreferenceManager
 import android.util.TimingLogger
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import mozilla.components.browser.engine.system.SystemEngine
 import mozilla.components.browser.session.SessionManager
@@ -39,7 +38,7 @@ import org.mozilla.rocket.privately.PrivateModeActivity
 import org.mozilla.rocket.settings.SettingsProvider
 import java.io.File
 
-open class FocusApplication : LocaleAwareApplication(), LifecycleObserver {
+open class FocusApplication : LocaleAwareApplication(), DefaultLifecycleObserver {
 
     private var appComponent: AppComponent? = null
 
@@ -133,7 +132,7 @@ open class FocusApplication : LocaleAwareApplication(), LifecycleObserver {
         }.dumpToLog()
         FirebaseHelper.newTrace("coldStart")?.start()
 
-        super.onCreate()
+        super<LocaleAwareApplication>.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)
@@ -150,6 +149,16 @@ open class FocusApplication : LocaleAwareApplication(), LifecycleObserver {
         NotificationUtil.init(this)
 
         monitorPrivateProcess()
+    }
+
+    // onAppInForeground
+    override fun onStart(owner: LifecycleOwner) {
+        isForeground = true
+    }
+
+    // onAppInBackground
+    override fun onStop(owner: LifecycleOwner) {
+        isForeground = false
     }
 
     /**
@@ -210,16 +219,6 @@ open class FocusApplication : LocaleAwareApplication(), LifecycleObserver {
 
         StrictMode.setThreadPolicy(threadPolicyBuilder.build())
         StrictMode.setVmPolicy(vmPolicyBuilder.build())
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onAppInForeground() {
-        isForeground = true
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onAppInBackground() {
-        isForeground = false
     }
 
     companion object {

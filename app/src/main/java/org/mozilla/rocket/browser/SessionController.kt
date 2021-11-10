@@ -9,9 +9,9 @@ import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.web.HttpAuthenticationDialogBuilder
@@ -44,7 +44,7 @@ private const val BUNDLE_MAX_SIZE = 300 * 1000 // 300K
  * changes from Observers, then update BrowserFragment directly, or update ChromeViewModel.
  *
  */
-class SessionController(private val browserFragment: BrowserFragment) : LifecycleObserver {
+class SessionController(private val browserFragment: BrowserFragment) : DefaultLifecycleObserver {
 
     private lateinit var chromeViewModel: ChromeViewModel
 
@@ -52,8 +52,8 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
     private val sessionObserver = SessionObserver(this)
     private val managerObserver = SessionManagerObserver(this, isStartedFromExternalApp())
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreateFragment() {
+    // onCreateFragment
+    override fun onCreate(owner: LifecycleOwner) {
         chromeViewModel = browserFragment.chromeViewModel
         sessionManager = TabsSessionProvider.getOrThrow(browserFragment.requireActivity())
         sessionManager.register(managerObserver)
@@ -63,23 +63,23 @@ class SessionController(private val browserFragment: BrowserFragment) : Lifecycl
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyFragment() {
+    // onDestroyFragment
+    override fun onDestroy(owner: LifecycleOwner) {
         sessionManager.unregister(managerObserver)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onResume() {
+    // onResumeFragment
+    override fun onResume(owner: LifecycleOwner) {
         sessionManager.resume()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onPause() {
+    // onPauseFragment
+    override fun onPause(owner: LifecycleOwner) {
         sessionManager.pause()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {
+    // onStopFragment
+    override fun onStop(owner: LifecycleOwner) {
         if (browserFragment.isSystemUiChanged()) {
             chromeExitFullScreen()
         }

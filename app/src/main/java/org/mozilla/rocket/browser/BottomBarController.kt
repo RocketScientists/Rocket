@@ -3,12 +3,10 @@ package org.mozilla.rocket.browser
 import android.content.Context
 import android.content.res.Configuration
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.OnLifecycleEvent
 import dagger.Lazy
 import org.mozilla.focus.FocusApplication
 import org.mozilla.focus.R
@@ -30,7 +28,7 @@ import javax.inject.Inject
 import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value.WEBVIEW as EXTRA_WEB_VIEW
 import org.mozilla.rocket.download.DownloadIndicatorViewModel.Status as IndicatorStatus
 
-class BottomBarController(private val fragment: BrowserFragment) : LifecycleObserver {
+class BottomBarController(private val fragment: BrowserFragment) : DefaultLifecycleObserver {
 
     @Inject
     lateinit var chromeViewModelCreator: Lazy<ChromeViewModel>
@@ -48,8 +46,8 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
     private var bottomBarItemAdapter: BottomBarItemAdapter? = null
     private var downloadIndicatorIntro: View? = null
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onViewCreated() {
+    // onViewCreated
+    override fun onCreate(owner: LifecycleOwner) {
         fragment.appComponent().inject(this)
         downloadIndicatorViewModel = fragment.getActivityViewModel(indicatorViewModelCreator)
         bottomBarViewModel = fragment.getActivityViewModel(bottomBarViewModelCreator)
@@ -63,8 +61,8 @@ class BottomBarController(private val fragment: BrowserFragment) : LifecycleObse
         setupDownloadIndicator(binding)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyView() {
+    // onDestroyView
+    override fun onDestroy(owner: LifecycleOwner) {
         bottomBarItemAdapter = null
     }
 

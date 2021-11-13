@@ -7,12 +7,14 @@ import android.content.pm.PackageManager
 import android.net.TrafficStats
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.URLUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mozilla.focus.network.SocketTags
+import org.mozilla.focus.utils.AppConstants
 import org.mozilla.rocket.tabs.web.Download
 import java.io.File
 import java.io.IOException
@@ -194,8 +196,11 @@ class AndroidDownloadManagerDataSource(private val appContext: Context) {
                 info.sizeSoFar = cursor.getDouble(downloadIdx)
                 list.add(info)
             }
-        } catch (e: IllegalArgumentException) {
-            throw e
+        } catch (e: RuntimeException) {
+            Log.e("getDownloadingItems", "runningIds: $runningIds, exception: $e")
+            if (AppConstants.isDevBuild()) {
+                throw e
+            }
         }
         list
     }

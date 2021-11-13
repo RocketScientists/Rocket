@@ -7,12 +7,14 @@ import android.content.pm.PackageManager
 import android.net.TrafficStats
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.URLUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mozilla.focus.network.SocketTags
+import org.mozilla.focus.utils.AppConstants
 import org.mozilla.rocket.tabs.web.Download
 import java.io.File
 import java.io.IOException
@@ -164,30 +166,44 @@ class AndroidDownloadManagerDataSource(private val appContext: Context) {
         return@withContext null
     }
 
-    @SuppressLint("Range")
-    suspend fun getDownloadingItems(runningIds: LongArray): List<DownloadInfo> =
-        withContext(Dispatchers.IO) {
-            val query = DownloadManager.Query()
-            query.setFilterById(*runningIds)
-            query.setFilterByStatus(DownloadManager.STATUS_RUNNING)
-            downloadManager.query(query)?.use { cursor ->
-                val list = ArrayList<DownloadInfo>()
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID))
-                    val totalSize =
-                        cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                    val currentSize =
-                        cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                    val info = DownloadInfo()
-                    info.downloadId = id
-                    info.sizeTotal = totalSize
-                    info.sizeSoFar = currentSize
-                    list.add(info)
+    suspend fun getDownloadingItems(
+        runningIds: LongArray
+    ): List<DownloadInfo> {
+        val query = DownloadManager.Query()
+        query.setFilterById(*runningIds)
+        query.setFilterByStatus(DownloadManager.STATUS_RUNNING)
+        return getDownloadingItems(runningIds, query)
+    }
+
+    private suspend fun getDownloadingItems(
+        runningIds: LongArray,
+        query: DownloadManager.Query
+    ): List<DownloadInfo> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<DownloadInfo>()
+        try {
+            val cursor = downloadManager.query(query) ?: return@withContext list
+            while (cursor.moveToNext()) {
+                val idxId = cursor.getColumnIndex(DownloadManager.COLUMN_ID)
+                val sizeIdx = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                val downloadIdx =
+                    cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                if (idxId == -1 || sizeIdx == -1 || downloadIdx == -1) {
+                    continue
                 }
-                return@withContext list
+                val info = DownloadInfo()
+                info.downloadId = cursor.getLong(idxId)
+                info.sizeTotal = cursor.getDouble(sizeIdx)
+                info.sizeSoFar = cursor.getDouble(downloadIdx)
+                list.add(info)
             }
-            return@withContext emptyList<DownloadInfo>()
+        } catch (e: RuntimeException) {
+            Log.e("getDownloadingItems", "runningIds: $runningIds, exception: $e")
+            if (AppConstants.isDevBuild()) {
+                throw e
+            }
         }
+        list
+    }
 
     suspend fun delete(downloadId: Long) = withContext(Dispatchers.IO) {
         downloadManager.remove(downloadId)

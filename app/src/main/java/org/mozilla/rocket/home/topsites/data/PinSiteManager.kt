@@ -45,6 +45,9 @@ class SharedPreferencePinSiteDelegate(private val context: Context) : PinSiteDel
     }
 
     override fun pin(site: Site) {
+        if (isPinned(site)) {
+            return
+        }
         sites.add(
             Site(
                 site.id,

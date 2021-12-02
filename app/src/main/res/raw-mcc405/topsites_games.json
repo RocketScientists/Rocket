@@ -1,12 +1,5 @@
 [
   {
-    "id": -62,
-    "url": "https://frvr.com/mozilla/",
-    "title": "FRVR",
-    "favicon": "ic_frvr.webp",
-    "viewCount": 1000
-  },
-  {
     "id": -63,
     "url": "https://www.cricbuzz.com/",
     "title": "Cricbuzz",
@@ -19,13 +12,6 @@
     "title": "Sportskeeda",
     "favicon": "ic_sportskeeda.webp",
     "viewCount": 990
-  },
-  {
-    "id": -65,
-    "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-    "title": "Gameloft",
-    "favicon": "ic_gameloft.webp",
-    "viewCount": 985
   },
   {
     "id": -66,
@@ -42,20 +28,6 @@
     "viewCount": 26
   },
   {
-    "id": -68,
-    "url": "https://www.audible.in/ep/freetrial?&source_code=AUDTM145052520005H/",
-    "title": "Audible",
-    "favicon": "ic_audible.webp",
-    "viewCount": 24
-  },
-  {
-    "id": -69,
-    "url": "https://www.flipkart.com/?affid=fxlite",
-    "title": "Flipkart",
-    "favicon": "ic_flipkart.png",
-    "viewCount": 22
-  },
-  {
     "id": -70,
     "url": "https://www.hotstar.com",
     "title": "Hotstar",
@@ -63,24 +35,10 @@
     "viewCount": 20
   },
   {
-    "id": -71,
-    "url": "https://www.gamezop.com/?id=Pa6YWojZa",
-    "title": "Gamezop",
-    "favicon": "ic_gamezop.webp",
-    "viewCount": 18
-  },
-  {
     "id": -72,
     "url": "https://mail.google.com/",
     "title": "Gmail",
     "favicon": "ic_gmail.webp",
     "viewCount": 16
-  },
-  {
-    "id": -73,
-    "url": "https://www.newspointapp.com/?utm_source=mozilla_browser&utm_medium=referral&utm_campaign=np",
-    "title": "NewsPoint",
-    "favicon": "ic_newspointapp.webp",
-    "viewCount": 14
   }
 ]

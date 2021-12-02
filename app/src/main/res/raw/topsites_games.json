@@ -1,12 +1,5 @@
 [
   {
-    "id": -50,
-    "url": "https://frvr.com/mozilla/",
-    "title": "FRVR",
-    "favicon": "ic_frvr.webp",
-    "viewCount": 1000
-  },
-  {
     "id": -51,
     "url": "https://www.imdb.com/",
     "title": "IMDb",
@@ -19,13 +12,6 @@
     "title": "ESPN",
     "favicon": "ic_espn.webp",
     "viewCount": 990
-  },
-  {
-    "id": -53,
-    "url": "https://www.gamezop.com/?id=Pa6YWojZa",
-    "title": "Gamezop",
-    "favicon": "ic_gamezop.webp",
-    "viewCount": 985
   },
   {
     "id": -54,
@@ -54,13 +40,6 @@
     "title": "Wikipedia",
     "favicon": "ic_wikipedia.png",
     "viewCount": 22
-  },
-  {
-    "id": -58,
-    "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-    "title": "Gameloft",
-    "favicon": "ic_gameloft.webp",
-    "viewCount": 20
   },
   {
     "id": -59,

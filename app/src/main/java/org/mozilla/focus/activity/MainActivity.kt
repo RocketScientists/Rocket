@@ -38,6 +38,8 @@ import dagger.Lazy
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.ActivityMainBinding
 import org.mozilla.focus.fragment.ListPanelDialog
+import org.mozilla.focus.history.BrowsingHistoryManager
+import org.mozilla.focus.history.model.Site
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.notification.NotificationId
 import org.mozilla.focus.notification.NotificationUtil
@@ -72,6 +74,7 @@ import org.mozilla.rocket.download.data.DownloadsRepository
 import org.mozilla.rocket.extension.nonNullObserve
 import org.mozilla.rocket.firstrun.FirstrunFragment
 import org.mozilla.rocket.home.HomeFragment
+import org.mozilla.rocket.home.di.HomeModule
 import org.mozilla.rocket.home.topsites.domain.PinTopSiteUseCase
 import org.mozilla.rocket.home.topsites.ui.AddNewTopSitesActivity
 import org.mozilla.rocket.landing.DialogQueue
@@ -372,6 +375,7 @@ class MainActivity :
             )
             dismissUrlInput.observe(this@MainActivity, Observer { screenNavigator.popUrlScreen() })
             pinShortcut.observe(this@MainActivity, Observer { requestPinShortcut() })
+            pinSite.observe(this@MainActivity, Observer { requestPinSite() })
             bookmarkAdded.nonNullObserve(this@MainActivity) { itemId ->
                 showBookmarkAddedSnackbar(itemId)
             }
@@ -797,6 +801,19 @@ class MainActivity :
             )
         }
         ShortcutUtils.requestPinShortcut(this, shortcut, focusTab.title, url, bitmap)
+    }
+
+    private fun requestPinSite() {
+        val focusedSessionUrl = getSessionManager().focusSession?.url ?: return
+        if (!SupportUtils.isUrl(focusedSessionUrl)) {
+            return
+        }
+        BrowsingHistoryManager.getInstance().querySitesByUrl(focusedSessionUrl) {
+            val site = it.firstOrNull() as? Site ?: return@querySitesByUrl
+            val pinSiteManager = HomeModule.providePinSiteManager(this.applicationContext)
+            pinSiteManager.getPinSites() // init SharedPreferencePinSiteDelegate.sites
+            pinSiteManager.pin(site)
+        }
     }
 
     fun firstrunFinished() {

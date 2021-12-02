@@ -88,6 +88,7 @@ class ChromeViewModel(
     val dismissUrlInput = SingleLiveEvent<Unit>()
     val doScreenshot = SingleLiveEvent<ScreenCaptureTelemetryData>()
     val pinShortcut = SingleLiveEvent<Unit>()
+    val pinSite = SingleLiveEvent<Unit>()
     val bookmarkAdded = SingleLiveEvent<String>()
 
     // TODO: separate to startRefresh / stopLoading

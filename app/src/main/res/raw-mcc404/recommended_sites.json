@@ -25,41 +25,6 @@
         "viewCount": 0
       },
       {
-        "id": -199,
-        "url": "https://mozilla.dailyhunt.in/?mode=pwa&s=Mozilla&ss=Browser-Feed&utm_source=Mozilla&utm_medium=Browser-Feed&utm_campaign=Mozilla-Browser-Top-Sites&partnerRef=%7B%22pid%22%3A%22mozilla1%22%7D&da=true&dpg=true",
-        "title": "Dailyhunt",
-        "favicon": "ic_dailyhunt.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -200,
-        "url": "https://www.newspointapp.com/?utm_source=mozilla_browser&utm_medium=referral&utm_campaign=np",
-        "title": "NewsPoint",
-        "favicon": "ic_newspointapp.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -201,
-        "url": "https://www.amazon.in/?&_encoding=UTF8&tag=firefoxlite-21&linkCode=ur2&linkId=09ca5ea2db9731b4b066a6e089641661&camp=3638&creative=24630",
-        "title": "Amazon.in",
-        "favicon": "ic_amazon_in.png",
-        "viewCount": 0
-      },
-      {
-        "id": -202,
-        "url": "https://www.flipkart.com/?affid=fxlite",
-        "title": "Flipkart",
-        "favicon": "ic_flipkart.png",
-        "viewCount": 0
-      },
-      {
-        "id": -203,
-        "url": "https://frvr.com/mozilla/",
-        "title": "FRVR",
-        "favicon": "ic_frvr.webp",
-        "viewCount": 0
-      },
-      {
         "id": -204,
         "url": "https://www.cricbuzz.com/",
         "title": "Cricbuzz",
@@ -196,20 +161,6 @@
     "categoryId": "4",
     "categoryName": "Entertainment",
     "sites": [
-      {
-        "id": -221,
-        "url": "https://www.gamezop.com/?id=Pa6YWojZa",
-        "title": "Gamezop",
-        "favicon": "ic_gamezop.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -222,
-        "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-        "title": "Gameloft",
-        "favicon": "ic_gameloft.webp",
-        "viewCount": 0
-      },
       {
         "id": -223,
         "url": "https://www.sportskeeda.com/",

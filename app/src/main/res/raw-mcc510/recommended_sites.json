@@ -39,27 +39,6 @@
         "viewCount": 0
       },
       {
-        "id": -242,
-        "url": "https://bukalapak.go2cloud.org/aff_c?offer_id=15&aff_id=4287&aff_sub=topsite",
-        "title": "Bukalapak",
-        "favicon": "ic_bukalapak.png",
-        "viewCount": 0
-      },
-      {
-        "id": -243,
-        "url": "https://shopee.prf.hn/click/camref:1101l8af4/pubref:top_site/destination:https%3A%2F%2Fshopee.co.id%2F",
-        "title": "Shopee",
-        "favicon": "ic_shopee.png",
-        "viewCount": 0
-      },
-      {
-        "id": -244,
-        "url": "https://frvr.com/mozilla/",
-        "title": "FRVR",
-        "favicon": "ic_frvr.webp",
-        "viewCount": 0
-      },
-      {
         "id": -245,
         "url": "https://www.bolasport.com/",
         "title": "BolaSport",
@@ -169,40 +148,12 @@
         "favicon": "ic_traveloka.webp",
         "viewCount": 0
       },
-      {
-        "id": -259,
-        "url": "https://id.trip.com/?allianceid=1210203&sid=2677364",
-        "title": "Trip.com",
-        "favicon": "ic_trip.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -260,
-        "url": "https://www.booking.com/index.html?aid=1873270;label=mozilla_mainlinkout",
-        "title": "Booking.com",
-        "favicon": "ic_booking.webp",
-        "viewCount": 0
-      }
     ]
   },
   {
     "categoryId": "4",
     "categoryName": "Entertainment",
     "sites": [
-      {
-        "id": -261,
-        "url": "https://www.gamezop.com/?id=Pa6YWojZa",
-        "title": "Gamezop",
-        "favicon": "ic_gamezop.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -262,
-        "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-        "title": "Gameloft",
-        "favicon": "ic_gameloft.webp",
-        "viewCount": 0
-      },
       {
         "id": -263,
         "url": "https://www.indosport.com/",

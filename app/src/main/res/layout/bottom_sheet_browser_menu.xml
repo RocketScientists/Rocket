@@ -35,7 +35,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="8dp">
 
-                <org.mozilla.focus.widget.EqualDistributeGrid
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -48,7 +48,10 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:gravity="center_horizontal"
                         android:minHeight="71dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toStartOf="@id/menu_bookmark"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
                             android:id="@+id/img_screenshots"
@@ -74,7 +77,10 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:gravity="center_horizontal"
                         android:minHeight="71dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toStartOf="@id/menu_history"
+                        app:layout_constraintStart_toEndOf="@id/menu_screenshots"
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
                             android:layout_width="52dp"
@@ -99,7 +105,10 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:gravity="center_horizontal"
                         android:minHeight="71dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toStartOf="@id/menu_download"
+                        app:layout_constraintStart_toEndOf="@id/menu_bookmark"
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
                             android:layout_width="52dp"
@@ -124,7 +133,10 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:gravity="center_horizontal"
                         android:minHeight="71dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/menu_history"
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
                             android:layout_width="52dp"
@@ -142,7 +154,7 @@
 
                     </LinearLayout>
 
-                </org.mozilla.focus.widget.EqualDistributeGrid>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <View
                     android:layout_width="match_parent"

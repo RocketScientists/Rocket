@@ -53,13 +53,6 @@
         "viewCount": 0
       },
       {
-        "id": -165,
-        "url": "https://frvr.com/mozilla/",
-        "title": "FRVR",
-        "favicon": "ic_frvr.webp",
-        "viewCount": 0
-      },
-      {
         "id": -166,
         "url": "https://www.imdb.com/",
         "title": "IMDb",
@@ -163,20 +156,6 @@
         "viewCount": 0
       },
       {
-        "id": -179,
-        "url": "https://www.booking.com/index.html?aid=1873270;label=mozilla_mainlinkout",
-        "title": "Booking.com",
-        "favicon": "ic_booking.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -180,
-        "url": "https://www.trip.com/m/?allianceid=1210203&sid=2677364",
-        "title": "Trip.com",
-        "favicon": "ic_trip.webp",
-        "viewCount": 0
-      },
-      {
         "id": -181,
         "url": "https://www.airbnb.com/",
         "title": "Airbnb",
@@ -189,20 +168,6 @@
     "categoryId": "4",
     "categoryName": "Entertainment",
     "sites": [
-      {
-        "id": -182,
-        "url": "https://www.gamezop.com/?id=Pa6YWojZa",
-        "title": "Gamezop",
-        "favicon": "ic_gamezop.webp",
-        "viewCount": 0
-      },
-      {
-        "id": -183,
-        "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-        "title": "Gameloft",
-        "favicon": "ic_gameloft.webp",
-        "viewCount": 0
-      },
       {
         "id": -184,
         "url": "https://www.espn.com/",

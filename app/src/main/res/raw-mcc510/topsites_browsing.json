@@ -1,26 +1,5 @@
 [
   {
-    "id": -39,
-    "url": "https://shopee.prf.hn/click/camref:1101l8af4/pubref:top_site/destination:https%3A%2F%2Fshopee.co.id%2F",
-    "title": "Shopee",
-    "favicon": "ic_shopee.png",
-    "viewCount": 1000
-  },
-  {
-    "id": -40,
-    "url": "https://bukalapak.go2cloud.org/aff_c?offer_id=15&aff_id=4287&aff_sub=topsite",
-    "title": "Bukalapak",
-    "favicon": "ic_bukalapak.png",
-    "viewCount": 995
-  },
-  {
-    "id": -41,
-    "url": "http://wapshop.gameloft.com/buyfull/tdc.php?mozilla=true&adid=434816",
-    "title": "Gameloft",
-    "favicon": "ic_gameloft.webp",
-    "viewCount": 990
-  },
-  {
     "id": -42,
     "url": "https://www.covid19.go.id/",
     "title": "COVID-19",

@@ -7,25 +7,11 @@
     "viewCount": 1000
   },
   {
-    "id": -99,
-    "url": "https://www.newspointapp.com/?utm_source=mozilla_browser&utm_medium=referral&utm_campaign=np",
-    "title": "NewsPoint",
-    "favicon": "ic_newspointapp.webp",
-    "viewCount": 995
-  },
-  {
     "id": -100,
     "url": "https://thewire.in/",
     "title": "The Wire",
     "favicon": "ic_thewire.webp",
     "viewCount": 990
-  },
-  {
-    "id": -101,
-    "url": "https://www.audible.in/ep/freetrial?&source_code=AUDTM145052520005H/",
-    "title": "Audible",
-    "favicon": "ic_audible.webp",
-    "viewCount": 985
   },
   {
     "id": -102,
@@ -49,13 +35,6 @@
     "viewCount": 24
   },
   {
-    "id": -105,
-    "url": "https://www.flipkart.com/?affid=fxlite",
-    "title": "Flipkart",
-    "favicon": "ic_flipkart.png",
-    "viewCount": 22
-  },
-  {
     "id": -106,
     "url": "https://khabar.ndtv.com/",
     "title": "NDTV",
@@ -68,13 +47,6 @@
     "title": "YouTube",
     "favicon": "ic_youtube.png",
     "viewCount": 18
-  },
-  {
-    "id": -108,
-    "url": "https://mozilla.dailyhunt.in/?mode=pwa&s=Mozilla&ss=Browser-Feed&utm_source=Mozilla&utm_medium=Browser-Feed&utm_campaign=Mozilla-Browser-Top-Sites&partnerRef=%7B%22pid%22%3A%22mozilla1%22%7D&da=true&dpg=true",
-    "title": "Dailyhunt",
-    "favicon": "ic_dailyhunt.webp",
-    "viewCount": 16
   },
   {
     "id": -109,

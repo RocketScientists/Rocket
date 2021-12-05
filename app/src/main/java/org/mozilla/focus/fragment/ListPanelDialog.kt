@@ -11,12 +11,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
-import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import org.mozilla.focus.R
+import org.mozilla.focus.databinding.FragmentListpanelDialogBinding
 import org.mozilla.focus.history.BrowsingHistoryFragment
 import org.mozilla.focus.screenshot.ScreenshotGridFragment
 import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelBookmark
@@ -25,20 +25,11 @@ import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelDownload
 import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelHistory
 
 class ListPanelDialog : DialogFragment() {
-    private var scrollView: NestedScrollView? = null
-    private var bookmarksIcon: View? = null
-    private var downloadsIcon: View? = null
-    private var historyIcon: View? = null
-    private var screenshotsIcon: View? = null
-    private var bookmarksSelectedIcon: View? = null
-    private var downloadsSelectedIcon: View? = null
-    private var historySelectedIcon: View? = null
-    private var screenshotsSelectedIcon: View? = null
 
-    private var title: TextView? = null
     private var firstLaunch = true
 
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private var viewBinding: FragmentListpanelDialogBinding? = null
+
     private var onDismissListener: DialogInterface.OnDismissListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,21 +46,19 @@ class ListPanelDialog : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val v = inflater.inflate(R.layout.fragment_listpanel_dialog, container, false)
-        title = v.findViewById(R.id.title)
-        val contentLayout = v.findViewById<View>(R.id.container)
+    ): View = FragmentListpanelDialogBinding.inflate(inflater, container, false).also {
+        this.viewBinding = it
         val cornerRadius = resources.getDimension(R.dimen.menu_corner_radius)
-        contentLayout.outlineProvider = object : ViewOutlineProvider() {
+        it.container.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
             }
         }
-        contentLayout.clipToOutline = true
+        it.container.clipToOutline = true
+        it.container.setOnClickListener { dismissAllowingStateLoss() }
 
-        val bottomSheet = v.findViewById<View>(R.id.bottom_sheet)
-        scrollView = v.findViewById<View>(R.id.main_content) as NestedScrollView
-        scrollView!!.setOnScrollChangeListener(
+        val bottomSheet = it.bottomSheet
+        it.mainContent.setOnScrollChangeListener(
             NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
                 val pageSize = v.measuredHeight
                 // v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight() - scrollY is -49dp
@@ -86,7 +75,7 @@ class ListPanelDialog : DialogFragment() {
         )
 
         val menuBottomMargin = resources.getDimension(R.dimen.menu_bottom_margin)
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        val bottomSheetBehavior: BottomSheetBehavior<View> = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetCallback() {
             private var translationY = Int.MIN_VALUE.toFloat()
@@ -109,46 +98,42 @@ class ListPanelDialog : DialogFragment() {
                 if (java.lang.Float.compare(this.translationY, translationY) != 0) {
                     this.translationY = translationY
                     if (Math.abs(translationY) <= maxTranslationY) {
-                        v.translationY = translationY
-                    } else if (translationY > maxTranslationY && v.translationY < maxTranslationY) {
+                        it.root.translationY = translationY
+                    } else if (translationY > maxTranslationY &&
+                        it.root.translationY < maxTranslationY
+                    ) {
                         // In case of fast changing
-                        v.translationY = maxTranslationY
+                        it.root.translationY = maxTranslationY
                     }
                 }
             }
         })
-        v.findViewById<View>(R.id.container).setOnClickListener { dismissAllowingStateLoss() }
-        bookmarksIcon = v.findViewById(R.id.img_bookmarks)
-        bookmarksSelectedIcon = v.findViewById(R.id.img_bookmarks_selected)
-        v.findViewById<View>(R.id.bookmarks).setOnClickListener {
+        it.bookmarks.setOnClickListener {
             showItem(TYPE_BOOKMARKS)
             showPanelBookmark()
         }
-        downloadsIcon = v.findViewById(R.id.img_downloads)
-        downloadsSelectedIcon = v.findViewById(R.id.img_downloads_selected)
-        v.findViewById<View>(R.id.downloads).setOnClickListener {
+        it.downloads.setOnClickListener {
             showItem(TYPE_DOWNLOADS)
             showPanelDownload()
         }
-        historyIcon = v.findViewById(R.id.img_history)
-        historySelectedIcon = v.findViewById(R.id.img_history_selected)
-        v.findViewById<View>(R.id.history).setOnClickListener {
+        it.history.setOnClickListener {
             showItem(TYPE_HISTORY)
             showPanelHistory()
         }
-        screenshotsIcon = v.findViewById(R.id.img_screenshots)
-        screenshotsSelectedIcon = v.findViewById(R.id.img_screenshots_selected)
-        v.findViewById<View>(R.id.screenshots).setOnClickListener {
+        it.screenshots.setOnClickListener {
             showItem(TYPE_SCREENSHOTS)
             showPanelCapture()
         }
-        return v
+    }.root
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewBinding = null
+        onDismissListener = null
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        if (onDismissListener != null) {
-            onDismissListener!!.onDismiss(dialog)
-        }
+        onDismissListener?.onDismiss(dialog)
         super.onDismiss(dialog)
     }
 
@@ -163,7 +148,7 @@ class ListPanelDialog : DialogFragment() {
 
     private fun showItem(type: Int) {
         if (firstLaunch || requireArguments().getInt(TYPE) != type) {
-            title!!.setText(getTitle(type))
+            viewBinding?.title?.setText(getTitle(type))
             setSelectedItem(type)
             showPanelFragment(createFragmentByType(type))
         }
@@ -207,31 +192,32 @@ class ListPanelDialog : DialogFragment() {
     }
 
     private fun toggleSelectedItem() {
+        val binding = viewBinding ?: return
         firstLaunch = false
-        bookmarksIcon!!.isSelected = false
-        downloadsIcon!!.isSelected = false
-        historyIcon!!.isSelected = false
-        screenshotsIcon!!.isSelected = false
-        bookmarksSelectedIcon!!.visibility = View.INVISIBLE
-        downloadsSelectedIcon!!.visibility = View.INVISIBLE
-        historySelectedIcon!!.visibility = View.INVISIBLE
-        screenshotsSelectedIcon!!.visibility = View.INVISIBLE
+        binding.imgBookmarks.isSelected = false
+        binding.imgDownloads.isSelected = false
+        binding.imgHistory.isSelected = false
+        binding.imgScreenshots.isSelected = false
+        binding.imgBookmarksSelected.visibility = View.INVISIBLE
+        binding.imgDownloadsSelected.visibility = View.INVISIBLE
+        binding.imgHistorySelected.visibility = View.INVISIBLE
+        binding.imgScreenshotsSelected.visibility = View.INVISIBLE
         when (requireArguments().getInt(TYPE)) {
             TYPE_BOOKMARKS -> {
-                bookmarksIcon!!.isSelected = true
-                bookmarksSelectedIcon!!.visibility = View.VISIBLE
+                binding.imgBookmarks.isSelected = true
+                binding.imgBookmarksSelected.visibility = View.VISIBLE
             }
             TYPE_DOWNLOADS -> {
-                downloadsIcon!!.isSelected = true
-                downloadsSelectedIcon!!.visibility = View.VISIBLE
+                binding.imgDownloads.isSelected = true
+                binding.imgDownloadsSelected.visibility = View.VISIBLE
             }
             TYPE_HISTORY -> {
-                historyIcon!!.isSelected = true
-                historySelectedIcon!!.visibility = View.VISIBLE
+                binding.imgHistory.isSelected = true
+                binding.imgHistorySelected.visibility = View.VISIBLE
             }
             TYPE_SCREENSHOTS -> {
-                screenshotsIcon!!.isSelected = true
-                screenshotsSelectedIcon!!.visibility = View.VISIBLE
+                binding.imgScreenshots.isSelected = true
+                binding.imgScreenshotsSelected.visibility = View.VISIBLE
             }
             else ->
                 throw RuntimeException("There is no view type " + requireArguments().getInt(TYPE))
@@ -244,6 +230,7 @@ class ListPanelDialog : DialogFragment() {
         const val TYPE_SCREENSHOTS = 3
         const val TYPE_BOOKMARKS = 4
         private const val TYPE = "TYPE"
+
         fun newInstance(type: Int): ListPanelDialog {
             val listPanelDialog = ListPanelDialog()
             val args = Bundle()

@@ -5,16 +5,12 @@
 package org.mozilla.focus.fragment
 
 import android.content.DialogInterface
-import android.graphics.Outline
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentListpanelDialogBinding
 import org.mozilla.focus.history.BrowsingHistoryFragment
@@ -23,6 +19,8 @@ import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelBookmark
 import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelCapture
 import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelDownload
 import org.mozilla.focus.telemetry.TelemetryWrapper.showPanelHistory
+import org.mozilla.focus.utils.ScrollableBottomSheetHelper
+import org.mozilla.focus.utils.ScrollableBottomSheetHelper.makeViewScrollable
 
 class ListPanelDialog : DialogFragment() {
 
@@ -48,82 +46,18 @@ class ListPanelDialog : DialogFragment() {
         savedInstanceState: Bundle?
     ): View = FragmentListpanelDialogBinding.inflate(inflater, container, false).also {
         this.viewBinding = it
-        val cornerRadius = resources.getDimension(R.dimen.menu_corner_radius)
-        it.container.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
-            }
-        }
-        it.container.clipToOutline = true
-        it.container.setOnClickListener { dismissAllowingStateLoss() }
-
-        val bottomSheet = it.bottomSheet
-        it.mainContent.setOnScrollChangeListener(
-            NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
-                val pageSize = v.measuredHeight
-                // v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight() - scrollY is -49dp
-                // When scrolled to end due to padding
-                val someValue = v.getChildAt(0).measuredHeight - v.measuredHeight - scrollY
-                if (scrollY > oldScrollY && someValue < pageSize) {
-                    val pf = childFragmentManager.findFragmentById(R.id.main_content)
-                        as? PanelFragment ?: return@OnScrollChangeListener
-                    if (pf.isVisible) {
-                        Thread { pf.tryLoadMore() }.start()
-                    }
-                }
-            }
+        val helperBinding = ScrollableBottomSheetHelper.Binding(
+            it.root,
+            it.container,
+            it.bottomSheet
         )
 
-        val menuBottomMargin = resources.getDimension(R.dimen.menu_bottom_margin)
-        val bottomSheetBehavior: BottomSheetBehavior<View> = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetCallback() {
-            private var translationY = Int.MIN_VALUE.toFloat()
-            private var collapseHeight = -1
-            private val maxTranslationY = menuBottomMargin + cornerRadius
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    dismissAllowingStateLoss()
-                }
-            }
+        makeViewScrollable(this.requireContext(), helperBinding) {
+            this.dismissAllowingStateLoss()
+        }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                var translationY = 0f
-                if (slideOffset < 0) {
-                    if (collapseHeight < 0) {
-                        collapseHeight = bottomSheetBehavior.getPeekHeight()
-                    }
-                    translationY = collapseHeight * -slideOffset
-                }
-                if (java.lang.Float.compare(this.translationY, translationY) != 0) {
-                    this.translationY = translationY
-                    if (Math.abs(translationY) <= maxTranslationY) {
-                        it.root.translationY = translationY
-                    } else if (translationY > maxTranslationY &&
-                        it.root.translationY < maxTranslationY
-                    ) {
-                        // In case of fast changing
-                        it.root.translationY = maxTranslationY
-                    }
-                }
-            }
-        })
-        it.bookmarks.setOnClickListener {
-            showItem(TYPE_BOOKMARKS)
-            showPanelBookmark()
-        }
-        it.downloads.setOnClickListener {
-            showItem(TYPE_DOWNLOADS)
-            showPanelDownload()
-        }
-        it.history.setOnClickListener {
-            showItem(TYPE_HISTORY)
-            showPanelHistory()
-        }
-        it.screenshots.setOnClickListener {
-            showItem(TYPE_SCREENSHOTS)
-            showPanelCapture()
-        }
+        setTopButtonsClickListener(it)
+        enableLoadMore(it.mainContent)
     }.root
 
     override fun onDestroyView() {
@@ -139,6 +73,43 @@ class ListPanelDialog : DialogFragment() {
 
     fun setOnDismissListener(listener: DialogInterface.OnDismissListener?) {
         onDismissListener = listener
+    }
+
+    private fun setTopButtonsClickListener(binding: FragmentListpanelDialogBinding) {
+        binding.bookmarks.setOnClickListener {
+            showItem(TYPE_BOOKMARKS)
+            showPanelBookmark()
+        }
+        binding.downloads.setOnClickListener {
+            showItem(TYPE_DOWNLOADS)
+            showPanelDownload()
+        }
+        binding.history.setOnClickListener {
+            showItem(TYPE_HISTORY)
+            showPanelHistory()
+        }
+        binding.screenshots.setOnClickListener {
+            showItem(TYPE_SCREENSHOTS)
+            showPanelCapture()
+        }
+    }
+
+    private fun enableLoadMore(moreItemsContainer: NestedScrollView) {
+        moreItemsContainer.setOnScrollChangeListener(
+            NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+                val pageSize = v.measuredHeight
+                // v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight() - scrollY is -49dp
+                // When scrolled to end due to padding
+                val someValue = v.getChildAt(0).measuredHeight - v.measuredHeight - scrollY
+                if (scrollY > oldScrollY && someValue < pageSize) {
+                    val pf = childFragmentManager.findFragmentById(R.id.main_content)
+                        as? PanelFragment ?: return@OnScrollChangeListener
+                    if (pf.isVisible) {
+                        Thread { pf.tryLoadMore() }.start()
+                    }
+                }
+            }
+        )
     }
 
     private fun setSelectedItem(selectedItem: Int) {

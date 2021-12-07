@@ -1,24 +1,23 @@
 package org.mozilla.rocket.menu
 
 import android.content.Context
-import android.graphics.Outline
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.view.ViewOutlineProvider
-import android.widget.ScrollView
 import android.widget.Toast
 import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.Lazy
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.BottomSheetHomeMenuBinding
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.FormatUtils
+import org.mozilla.focus.utils.ScrollableBottomSheetHelper
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.MenuViewModel
 import org.mozilla.rocket.content.appComponent
@@ -72,25 +71,32 @@ class HomeMenuDialog : LifecycleBottomSheetDialog {
         super.onDetachedFromWindow()
     }
 
+    override fun show() {
+        super.show()
+        BottomSheetBehavior
+            .from(binding.bottomSheet)
+            // by default, BottomSheet is showing half part, it is Collapsed
+            .also { it.state = BottomSheetBehavior.STATE_COLLAPSED }
+    }
+
     private fun resetStates() {
-        binding.scrollView.fullScroll(ScrollView.FOCUS_UP)
         hideNewItemHint()
     }
 
     private fun initLayout() {
         binding = BottomSheetHomeMenuBinding.inflate(layoutInflater, null, false)
-        binding.scrollView.apply {
-            outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) {
-                    val dimen = resources.getDimension(R.dimen.menu_corner_radius)
-                    outline.setRoundRect(0, 0, view.width, view.height, dimen)
-                }
-            }
-            clipToOutline = true
-        }
         initMenuTabs()
         initMenuItems()
         setContentView(binding.root)
+        val helperBinding = ScrollableBottomSheetHelper.Binding(
+            binding.root,
+            binding.container,
+            binding.bottomSheet
+        )
+
+        ScrollableBottomSheetHelper.makeViewScrollable(context, helperBinding) {
+            dismiss()
+        }
     }
 
     private fun initMenuTabs() {
@@ -139,7 +145,9 @@ class HomeMenuDialog : LifecycleBottomSheetDialog {
                 binding.menuSmartShoppingSearch.isVisible = it
             }
             chromeViewModel.isPrivateBrowsingActive.observe(this@HomeMenuDialog) {
-                binding.imgPrivateMode.isActivated = it
+                // TODO: how to re-enable this?
+                // we removed this image, and use `drawableStart` instead
+                //binding.imgPrivateMode.isActivated = it
             }
             menuViewModel.shouldShowNewMenuItemHint.observe(this@HomeMenuDialog) {
                 if (it) {

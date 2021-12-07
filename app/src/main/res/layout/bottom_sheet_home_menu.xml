@@ -1,447 +1,316 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/menu"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/menu_bottom_margin"
-    android:paddingStart="@dimen/menu_horizontal_margin"
-    android:paddingEnd="@dimen/menu_horizontal_margin"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    android:layout_height="match_parent">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_view"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/menu_height"
-        android:background="@drawable/background_menu" >
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/content_layout"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            app:behavior_hideable="true"
+            app:behavior_peekHeight="@dimen/menu_height"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-            <org.mozilla.focus.widget.EqualDistributeGrid
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/content_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
+                android:background="@drawable/background_menu"
+                android:paddingBottom="8dp">
 
                 <LinearLayout
                     android:id="@+id/menu_screenshots"
                     android:layout_width="74dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:gravity="center_horizontal"
                     android:minHeight="71dp"
                     android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:background="?android:attr/selectableItemBackgroundBorderless">
+                    app:layout_constraintEnd_toStartOf="@id/menu_bookmark"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/img_screenshots"
                         android:layout_width="52dp"
                         android:layout_height="52dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/menu_my_shots_states"/>
+                        android:src="@drawable/menu_my_shots_states" />
 
                     <TextView
+                        style="@style/MenuButtonText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="top|center_horizontal"
-                        style="@style/MenuButtonText"
                         android:layout_marginTop="-5dp"
-                        android:text="@string/label_menu_my_shots"/>
+                        android:gravity="top|center_horizontal"
+                        android:text="@string/label_menu_my_shots" />
 
                 </LinearLayout>
 
-                <LinearLayout
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/menu_bookmark"
+                    style="@style/MenuButtonText"
                     android:layout_width="74dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="71dp"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:background="?android:attr/selectableItemBackgroundBorderless">
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:drawablePadding="10dp"
+                    android:gravity="top|center_horizontal"
+                    android:paddingTop="10dp"
+                    android:text="@string/label_menu_bookmark"
+                    app:drawableTopCompat="@drawable/ic_bookmarks"
+                    app:layout_constraintEnd_toStartOf="@id/menu_history"
+                    app:layout_constraintStart_toEndOf="@id/menu_screenshots"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_bookmarks"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="top|center_horizontal"
-                        style="@style/MenuButtonText"
-                        android:layout_marginTop="-5dp"
-                        android:text="@string/label_menu_bookmark"/>
-
-                </LinearLayout>
-
-                <LinearLayout
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/menu_history"
+                    style="@style/MenuButtonText"
                     android:layout_width="74dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="71dp"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:background="?android:attr/selectableItemBackgroundBorderless">
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:drawablePadding="10dp"
+                    android:gravity="top|center_horizontal"
+                    android:paddingTop="10dp"
+                    android:text="@string/label_menu_history"
+                    app:drawableTopCompat="@drawable/menu_history"
+                    app:layout_constraintEnd_toStartOf="@id/menu_download"
+                    app:layout_constraintStart_toEndOf="@id/menu_bookmark"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/menu_history"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="top|center_horizontal"
-                        style="@style/MenuButtonText"
-                        android:layout_marginTop="-5dp"
-                        android:text="@string/label_menu_history"/>
-
-                </LinearLayout>
-
-                <LinearLayout
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/menu_download"
+
+                    style="@style/MenuButtonText"
                     android:layout_width="74dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="71dp"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:background="?android:attr/selectableItemBackgroundBorderless">
+                    android:layout_marginEnd="16dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:drawablePadding="10dp"
+                    android:gravity="top|center_horizontal"
+                    android:paddingTop="10dp"
+                    android:text="@string/label_menu_download"
+                    app:drawableTopCompat="@drawable/menu_download"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/menu_history"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/menu_download"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="top|center_horizontal"
-                        style="@style/MenuButtonText"
-                        android:layout_marginTop="-5dp"
-                        android:text="@string/label_menu_download"/>
-
-                </LinearLayout>
-
-            </org.mozilla.focus.widget.EqualDistributeGrid>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/paletteLightGreyA100"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="7dp"/>
-
-            <LinearLayout
-                android:id="@+id/btn_private_browsing"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="18dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
-
-                <ImageView
-                    android:id="@+id/img_private_mode"
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/private_browsing_mask_states"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/private_tab"/>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/menu_smart_shopping_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="18dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground"
-                android:visibility="gone" >
-
-                <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_shopping_search"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/onboarding_2_smart_shopping_search_title"/>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="0dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:id="@+id/menu_night_mode"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="0dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="?android:attr/selectableItemBackground">
-
-                    <ImageView
-                        android:layout_width="@dimen/menu_item_size"
-                        android:layout_height="@dimen/menu_item_size"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/icon_night_mode"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif"
-                        android:textColor="@color/paletteLightBlack100"
-                        android:layout_marginStart="4dp"
-                        android:text="@string/label_menu_night_mode"/>
-
-                </LinearLayout>
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/first_barrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="menu_screenshots, menu_bookmark, menu_history, menu_download" />
 
                 <View
+                    android:id="@+id/gutter_first"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="7dp"
+                    android:background="@color/paletteLightGreyA100"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/first_barrier" />
+
+                <!-- Private tab -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/btn_private_browsing"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/private_browsing_mask"
+                    android:drawableTint="@android:color/black"
+                    android:text="@string/private_tab"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/gutter_first" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_exit"
+                    app:layout_constraintEnd_toEndOf="@id/menu_exit"
+                    app:layout_constraintTop_toTopOf="@id/menu_exit" />
+
+
+                <!-- Night Mode -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_night_mode"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/icon_night_mode"
+                    android:text="@string/label_menu_night_mode"
+                    app:layout_constraintEnd_toStartOf="@id/menu_night_mode_gutter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_private_browsing" />
+
+                <View
+                    android:id="@+id/menu_night_mode_gutter"
                     android:layout_width="1dp"
                     android:layout_height="24dp"
-                    android:background="@color/paletteLightGreyA100"/>
+                    android:background="@color/paletteLightGreyA100"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_night_mode"
+                    app:layout_constraintStart_toEndOf="@id/menu_night_mode"
+                    app:layout_constraintTop_toTopOf="@id/menu_night_mode" />
 
-                <Switch
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/night_mode_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"/>
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="24dp"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_night_mode"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/menu_night_mode_gutter"
+                    app:layout_constraintTop_toTopOf="@id/menu_night_mode" />
 
-            </LinearLayout>
-            
-            <LinearLayout
-                android:id="@+id/menu_themes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="12dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
+                <!-- Themes -->
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_themes"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/menu_theme"
+                    android:text="@string/label_menu_themes"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_night_mode" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_themes"
+                    app:layout_constraintEnd_toEndOf="@id/menu_themes"
+                    app:layout_constraintTop_toTopOf="@id/menu_themes" />
 
                 <View
                     android:id="@+id/themes_red_dot"
                     android:layout_width="6dp"
                     android:layout_height="6dp"
+                    android:layout_marginStart="12dp"
                     android:background="@drawable/ic_red_dot"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_themes"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/menu_themes"
+                    tools:visibility="visible" />
 
-                <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/menu_theme"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/label_menu_themes"/>
+                <!-- Add top sites -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_add_top_sites"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/menu_add_top_sites"
+                    android:text="@string/label_menu_add_top_sites"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_themes" />
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/menu_add_top_sites"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="12dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_add_top_sites"
+                    app:layout_constraintEnd_toEndOf="@id/menu_add_top_sites"
+                    app:layout_constraintTop_toTopOf="@id/menu_add_top_sites" />
 
                 <View
                     android:id="@+id/add_top_sites_red_dot"
                     android:layout_width="6dp"
                     android:layout_height="6dp"
+                    android:layout_marginStart="12dp"
                     android:background="@drawable/ic_red_dot"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_add_top_sites"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/menu_add_top_sites"
+                    tools:visibility="visible" />
 
-                <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/menu_add_top_sites"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/label_menu_add_top_sites"/>
+                <!-- Settings -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_preferences"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/menu_settings"
+                    android:text="@string/label_menu_settings"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_add_top_sites" />
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"/>
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_preferences"
+                    app:layout_constraintEnd_toEndOf="@id/menu_preferences"
+                    app:layout_constraintTop_toTopOf="@id/menu_preferences" />
 
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/paletteLightGreyA100"
-                android:layout_marginTop="7dp"
-                android:layout_marginBottom="7dp"/>
-
-            <LinearLayout
-                android:id="@+id/menu_preferences"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="18dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/menu_settings"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/label_menu_settings"/>
+                <!-- Delete -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_delete"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/menu_delete"
+                    android:text="@string/label_menu_clear_cache"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_preferences" />
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"/>
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_delete"
+                    app:layout_constraintEnd_toEndOf="@id/menu_delete"
+                    app:layout_constraintTop_toTopOf="@id/menu_delete" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/menu_delete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="18dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/menu_delete"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/label_menu_clear_cache"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/menu_exit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="18dp"
-                android:paddingEnd="24dp"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground">
+                <!-- Exit -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_exit"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/menu_exit"
+                    android:text="@string/label_menu_exit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_delete" />
 
                 <ImageView
-                    android:layout_width="@dimen/menu_item_size"
-                    android:layout_height="@dimen/menu_item_size"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/menu_exit"/>
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="@id/menu_exit"
+                    app:layout_constraintEnd_toEndOf="@id/menu_exit"
+                    app:layout_constraintTop_toTopOf="@id/menu_exit" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/paletteLightBlack100"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/label_menu_exit"/>
+                <!-- Smart Shopping Search, maybe we can delete this-->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/menu_smart_shopping_search"
+                    style="@style/BottomSheetRowMenuItemTextStyle"
+                    android:drawableStart="@drawable/ic_shopping_search"
+                    android:text="@string/onboarding_2_smart_shopping_search_title"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/menu_exit" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
 
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>

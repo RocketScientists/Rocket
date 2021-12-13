@@ -10,48 +10,58 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
-import androidx.annotation.RequiresApi
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.SafeIntent
 import org.mozilla.focus.utils.SearchUtils
-import org.mozilla.rocket.component.LaunchIntentDispatcher
+import org.mozilla.rocket.component.LaunchIntentDispatcher.LaunchMethod
 
 /**
  * Activity for receiving and processing an ACTION_PROCESS_TEXT intent.
  */
 class TextActionActivity : Activity() {
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = SafeIntent(intent)
-        val searchText: String
-        val searchTextCharSequence: CharSequence
-        val extraKey: String?
-        when (intent.action) {
-            Intent.ACTION_PROCESS_TEXT -> {
-                searchTextCharSequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)
-                extraKey = LaunchIntentDispatcher.LaunchMethod.EXTRA_BOOL_TEXT_SELECTION.value
-            }
-            Intent.ACTION_WEB_SEARCH -> {
-                searchTextCharSequence = intent.getStringExtra(SearchManager.QUERY)
-                extraKey = LaunchIntentDispatcher.LaunchMethod.EXTRA_BOOL_WEB_SEARCH.value
-            }
-            else -> {
-                searchTextCharSequence = ""
-                extraKey = null
-            }
-        }
-        searchText = searchTextCharSequence.toString()
-        val searchUrl = SearchUtils.createSearchUrl(this, searchText)
+
         val searchIntent = Intent()
         searchIntent.setClassName(this, AppConstants.LAUNCHER_ACTIVITY_ALIAS)
         searchIntent.action = Intent.ACTION_VIEW
-        if (!TextUtils.isEmpty(extraKey)) {
+
+        val searchText = getSearchText(intent)
+        val searchUrl = SearchUtils.createSearchUrl(this, searchText)
+        searchIntent.data = Uri.parse(searchUrl)
+
+        val extraKey: String? = getExtraKey(intent)
+        if (!extraKey.isNullOrEmpty()) {
             searchIntent.putExtra(extraKey, true)
         }
-        searchIntent.data = Uri.parse(searchUrl)
+
         startActivity(searchIntent)
         finish()
+    }
+
+    private fun getSearchText(intent: SafeIntent): String {
+        val nullableSearchText = when (intent.action) {
+            Intent.ACTION_PROCESS_TEXT -> intent.getProcessTextIfSdkSatisfied()
+            Intent.ACTION_WEB_SEARCH -> intent.getStringExtra(SearchManager.QUERY)
+            else -> null
+        }
+
+        return nullableSearchText ?: ""
+    }
+
+    private fun getExtraKey(intent: SafeIntent): String? = when (intent.action) {
+        Intent.ACTION_PROCESS_TEXT -> LaunchMethod.EXTRA_BOOL_TEXT_SELECTION.value
+        Intent.ACTION_WEB_SEARCH -> LaunchMethod.EXTRA_BOOL_WEB_SEARCH.value
+        else -> null
+    }
+
+    private fun SafeIntent.getProcessTextIfSdkSatisfied(): String? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
+        } else {
+            null
+        }
     }
 }

@@ -3,7 +3,7 @@ object Versions {
     const val target_sdk = 30
     const val compile_sdk = 31
     const val version_code = 1
-    const val version_name = "2.8.0"
+    const val version_name = "2.8.1"
     const val android_gradle_plugin = "7.0.3"
     const val gms_oss_licenses_plugin = "0.10.4"
     const val support = "1.0.0"

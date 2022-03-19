@@ -380,6 +380,8 @@ class SessionManagerTest {
 
         override fun setImageBlockingEnabled(enabled: Boolean) {}
 
+        override fun setJavaScriptBlockingEnabled(enabled: Boolean) {}
+
         override fun isBlockingEnabled(): Boolean {
             return false
         }

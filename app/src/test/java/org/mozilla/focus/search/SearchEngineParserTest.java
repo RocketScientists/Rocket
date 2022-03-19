@@ -5,13 +5,16 @@
 
 package org.mozilla.focus.search;
 
-import android.os.Build;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.text.TextUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,13 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(ParameterizedRobolectricTestRunner.class)
-@Config(maxSdk = Build.VERSION_CODES.P, minSdk = Build.VERSION_CODES.LOLLIPOP) // Value of Build.VERSION_CODES.P is 28
 public class SearchEngineParserTest {
     @ParameterizedRobolectricTestRunner.Parameters(name = "{1}")
     public static Collection<Object[]> searchPlugins() {

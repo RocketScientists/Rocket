@@ -5,18 +5,15 @@
 
 package org.mozilla.focus.utils;
 
+import static org.junit.Assert.assertEquals;
+
 import android.graphics.Color;
-import android.os.Build;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(maxSdk = Build.VERSION_CODES.P, minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ColorUtilsTest {
     @Test
     public void testGetReadableTextColor() {

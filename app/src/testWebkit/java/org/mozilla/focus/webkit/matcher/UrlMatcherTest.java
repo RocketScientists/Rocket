@@ -4,9 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.focus.webkit.matcher;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -17,15 +19,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mozilla.focus.webkit.matcher.util.FocusString;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-
 @RunWith(RobolectricTestRunner.class)
-@Config(maxSdk = Build.VERSION_CODES.P, minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class UrlMatcherTest {
 
     @Test

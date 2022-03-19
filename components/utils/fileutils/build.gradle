@@ -20,6 +20,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -34,7 +38,7 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
     implementation project(':threadutils')
-    testImplementation "junit:junit:${Versions.junit}"
+    testImplementation "junit:junit:${Versions.junit4}"
     androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
 }

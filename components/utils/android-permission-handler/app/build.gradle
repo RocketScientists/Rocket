@@ -12,6 +12,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -26,7 +30,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
     implementation "com.google.android.material:material:${Versions.material}"
     implementation "androidx.constraintlayout:constraintlayout:${Versions.constraint}"
-    testImplementation "junit:junit:${Versions.junit}"
+    testImplementation "junit:junit:${Versions.junit4}"
     androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
 }

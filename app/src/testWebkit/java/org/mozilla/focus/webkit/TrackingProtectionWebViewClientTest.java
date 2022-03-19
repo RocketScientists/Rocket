@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 // http://robolectric.org/getting-started/#note-for-linux-and-mac-users
 
 @RunWith(RobolectricTestRunner.class)
-@Config(packageName = "org.mozilla.focus", maxSdk = Build.VERSION_CODES.P, minSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
+@Config(packageName = "org.mozilla.focus")
 public class TrackingProtectionWebViewClientTest {
 
     private TrackingProtectionWebViewClient trackingProtectionWebViewClient;

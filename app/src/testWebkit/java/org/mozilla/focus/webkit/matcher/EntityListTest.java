@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
  * Integration test to make sure all our whitelisting methods work as expected.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(maxSdk = Build.VERSION_CODES.P, minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class EntityListTest {
 
 

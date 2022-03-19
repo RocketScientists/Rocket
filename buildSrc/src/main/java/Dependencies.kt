@@ -22,6 +22,7 @@ object Versions {
     const val room = "2.3.0"
     const val glide = "4.0.0"
     const val kotlin = "1.5.31"
+    const val kotlinXCoroutine = "1.5.2"
     const val ktlint = "0.41.0"
     const val core_ktx = "1.7.0"
     const val gms = "11.8.0"
@@ -32,10 +33,10 @@ object Versions {
     const val android_components = "0.52.0"
     const val android_components_awesomebar = "0.56.0"
     const val annotation = "1.3.0"
-    const val junit = "4.13.1"
-    const val mockito = "3.3.0"
+    const val junit4 = "4.13.2"
+    const val mockito = "4.4.0"
     const val json = "20190722"
-    const val robolectric = "4.3.1"
+    const val robolectric = "4.7.3"
     const val espresso = "3.4.0"
     const val test_core = "1.4.0"
     const val test_ext = "1.1.1"
@@ -49,8 +50,6 @@ object Versions {
     const val jraska_falcon = "2.2.0"
     const val dagger = "2.38.1"
     const val play = "1.10.2"
-    const val coroutine = "1.5.2"
-    const val coroutines_test = "1.3.4"
 }
 
 object SystemEnv {

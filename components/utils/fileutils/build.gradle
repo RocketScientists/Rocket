@@ -20,6 +20,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false

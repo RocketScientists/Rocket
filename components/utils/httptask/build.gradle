@@ -2,6 +2,11 @@ apply from: '../../../buildSrc/android-library-base.gradle'
 apply from: '../../../buildSrc/pmd.gradle'
 apply from: '../../../buildSrc/checkstyle.gradle'
 
+android {
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

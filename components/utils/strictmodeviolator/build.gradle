@@ -4,6 +4,12 @@ apply plugin: 'com.android.library'
 apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
 apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 
+android {
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

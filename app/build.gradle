@@ -69,10 +69,6 @@ android {
         }
     }
 
-    dexOptions {
-        preDexLibraries true
-    }
-
     bundle {
         language {
             enableSplit = false

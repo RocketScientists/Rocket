@@ -213,6 +213,9 @@ dependencies {
     implementation project(':strictmodeviolator')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinXCoroutine}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinXCoroutine}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinXCoroutine}"
 
     implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
     implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
@@ -251,19 +254,16 @@ dependencies {
     implementation "com.google.dagger:dagger:${Versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${Versions.dagger}"
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutine}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutine}"
     implementation "org.mozilla.components:concept-awesomebar:${Versions.android_components_awesomebar}"
     implementation "org.mozilla.components:browser-awesomebar:${Versions.android_components_awesomebar}"
 
-    testImplementation "junit:junit:${Versions.junit}"
+    testImplementation "junit:junit:${Versions.junit4}"
     testImplementation "org.robolectric:robolectric:${Versions.robolectric}"
     testImplementation "org.mockito:mockito-core:${Versions.mockito}"
 
     testImplementation "org.json:json:${Versions.json}"
     testImplementation "androidx.test:core:${Versions.test_core}"
     testImplementation "androidx.arch.core:core-testing:${Versions.arch_core_testing}"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines_test}"
 
     androidTestImplementation "org.mockito:mockito-android:${Versions.mockito}"
 

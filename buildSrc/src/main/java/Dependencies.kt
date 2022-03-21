@@ -35,6 +35,7 @@ object Versions {
     const val annotation = "1.3.0"
     const val junit4 = "4.13.2"
     const val mockito = "4.4.0"
+    const val mockitoKotlin = "4.0.0"
     const val json = "20190722"
     const val robolectric = "4.7.3"
     const val espresso = "3.4.0"

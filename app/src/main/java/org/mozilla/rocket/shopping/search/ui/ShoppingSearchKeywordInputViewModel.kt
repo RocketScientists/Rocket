@@ -98,7 +98,7 @@ class ShoppingSearchKeywordInputViewModel(
 
     private fun applyStyle(keyword: String, keywordSuggestions: List<String>): List<CharSequence> {
         return keywordSuggestions.map { suggestion ->
-            val idx = suggestion.toLowerCase(Locale.getDefault()).indexOf(keyword)
+            val idx = suggestion.lowercase(Locale.getDefault()).indexOf(keyword)
             if (idx != -1) {
                 SpannableStringBuilder(suggestion).apply {
                     setSpan(

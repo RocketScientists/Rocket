@@ -47,7 +47,7 @@ open class GetTopSitesUseCase(
                 historySites
             ).toRemovableSite(isPinned = false)
 
-        return result.distinctBy { it.url.removeUrlPostSlash().toLowerCase(Locale.getDefault()) }
+        return result.distinctBy { it.url.removeUrlPostSlash().lowercase(Locale.getDefault()) }
             .also { removeOutboundDefaultSites(it) }
             .take(TOP_SITES_SIZE)
     }
@@ -57,7 +57,7 @@ open class GetTopSitesUseCase(
         historySites: List<org.mozilla.focus.history.model.Site>
     ): List<org.mozilla.focus.history.model.Site> {
         val union = defaultSites + historySites
-        val merged = union.groupBy { it.url.removeUrlPostSlash().toLowerCase(Locale.getDefault()) }
+        val merged = union.groupBy { it.url.removeUrlPostSlash().lowercase(Locale.getDefault()) }
             .map {
                 val sameSiteGroup = it.value
                 if (sameSiteGroup.size == 1) {

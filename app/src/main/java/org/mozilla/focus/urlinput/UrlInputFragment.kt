@@ -380,14 +380,14 @@ class UrlInputFragment :
             return
         }
 
-        val searchKey = urlView.originalText.trim { it <= ' ' }.toLowerCase(Locale.getDefault())
+        val searchKey = urlView.originalText.trim { it <= ' ' }.lowercase(Locale.getDefault())
         if (texts.isNotEmpty()) {
             binding.searchSuggestionBlock.visibility = View.VISIBLE
         }
         for (i in texts.indices) {
             val item = View.inflate(context, R.layout.tag_text, null) as TextView
             val str = texts[i].toString()
-            val idx = str.toLowerCase(Locale.getDefault()).indexOf(searchKey)
+            val idx = str.lowercase(Locale.getDefault()).indexOf(searchKey)
             if (idx != -1) {
                 val builder = SpannableStringBuilder(texts[i])
                 builder.setSpan(
@@ -448,7 +448,7 @@ class UrlInputFragment :
             return
         }
         if (allowSuggestion) {
-            binding.awesomeBar.onInputChanged(originalText.toLowerCase(Locale.getDefault()))
+            binding.awesomeBar.onInputChanged(originalText.lowercase(Locale.getDefault()))
             this@UrlInputFragment.presenter.onInput(originalText, detectThrottle())
         }
         val visibility = if (TextUtils.isEmpty(originalText)) View.GONE else View.VISIBLE

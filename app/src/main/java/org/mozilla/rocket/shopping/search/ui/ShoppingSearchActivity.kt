@@ -1,9 +1,9 @@
 package org.mozilla.rocket.shopping.search.ui
 
+import StatusBarUtils
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import dagger.Lazy
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.BaseActivity
@@ -34,7 +34,7 @@ class ShoppingSearchActivity : BaseActivity(), TabsSessionProvider.SessionHost {
         setContentView(R.layout.activity_shopping_search)
         telemetryViewModel = getViewModel(telemetryViewModelCreator)
         tabViewProvider = PrivateTabViewProvider(this)
-        makeStatusBarTransparent()
+        StatusBarUtils.makeStatusBarTransparent(window)
     }
 
     override fun onResume() {
@@ -81,13 +81,6 @@ class ShoppingSearchActivity : BaseActivity(), TabsSessionProvider.SessionHost {
 
         // we just created it, it definitely not null
         return sessionManager!!
-    }
-
-    private fun makeStatusBarTransparent() {
-        var visibility = window.decorView.systemUiVisibility
-        // do not overwrite existing value
-        visibility = visibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        window.decorView.systemUiVisibility = visibility
     }
 
     companion object {

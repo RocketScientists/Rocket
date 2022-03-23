@@ -97,6 +97,7 @@ import org.mozilla.rocket.tabs.TabView
 import org.mozilla.rocket.tabs.TabViewProvider
 import org.mozilla.rocket.tabs.TabsSessionProvider
 import org.mozilla.rocket.theme.ThemeManager
+import org.mozilla.rocket.util.IntentUtil
 import org.mozilla.rocket.widget.enqueue
 import java.net.URISyntaxException
 import java.util.Locale
@@ -551,19 +552,6 @@ class MainActivity :
         appUpdateController.onReceiveIntent(getIntent())
     }
 
-    private fun handleExternalLink(intent: SafeIntent): Boolean {
-        var handled = false
-        if (Intent.ACTION_VIEW == intent.action) {
-            val url = intent.dataString
-            val nonNullUrl = url ?: ""
-            val openInNewTab = intent.getBooleanExtra(IntentUtils.EXTRA_OPEN_NEW_TAB, true)
-            chromeViewModel.openUrl.value = OpenUrlAction(nonNullUrl, openInNewTab, true)
-            handled = true
-        }
-
-        return handled
-    }
-
     override fun applyLocale() {
         // re-create bottom sheet menu
         setUpMenu()
@@ -955,6 +943,32 @@ class MainActivity :
             getString(R.string.update_to_latest_app_toast),
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun handleExternalLink(intent: SafeIntent): Boolean {
+        chromeViewModel.openUrl.value = when (intent.action) {
+            Intent.ACTION_VIEW -> extractActionOfViewExternalLink(intent)
+            Intent.ACTION_SEND -> extractActionOfSendExternalLink(intent)
+            else ->
+                return false
+        }
+        return true
+    }
+
+    private fun extractActionOfViewExternalLink(intent: SafeIntent): OpenUrlAction? {
+        val url = intent.dataString ?: return null
+        val openInNewTab = intent.getBooleanExtra(IntentUtils.EXTRA_OPEN_NEW_TAB, true)
+        return OpenUrlAction(url, withNewTab = openInNewTab, isFromExternal = true)
+    }
+
+    private fun extractActionOfSendExternalLink(intent: SafeIntent): OpenUrlAction? {
+        val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        val url = IntentUtil.parseExternalTextToUriString(this, extraText)
+        return if (url != null) {
+            OpenUrlAction(url, withNewTab = true, isFromExternal = true)
+        } else {
+            null
+        }
     }
 
     private fun postInstallPromptNotification() {

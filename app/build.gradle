@@ -216,6 +216,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinXCoroutine}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinXCoroutine}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinXCoroutine}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
 
     implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
     implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
@@ -260,6 +261,7 @@ dependencies {
     testImplementation "junit:junit:${Versions.junit4}"
     testImplementation "org.robolectric:robolectric:${Versions.robolectric}"
     testImplementation "org.mockito:mockito-core:${Versions.mockito}"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
 
     testImplementation "org.json:json:${Versions.json}"
     testImplementation "androidx.test:core:${Versions.test_core}"

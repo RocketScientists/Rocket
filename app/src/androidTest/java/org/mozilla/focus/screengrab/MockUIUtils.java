@@ -2,12 +2,17 @@ package org.mozilla.focus.screengrab;
 
 import android.app.Activity;
 import android.os.SystemClock;
+
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
 import android.view.View;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
+import org.mockito.Mockito;
 import org.mozilla.focus.R;
 import org.mozilla.rocket.browser.GeolocationPermissionController;
 
@@ -33,7 +38,8 @@ public class MockUIUtils {
 
     static void showGeoPromptDialog(@NotNull Activity activity, String url) {
         activity.runOnUiThread(() -> {
-            GeolocationPermissionController controller = new GeolocationPermissionController();
+            Fragment mockFragment = Mockito.mock(Fragment.class);
+            GeolocationPermissionController controller = new GeolocationPermissionController(mockFragment);
             AlertDialog dialog = controller.buildGeoPromptDialog(activity);
             dialog.show();
         });

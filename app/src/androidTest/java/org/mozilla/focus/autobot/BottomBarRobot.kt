@@ -78,5 +78,3 @@ class BottomBarRobot : BottomBarAutomation {
     private fun bottomBarItemView(bottomBarId: Int, viewId: Int): Matcher<View> =
         allOf(isDescendantOfA(withId(bottomBarId)), withId(viewId))
 }
-
-fun List<BottomBarItemAdapter.ItemData>.indexOfType(type: Int): Int = indexOf(BottomBarItemAdapter.ItemData(type))

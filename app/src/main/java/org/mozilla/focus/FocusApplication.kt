@@ -8,8 +8,8 @@ package org.mozilla.focus
 import android.app.Activity
 import android.os.Bundle
 import android.os.StrictMode
+import android.os.Trace
 import android.preference.PreferenceManager
-import android.util.TimingLogger
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -126,10 +126,9 @@ open class FocusApplication : LocaleAwareApplication(), DefaultLifecycleObserver
     }
 
     override fun onCreate() {
-        TimingLogger(TAG, "coldStart before firebase performance initialization").also {
-            TelemetryWrapper.init(this)
-            it.addSplit("init TelemetryWrapper")
-        }.dumpToLog()
+        Trace.beginSection("coldStart before firebase performance initialization")
+        TelemetryWrapper.init(this)
+        Trace.endSection()
         FirebaseHelper.newTrace("coldStart")?.start()
 
         super<LocaleAwareApplication>.onCreate()

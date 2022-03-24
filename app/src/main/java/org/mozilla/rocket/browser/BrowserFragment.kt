@@ -19,6 +19,7 @@ import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -31,6 +32,7 @@ import org.mozilla.focus.locale.LocaleAwareFragment
 import org.mozilla.focus.menu.WebContextMenu
 import org.mozilla.focus.navigation.ScreenNavigator
 import org.mozilla.focus.navigation.ScreenNavigator.BrowserScreen
+import org.mozilla.focus.screenshot.CaptureRunnable
 import org.mozilla.focus.tabs.tabtray.TabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.AppConstants
@@ -74,6 +76,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     var loadedUrl: String? = null
 
     private var fullscreenCallback: FullscreenCallback? = null
+
+    @set:VisibleForTesting
+    var captureStateListener: CaptureRunnable.CaptureStateListener? = null
 
     private var webContextMenu: WeakReference<Dialog>? = null
     private var landscapeStartTime = 0L

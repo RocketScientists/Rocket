@@ -3,12 +3,11 @@ package org.mozilla.focus.tabs.tabtray
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.mock
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
 
@@ -16,12 +15,10 @@ class TabsSessionModelTest {
 
     private lateinit var tabsSessionModel: TabsSessionModel
 
-    @Mock
-    private lateinit var sessionManager: SessionManager
+    private val sessionManager: SessionManager = mock()
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         tabsSessionModel = TabsSessionModel(sessionManager)
     }
 

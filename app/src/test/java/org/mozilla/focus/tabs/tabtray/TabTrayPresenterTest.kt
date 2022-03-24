@@ -13,15 +13,14 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.Captor
-import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.KArgumentCaptor
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.mock
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.SiteIdentity
@@ -38,18 +37,14 @@ class TabTrayPresenterTest {
 
     private lateinit var tabTrayPresenter: TabTrayPresenter
 
-    @Mock
-    private val tabTrayContractView: TabTrayContract.View? = null
+    private val tabTrayContractView: TabTrayContract.View = mock()
 
-    @Mock
-    private lateinit var tabsSessionModel: TabsSessionModel
+    private val tabsSessionModel: TabsSessionModel = mock()
 
-    @Captor
-    private lateinit var tabListCaptor: ArgumentCaptor<List<Session>>
+    private val tabListCaptor: KArgumentCaptor<List<Session>> = argumentCaptor()
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         tabTrayPresenter = TabTrayPresenter(tabTrayContractView, tabsSessionModel)
     }
 
@@ -57,11 +52,11 @@ class TabTrayPresenterTest {
     fun viewReady_showFocusedTab() {
         Mockito.`when`(tabsSessionModel.tabs).thenReturn(listOf())
         this.tabTrayPresenter.viewReady()
-        verify<TabTrayContract.View>(this.tabTrayContractView).closeTabTray()
+        verify(this.tabTrayContractView).closeTabTray()
 
         Mockito.`when`(tabsSessionModel.tabs).thenReturn(listOf(Session(), Session(), Session()))
         this.tabTrayPresenter.viewReady()
-        verify<TabTrayContract.View>(this.tabTrayContractView).showFocusedTab(anyInt())
+        verify(this.tabTrayContractView).showFocusedTab(anyInt())
     }
 
     @Test
@@ -77,7 +72,7 @@ class TabTrayPresenterTest {
         val presenter = TabTrayPresenter(tabTrayContractView, TabsSessionModel(session))
 
         // view is not ready yet, add tab should not trigger refreshData
-        verify<TabTrayContract.View>(this.tabTrayContractView, never()).refreshData(tabListCaptor.capture(), any())
+        verify(this.tabTrayContractView, never()).refreshData(tabListCaptor.capture(), any())
 
         // OK we are ready
         presenter.viewReady()
@@ -87,8 +82,8 @@ class TabTrayPresenterTest {
         Assert.assertEquals(4, session.getTabs().size)
 
         // Assert refresh data is called, with new tab list of size=4
-        verify<TabTrayContract.View>(this.tabTrayContractView).refreshData(tabListCaptor.capture(), any())
-        Assert.assertEquals(4, tabListCaptor.value.size)
+        verify(this.tabTrayContractView).refreshData(tabListCaptor.capture(), any())
+        Assert.assertEquals(4, tabListCaptor.lastValue.size)
     }
 
     private class DefaultTabViewProvider : TabViewProvider() {

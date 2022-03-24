@@ -107,7 +107,7 @@ class PrivateModeActivity :
 
         setUpMenu()
         snackBarContainer = findViewById(R.id.container)
-        makeStatusBarTransparent()
+        StatusBarUtils.makeStatusBarTransparent(window)
 
         screenNavigator.popToHomeScreen(false)
         observeChromeAction()
@@ -355,12 +355,6 @@ class PrivateModeActivity :
 
     private fun dismissUrlInput() {
         screenNavigator.popUrlScreen()
-    }
-
-    private fun makeStatusBarTransparent() {
-        val appended = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        // do not overwrite existing value
-        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or appended
     }
 
     private fun startPrivateMode() {

@@ -156,7 +156,7 @@ class AndroidDownloadManagerDataSource(private val appContext: Context) {
                         )
                     )
                     downloadInfo.mimeType = MimeTypeMap.getSingleton()
-                        .getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT))
+                        .getMimeTypeFromExtension(extension.lowercase(Locale.ROOT))
                     downloadInfo.fileExtension = extension
                     downloadInfo.fileName = File(Uri.parse(downloadInfo.fileUri).path).name
                 }

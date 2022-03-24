@@ -123,7 +123,7 @@ class FrecensySuggestionProvider(
         tabs.forEach {
             val url = it.url
             val title = it.title
-            if (url == null || !url.contains(text) && !title.toLowerCase(Locale.getDefault())
+            if (url == null || !url.contains(text) && !title.lowercase(Locale.getDefault())
                 .contains(text)
             ) {
                 return@forEach

@@ -84,7 +84,7 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
             insets
         }
 
-        makeStatusBarTransparent()
+        StatusBarUtils.makeStatusBarTransparent(window)
 
         setupBottomBar(binding.bottomBar)
 
@@ -240,14 +240,6 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
             }
         chromeViewModel.canGoForward.switchFrom(bottomBarViewModel.items)
             .observe(this) { bottomBarItemAdapter.setCanGoForward(it == true) }
-    }
-
-    private fun makeStatusBarTransparent() {
-        var visibility = window.decorView.systemUiVisibility
-        // do not overwrite existing value
-        visibility =
-            visibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        window.decorView.systemUiVisibility = visibility
     }
 
     private fun initBroadcastReceivers() {

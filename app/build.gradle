@@ -276,7 +276,9 @@ dependencies {
     androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:${Versions.uiautomator}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:${Versions.espresso}"
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:${Versions.espresso}") {
+        exclude module: "protobuf-lite"
+    }
     androidTestImplementation "androidx.test.espresso:espresso-idling-resource:${Versions.espresso}"
     androidTestImplementation "androidx.test.espresso:espresso-intents:${Versions.espresso}"
     androidTestImplementation "androidx.test.espresso:espresso-web:${Versions.espresso}"

@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.webkit.WebView
+import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.fragment.ScreenCaptureDialogFragment
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.Settings
@@ -65,6 +66,14 @@ class CaptureRunnable(
     private fun onCaptureComplete(title: String, url: String, bitmap: Bitmap?) {
         // pass bitmap to ScreenshotCaptureTask for saving image
         execute(title, url, bitmap)
+
+        // TODO: remove me
+        // This is bad pattern. A listener is registered in BrowserFragment, and that is just
+        // for running instrumented test. We should find a way to remove this listener
+        val activity = refActivity.get() ?: return
+        if (activity is MainActivity) {
+            activity.browserFragment?.captureStateListener?.onPromptScreenshotResult()
+        }
     }
 
     override fun onPostExecute(path: String) {
@@ -100,5 +109,10 @@ class CaptureRunnable(
 
     fun interface CaptureResultCallback {
         fun onCaptureResult(success: Boolean)
+    }
+
+    // A listener for running Espresso
+    interface CaptureStateListener {
+        fun onPromptScreenshotResult()
     }
 }

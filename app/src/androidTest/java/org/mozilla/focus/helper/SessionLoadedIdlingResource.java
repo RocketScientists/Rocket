@@ -5,21 +5,17 @@
 package org.mozilla.focus.helper;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import androidx.test.espresso.IdlingResource;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
+
+import androidx.test.espresso.IdlingResource;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mozilla.rocket.tabs.Session;
 import org.mozilla.rocket.tabs.SessionManager;
 import org.mozilla.rocket.tabs.TabView;
-import org.mozilla.rocket.tabs.TabViewClient;
-import org.mozilla.rocket.tabs.TabViewEngineSession;
 import org.mozilla.rocket.tabs.TabsSessionProvider;
 
 import mozilla.components.browser.session.Download;
@@ -62,21 +58,6 @@ public class SessionLoadedIdlingResource implements IdlingResource {
 
 
     class Observer implements SessionManager.Observer, Session.Observer {
-
-        @Override
-        public void updateFailingUrl(@Nullable String url, boolean updateFromError) {
-
-        }
-
-        @Override
-        public boolean handleExternalUrl(@Nullable String url) {
-            return false;
-        }
-
-        @Override
-        public boolean onShowFileChooser(@NotNull TabViewEngineSession es, @Nullable ValueCallback<Uri[]> filePathCallback, @Nullable WebChromeClient.FileChooserParams fileChooserParams) {
-            return false;
-        }
 
         @Override
         public void onLoadingStateChanged(@NotNull Session session, boolean loading) {
@@ -157,10 +138,6 @@ public class SessionLoadedIdlingResource implements IdlingResource {
 
         @Override
         public void onSessionCountChanged(int count) {
-        }
-
-        @Override
-        public void onHttpAuthRequest(@NotNull TabViewClient.HttpAuthCallback callback, @Nullable String host, @Nullable String realm) {
         }
     }
 

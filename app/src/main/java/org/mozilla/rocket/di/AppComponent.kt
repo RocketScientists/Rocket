@@ -43,8 +43,8 @@ import org.mozilla.rocket.home.HomeFragment
 import org.mozilla.rocket.home.di.HomeModule
 import org.mozilla.rocket.home.topsites.domain.GetTopSitesUseCase
 import org.mozilla.rocket.home.topsites.ui.AddNewTopSitesFragment
+import org.mozilla.rocket.menu.BottomSheetBrowserMenuFragment
 import org.mozilla.rocket.menu.BottomSheetHomeMenuFragment
-import org.mozilla.rocket.menu.BrowserMenuDialog
 import org.mozilla.rocket.menu.PrivateBrowserMenuDialog
 import org.mozilla.rocket.privately.PrivateModeActivity
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
@@ -92,7 +92,7 @@ interface AppComponent {
     fun inject(privateHomeFragment: PrivateHomeFragment)
     fun inject(urlInputFragment: UrlInputFragment)
     fun inject(homeMenuFragment: BottomSheetHomeMenuFragment)
-    fun inject(browserMenuDialog: BrowserMenuDialog)
+    fun inject(browserMenuFragment: BottomSheetBrowserMenuFragment)
     fun inject(privateBrowserMenuDialog: PrivateBrowserMenuDialog)
     fun inject(browsingHistoryFragment: BrowsingHistoryFragment)
     fun inject(privateModeActivity: PrivateModeActivity)

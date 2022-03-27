@@ -85,8 +85,8 @@ import org.mozilla.rocket.landing.NavigationModel
 import org.mozilla.rocket.landing.OrientationState
 import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
+import org.mozilla.rocket.menu.BottomSheetBrowserMenuFragment
 import org.mozilla.rocket.menu.BottomSheetHomeMenuFragment
-import org.mozilla.rocket.menu.BrowserMenuDialog
 import org.mozilla.rocket.periodic.FirstLaunchWorker
 import org.mozilla.rocket.periodic.PeriodicReceiver
 import org.mozilla.rocket.privately.PrivateMode
@@ -133,7 +133,6 @@ class MainActivity :
     private lateinit var downloadIndicatorViewModel: DownloadIndicatorViewModel
     private var promotionModel: PromotionModel? = null
 
-    private lateinit var browserMenu: BrowserMenuDialog
     private var myshotOnBoardingDialog: Dialog? = null
 
     private lateinit var screenNavigator: ScreenNavigator
@@ -347,7 +346,9 @@ class MainActivity :
             showHomeMenu.observe(this@MainActivity) {
                 BottomSheetHomeMenuFragment.show(supportFragmentManager)
             }
-            showBrowserMenu.observe(this@MainActivity, Observer { browserMenu.show() })
+            showBrowserMenu.observe(this@MainActivity) {
+                BottomSheetBrowserMenuFragment.show(supportFragmentManager)
+            }
             showNewTab.observe(
                 this@MainActivity,
                 Observer {
@@ -690,7 +691,7 @@ class MainActivity :
 
     private fun dismissAllMenus() {
         BottomSheetHomeMenuFragment.dismiss(supportFragmentManager)
-        browserMenu.dismiss()
+        BottomSheetBrowserMenuFragment.dismiss(supportFragmentManager)
         visibleBrowserFragment?.run { dismissAllMenus() }
         getListPanelFragment()?.dismissAllowingStateLoss()
         myshotOnBoardingDialog?.run {
@@ -853,7 +854,7 @@ class MainActivity :
     @VisibleForTesting
     @UiThread
     fun showMyShotOnBoarding() {
-        val view = browserMenu.findViewById<View>(R.id.menu_screenshots)
+        val view = BottomSheetBrowserMenuFragment.getScreenshotMenuButton(supportFragmentManager)
         view?.post {
             myshotOnBoardingDialog = DialogUtils.showMyShotOnBoarding(
                 this@MainActivity,
@@ -869,7 +870,6 @@ class MainActivity :
             )
             chromeViewModel.onMyShotOnBoardingDisplayed()
         }
-        browserMenu.show()
     }
 
     private fun checkInAppUpdate() {
@@ -1011,6 +1011,7 @@ class MainActivity :
             context: Context
         ) {
             when (f.tag) {
+                BottomSheetBrowserMenuFragment.TAG,
                 BottomSheetHomeMenuFragment.TAG ->
                     portraitStateModel.request(PortraitComponent.BottomMenu)
             }
@@ -1018,6 +1019,7 @@ class MainActivity :
 
         override fun onFragmentDetached(fm: FragmentManager, f: Fragment) {
             when (f.tag) {
+                BottomSheetBrowserMenuFragment.TAG,
                 BottomSheetHomeMenuFragment.TAG ->
                     portraitStateModel.cancelRequest(PortraitComponent.BottomMenu)
             }

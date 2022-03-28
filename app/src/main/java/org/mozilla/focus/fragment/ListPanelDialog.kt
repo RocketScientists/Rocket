@@ -56,6 +56,8 @@ class ListPanelDialog : DialogFragment() {
             this.dismissAllowingStateLoss()
         }
 
+        ScrollableBottomSheetHelper.setRoundedCorner(it.container)
+
         setTopButtonsClickListener(it)
         enableLoadMore(it.mainContent)
     }.root

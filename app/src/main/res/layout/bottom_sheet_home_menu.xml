@@ -18,16 +18,16 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_tab_tray"
             app:behavior_hideable="true"
-            app:behavior_peekHeight="@dimen/menu_height"
+            app:behavior_peekHeight="@dimen/bottom_sheet_home_menu_height"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/content_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/background_menu"
                 android:paddingBottom="8dp">
 
                 <LinearLayout

@@ -30,6 +30,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -83,8 +85,8 @@ import org.mozilla.rocket.landing.NavigationModel
 import org.mozilla.rocket.landing.OrientationState
 import org.mozilla.rocket.landing.PortraitComponent
 import org.mozilla.rocket.landing.PortraitStateModel
+import org.mozilla.rocket.menu.BottomSheetHomeMenuFragment
 import org.mozilla.rocket.menu.BrowserMenuDialog
-import org.mozilla.rocket.menu.HomeMenuDialog
 import org.mozilla.rocket.periodic.FirstLaunchWorker
 import org.mozilla.rocket.periodic.PeriodicReceiver
 import org.mozilla.rocket.privately.PrivateMode
@@ -131,7 +133,6 @@ class MainActivity :
     private lateinit var downloadIndicatorViewModel: DownloadIndicatorViewModel
     private var promotionModel: PromotionModel? = null
 
-    private lateinit var homeMenu: HomeMenuDialog
     private lateinit var browserMenu: BrowserMenuDialog
     private var myshotOnBoardingDialog: Dialog? = null
 
@@ -231,22 +232,10 @@ class MainActivity :
     }
 
     private fun setUpMenu() {
-        if (::homeMenu.isInitialized) {
-            homeMenu.release()
-        }
-        homeMenu = HomeMenuDialog(this, R.style.BottomSheetTheme).apply {
-            setCanceledOnTouchOutside(true)
-            setOnShowListener { portraitStateModel.request(PortraitComponent.BottomMenu) }
-            setOnDismissListener { portraitStateModel.cancelRequest(PortraitComponent.BottomMenu) }
-        }
-        if (::browserMenu.isInitialized) {
-            browserMenu.release()
-        }
-        browserMenu = BrowserMenuDialog(this, R.style.BottomSheetTheme).apply {
-            setCanceledOnTouchOutside(true)
-            setOnShowListener { portraitStateModel.request(PortraitComponent.BottomMenu) }
-            setOnDismissListener { portraitStateModel.cancelRequest(PortraitComponent.BottomMenu) }
-        }
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            FragmentStateListener(portraitStateModel),
+            false
+        )
     }
 
     private fun initBroadcastReceivers() {
@@ -355,7 +344,9 @@ class MainActivity :
                     TabTray.show(supportFragmentManager)
                 }
             )
-            showHomeMenu.observe(this@MainActivity, Observer { homeMenu.show() })
+            showHomeMenu.observe(this@MainActivity) {
+                BottomSheetHomeMenuFragment.show(supportFragmentManager)
+            }
             showBrowserMenu.observe(this@MainActivity, Observer { browserMenu.show() })
             showNewTab.observe(
                 this@MainActivity,
@@ -698,7 +689,7 @@ class MainActivity :
     }
 
     private fun dismissAllMenus() {
-        homeMenu.dismiss()
+        BottomSheetHomeMenuFragment.dismiss(supportFragmentManager)
         browserMenu.dismiss()
         visibleBrowserFragment?.run { dismissAllMenus() }
         getListPanelFragment()?.dismissAllowingStateLoss()
@@ -1008,6 +999,28 @@ class MainActivity :
             // TabView and View is totally different, we know WebViewProvider returns a TabView for now,
             // but there is no promise about this.
             return WebViewProvider.create(this.activity, null) as TabView
+        }
+    }
+
+    private class FragmentStateListener(
+        private val portraitStateModel: PortraitStateModel
+    ) : FragmentManager.FragmentLifecycleCallbacks() {
+        override fun onFragmentAttached(
+            fm: FragmentManager,
+            f: Fragment,
+            context: Context
+        ) {
+            when (f.tag) {
+                BottomSheetHomeMenuFragment.TAG ->
+                    portraitStateModel.request(PortraitComponent.BottomMenu)
+            }
+        }
+
+        override fun onFragmentDetached(fm: FragmentManager, f: Fragment) {
+            when (f.tag) {
+                BottomSheetHomeMenuFragment.TAG ->
+                    portraitStateModel.cancelRequest(PortraitComponent.BottomMenu)
+            }
         }
     }
 

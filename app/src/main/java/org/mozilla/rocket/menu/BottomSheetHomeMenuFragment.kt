@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import dagger.Lazy
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.focus.R
@@ -58,7 +57,9 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View = BottomSheetHomeMenuBinding.inflate(inflater, container, false).also {
         binding = it
-        initLayout(it)
+        initBottomSheet(it)
+        initMenuTabs(it)
+        initMenuItems(it)
         observeChromeAction()
     }.root
 
@@ -68,7 +69,7 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         binding = null
     }
 
-    private fun initLayout(binding: BottomSheetHomeMenuBinding) {
+    private fun initBottomSheet(binding: BottomSheetHomeMenuBinding) {
         val helperBinding = ScrollableBottomSheetHelper.Binding(
             binding.root,
             binding.container,
@@ -78,127 +79,100 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         ScrollableBottomSheetHelper.makeViewScrollable(this.requireContext(), helperBinding) {
             this.dismissAllowingStateLoss()
         }
-
-        initMenuTabs(binding)
-        initMenuItems(binding)
     }
 
     private fun initMenuTabs(binding: BottomSheetHomeMenuBinding) {
-        binding.contentLayout.apply {
-            chromeViewModel.hasUnreadScreenshot.observe(this@BottomSheetHomeMenuFragment) {
-                binding.imgScreenshots.isActivated = it
-            }
+        chromeViewModel.hasUnreadScreenshot.observe(this) {
+            binding.imgScreenshots.isActivated = it
+        }
 
-            binding.menuScreenshots.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showScreenshots()
-                }
-            }
-            binding.menuBookmark.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showBookmarks.call()
-                    TelemetryWrapper.clickMenuBookmark()
-                }
-            }
-            binding.menuHistory.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showHistory.call()
-                    TelemetryWrapper.clickMenuHistory()
-                }
-            }
-            binding.menuDownload.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showDownloadPanel.call()
-                    TelemetryWrapper.clickMenuDownload()
-                }
-            }
+        binding.menuScreenshots.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showScreenshots()
+        }
+
+        binding.menuBookmark.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showBookmarks.call()
+            TelemetryWrapper.clickMenuBookmark()
+        }
+
+        binding.menuHistory.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showHistory.call()
+            TelemetryWrapper.clickMenuHistory()
+        }
+        binding.menuDownload.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showDownloadPanel.call()
+            TelemetryWrapper.clickMenuDownload()
         }
     }
 
     private fun initMenuItems(binding: BottomSheetHomeMenuBinding) {
-        binding.contentLayout.apply {
-            chromeViewModel.isNightMode.observe(this@BottomSheetHomeMenuFragment) { nightModeSettings ->
-                binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
+        chromeViewModel.isNightMode.observe(this) { nightModeSettings ->
+            binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
+        }
+        menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this) {
+            binding.btnPrivateBrowsing.isVisible = !it
+            binding.menuSmartShoppingSearch.isVisible = it
+        }
+        chromeViewModel.isPrivateBrowsingActive.observe(this) {
+            // TODO: how to re-enable this?
+            // we removed this image, and use `drawableStart` instead
+            // binding.imgPrivateMode.isActivated = it
+        }
+        menuViewModel.shouldShowNewMenuItemHint.observe(this) {
+            if (it) {
+                showNewItemHint()
+                menuViewModel.onNewMenuItemDisplayed()
             }
-            menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this@BottomSheetHomeMenuFragment) {
-                binding.btnPrivateBrowsing.isVisible = !it
-                binding.menuSmartShoppingSearch.isVisible = it
-            }
-            chromeViewModel.isPrivateBrowsingActive.observe(this@BottomSheetHomeMenuFragment) {
-                // TODO: how to re-enable this?
-                // we removed this image, and use `drawableStart` instead
-                // binding.imgPrivateMode.isActivated = it
-            }
-            menuViewModel.shouldShowNewMenuItemHint.observe(this@BottomSheetHomeMenuFragment) {
-                if (it) {
-                    showNewItemHint()
-                    menuViewModel.onNewMenuItemDisplayed()
-                }
-            }
+        }
 
-            binding.btnPrivateBrowsing.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.togglePrivateMode.call()
-                    TelemetryWrapper.togglePrivateMode(true)
-                }
+        binding.btnPrivateBrowsing.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.togglePrivateMode.call()
+            TelemetryWrapper.togglePrivateMode(true)
+        }
+        binding.menuSmartShoppingSearch.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            showShoppingSearch()
+        }
+        binding.menuNightMode.setOnClickDelayedListener {
+            chromeViewModel.adjustNightMode()
+        }
+        binding.nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            val isNightModeSwitchEnabled = (chromeViewModel.isNightMode.value?.isEnabled == true)
+            val needToUpdate = isChecked != isNightModeSwitchEnabled
+            if (needToUpdate) {
+                chromeViewModel.onNightModeToggled()
             }
-            binding.menuSmartShoppingSearch.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    showShoppingSearch()
-                }
-            }
-            binding.menuNightMode.setOnClickListener {
-                chromeViewModel.adjustNightMode()
-            }
-            binding.nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-                val needToUpdate =
-                    isChecked != (chromeViewModel.isNightMode.value?.isEnabled == true)
-                if (needToUpdate) {
-                    chromeViewModel.onNightModeToggled()
-                }
-            }
-            binding.menuAddTopSites.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.onAddNewTopSiteMenuClicked()
-                    TelemetryWrapper.clickMenuAddTopsite()
-                }
-            }
-            binding.menuThemes.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.onThemeSettingMenuClicked()
-                    TelemetryWrapper.clickMenuTheme()
-                }
-            }
-            binding.menuPreferences.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.checkToDriveDefaultBrowser()
-                    chromeViewModel.openPreference.call()
-                    TelemetryWrapper.clickMenuSettings()
-                }
-            }
-            binding.menuDelete.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    onDeleteClicked()
-                    TelemetryWrapper.clickMenuClearCache()
-                }
-            }
-            binding.menuExit.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.exitApp.call()
-                    TelemetryWrapper.clickMenuExit()
-                }
-            }
+        }
+        binding.menuAddTopSites.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.onAddNewTopSiteMenuClicked()
+            TelemetryWrapper.clickMenuAddTopsite()
+        }
+        binding.menuThemes.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.onThemeSettingMenuClicked()
+            TelemetryWrapper.clickMenuTheme()
+        }
+        binding.menuPreferences.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.checkToDriveDefaultBrowser()
+            chromeViewModel.openPreference.call()
+            TelemetryWrapper.clickMenuSettings()
+        }
+        binding.menuDelete.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            onDeleteClicked()
+            TelemetryWrapper.clickMenuClearCache()
+        }
+        binding.menuExit.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.exitApp.call()
+            TelemetryWrapper.clickMenuExit()
         }
     }
 
@@ -218,16 +192,13 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     private fun observeChromeAction() {
-        chromeViewModel.showAdjustBrightness.observe(this, Observer { showAdjustBrightness() })
+        chromeViewModel.showAdjustBrightness.observe(this) { showAdjustBrightnessDialog() }
     }
 
-    private fun showAdjustBrightness() {
+    private fun showAdjustBrightnessDialog() {
         val context = context ?: return
-        ContextCompat.startActivity(
-            context,
-            AdjustBrightnessDialog.Intents.getStartIntentFromMenu(context),
-            null
-        )
+        val openDialogIntent = AdjustBrightnessDialog.Intents.getStartIntentFromMenu(context)
+        ContextCompat.startActivity(context, openDialogIntent, null)
     }
 
     private fun showShoppingSearch() {
@@ -236,15 +207,12 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     /**
-     * Post delay click event to wait the clicking feedback shows
+     * Extension to set callback that posts delay click event to wait the clicking feedback shows.
      */
-    private fun postDelayClickEvent(action: () -> Unit) {
-        uiHandler.postDelayed(
-            {
-                action()
-            },
-            150
-        )
+    private fun View.setOnClickDelayedListener(action: () -> Unit) {
+        this.setOnClickListener {
+            uiHandler.postDelayed({ action() }, 150)
+        }
     }
 
     companion object {

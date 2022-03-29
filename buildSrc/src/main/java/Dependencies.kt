@@ -8,7 +8,7 @@ object Versions {
     const val gms_oss_licenses_plugin = "0.10.4"
     const val support = "1.0.0"
     const val appcompat = "1.3.1"
-    const val material = "1.4.0"
+    const val material = "1.5.0"
     const val cardview = "1.0.0"
     const val recyclerview = "1.2.1"
     const val constraint = "2.1.1"

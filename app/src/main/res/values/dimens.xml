@@ -24,6 +24,8 @@
     <dimen name="menu_bottom_margin">12dp</dimen>
     <dimen name="menu_item_size">48dp</dimen>
     <dimen name="menu_height">363dp</dimen>
+    <dimen name="bottom_sheet_home_menu_height">320dp</dimen>
+    <dimen name="bottom_sheet_browser_menu_height">280dp</dimen>
 
     <dimen name="floating_action_button_elevation">4dp</dimen>
     <dimen name="floating_action_button_margin">16dp</dimen>

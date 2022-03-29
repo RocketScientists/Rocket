@@ -22,7 +22,6 @@ object ScrollableBottomSheetHelper {
         menuBottomMargin: Float = context.resources.getDimension(R.dimen.menu_bottom_margin),
         dismissListener: () -> Unit
     ) {
-        setRoundedCorner(binding.container, cornerRadius)
 
         binding.container.setOnClickListener { dismissListener.invoke() }
 
@@ -35,7 +34,10 @@ object ScrollableBottomSheetHelper {
         )
     }
 
-    private fun setRoundedCorner(container: CoordinatorLayout, cornerRadius: Float) {
+    fun setRoundedCorner(
+        container: ViewGroup,
+        cornerRadius: Float = container.resources.getDimension(R.dimen.menu_corner_radius)
+    ) {
         container.outlineProvider = RoundedCornerOutlineProvider(cornerRadius)
         container.clipToOutline = true
     }
@@ -55,7 +57,7 @@ object ScrollableBottomSheetHelper {
 
         val callback = BottomSheetCallback(
             bottomSheetBehavior,
-            rootView,
+            bottomSheet,
             menuBottomMargin,
             cornerRadius,
             dismissListener
@@ -74,7 +76,7 @@ object ScrollableBottomSheetHelper {
 
     private class BottomSheetCallback(
         val bottomSheetBehavior: BottomSheetBehavior<ViewGroup>,
-        val rootView: ViewGroup,
+        val movableView: ViewGroup,
         menuBottomMargin: Float,
         cornerRadius: Float,
         val dismissListener: () -> Unit
@@ -106,12 +108,12 @@ object ScrollableBottomSheetHelper {
             if (translationYChanged) {
                 this.translationY = currentTranslationY
                 if (abs(currentTranslationY) <= maxTranslationY) {
-                    rootView.translationY = currentTranslationY
+                    movableView.translationY = currentTranslationY
                 } else if (currentTranslationY > maxTranslationY &&
-                    rootView.translationY < maxTranslationY
+                    movableView.translationY < maxTranslationY
                 ) {
                     // In case of fast changing
-                    rootView.translationY = maxTranslationY
+                    movableView.translationY = maxTranslationY
                 }
             }
         }

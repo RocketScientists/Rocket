@@ -57,7 +57,7 @@ object ScrollableBottomSheetHelper {
 
         val callback = BottomSheetCallback(
             bottomSheetBehavior,
-            rootView,
+            bottomSheet,
             menuBottomMargin,
             cornerRadius,
             dismissListener
@@ -76,7 +76,7 @@ object ScrollableBottomSheetHelper {
 
     private class BottomSheetCallback(
         val bottomSheetBehavior: BottomSheetBehavior<ViewGroup>,
-        val rootView: ViewGroup,
+        val movableView: ViewGroup,
         menuBottomMargin: Float,
         cornerRadius: Float,
         val dismissListener: () -> Unit
@@ -108,12 +108,12 @@ object ScrollableBottomSheetHelper {
             if (translationYChanged) {
                 this.translationY = currentTranslationY
                 if (abs(currentTranslationY) <= maxTranslationY) {
-                    rootView.translationY = currentTranslationY
+                    movableView.translationY = currentTranslationY
                 } else if (currentTranslationY > maxTranslationY &&
-                    rootView.translationY < maxTranslationY
+                    movableView.translationY < maxTranslationY
                 ) {
                     // In case of fast changing
-                    rootView.translationY = maxTranslationY
+                    movableView.translationY = maxTranslationY
                 }
             }
         }

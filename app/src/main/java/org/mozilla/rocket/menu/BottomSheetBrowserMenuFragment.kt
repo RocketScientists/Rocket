@@ -283,8 +283,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
         val requestPinShortcutSupported =
             ShortcutManagerCompat.isRequestPinShortcutSupported(context)
         if (!requestPinShortcutSupported) {
-            val pinShortcutItem =
-                bottomBarItemAdapter.getItem(ItemType.PIN_SHORTCUT)
+            val pinShortcutItem = bottomBarItemAdapter.getItem(ItemType.PIN_SHORTCUT)
             pinShortcutItem?.view?.apply {
                 visibility = View.GONE
             }

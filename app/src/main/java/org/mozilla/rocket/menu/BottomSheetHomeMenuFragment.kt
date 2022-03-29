@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import dagger.Lazy
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.focus.R
@@ -84,7 +83,7 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     private fun initMenuTabs(binding: BottomSheetHomeMenuBinding) {
-        chromeViewModel.hasUnreadScreenshot.observe(this@BottomSheetHomeMenuFragment) {
+        chromeViewModel.hasUnreadScreenshot.observe(this) {
             binding.imgScreenshots.isActivated = it
         }
 
@@ -112,19 +111,19 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     private fun initMenuItems(binding: BottomSheetHomeMenuBinding) {
-        chromeViewModel.isNightMode.observe(this@BottomSheetHomeMenuFragment) { nightModeSettings ->
+        chromeViewModel.isNightMode.observe(this) { nightModeSettings ->
             binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
         }
-        menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this@BottomSheetHomeMenuFragment) {
+        menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this) {
             binding.btnPrivateBrowsing.isVisible = !it
             binding.menuSmartShoppingSearch.isVisible = it
         }
-        chromeViewModel.isPrivateBrowsingActive.observe(this@BottomSheetHomeMenuFragment) {
+        chromeViewModel.isPrivateBrowsingActive.observe(this) {
             // TODO: how to re-enable this?
             // we removed this image, and use `drawableStart` instead
             // binding.imgPrivateMode.isActivated = it
         }
-        menuViewModel.shouldShowNewMenuItemHint.observe(this@BottomSheetHomeMenuFragment) {
+        menuViewModel.shouldShowNewMenuItemHint.observe(this) {
             if (it) {
                 showNewItemHint()
                 menuViewModel.onNewMenuItemDisplayed()
@@ -194,7 +193,7 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     private fun observeChromeAction() {
-        chromeViewModel.showAdjustBrightness.observe(this, Observer { showAdjustBrightness() })
+        chromeViewModel.showAdjustBrightness.observe(this) { showAdjustBrightness() }
     }
 
     private fun showAdjustBrightness() {

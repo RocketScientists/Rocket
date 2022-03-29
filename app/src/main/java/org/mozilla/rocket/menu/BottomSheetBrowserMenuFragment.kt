@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import dagger.Lazy
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.focus.R
@@ -89,7 +88,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
     }
 
     private fun initMenuTabs(binding: BottomSheetBrowserMenuBinding) {
-        chromeViewModel.hasUnreadScreenshot.observe(this@BottomSheetBrowserMenuFragment) {
+        chromeViewModel.hasUnreadScreenshot.observe(this) {
             binding.imgScreenshots.isActivated = it
         }
 
@@ -115,15 +114,15 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
     }
 
     private fun initMenuItems(binding: BottomSheetBrowserMenuBinding) {
-        chromeViewModel.isTurboModeEnabled.observe(this@BottomSheetBrowserMenuFragment) {
+        chromeViewModel.isTurboModeEnabled.observe(this) {
             binding.turboModeSwitch.isChecked = it
         }
 
-        chromeViewModel.isBlockImageEnabled.observe(this@BottomSheetBrowserMenuFragment) {
+        chromeViewModel.isBlockImageEnabled.observe(this) {
             binding.blockImagesSwitch.isChecked = it
         }
 
-        chromeViewModel.isNightMode.observe(this@BottomSheetBrowserMenuFragment) { nightModeSettings ->
+        chromeViewModel.isNightMode.observe(this) { nightModeSettings ->
             binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
         }
 
@@ -192,7 +191,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
     }
 
     private fun observeChromeAction() {
-        chromeViewModel.showAdjustBrightness.observe(this, Observer { showAdjustBrightness() })
+        chromeViewModel.showAdjustBrightness.observe(this) { showAdjustBrightness() }
     }
 
     private fun showAdjustBrightness() {
@@ -296,15 +295,15 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
         }
 
         chromeViewModel.tabCount.switchFrom(menuViewModel.bottomItems)
-            .observe(this, Observer { bottomBarItemAdapter.setTabCount(it ?: 0) })
+            .observe(this) { bottomBarItemAdapter.setTabCount(it ?: 0) }
         chromeViewModel.isRefreshing.switchFrom(menuViewModel.bottomItems)
-            .observe(this, Observer { bottomBarItemAdapter.setRefreshing(it == true) })
+            .observe(this) { bottomBarItemAdapter.setRefreshing(it == true) }
         chromeViewModel.canGoForward.switchFrom(menuViewModel.bottomItems)
-            .observe(this, Observer { bottomBarItemAdapter.setCanGoForward(it == true) })
+            .observe(this) { bottomBarItemAdapter.setCanGoForward(it == true) }
         chromeViewModel.canGoBack.switchFrom(menuViewModel.bottomItems)
-            .observe(this, Observer { bottomBarItemAdapter.setCanGoBack(it == true) })
+            .observe(this) { bottomBarItemAdapter.setCanGoBack(it == true) }
         chromeViewModel.isCurrentUrlBookmarked.switchFrom(menuViewModel.bottomItems)
-            .observe(this, Observer { bottomBarItemAdapter.setBookmark(it == true) })
+            .observe(this) { bottomBarItemAdapter.setBookmark(it == true) }
     }
 
     private fun hidePinShortcutButtonIfNotSupported() {

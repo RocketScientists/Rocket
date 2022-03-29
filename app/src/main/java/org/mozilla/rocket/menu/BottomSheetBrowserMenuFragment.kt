@@ -89,119 +89,115 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
     }
 
     private fun initMenuTabs(binding: BottomSheetBrowserMenuBinding) {
-        binding.contentLayout.apply {
-            chromeViewModel.hasUnreadScreenshot.observe(this@BottomSheetBrowserMenuFragment) {
-                binding.imgScreenshots.isActivated = it
-            }
+        chromeViewModel.hasUnreadScreenshot.observe(this@BottomSheetBrowserMenuFragment) {
+            binding.imgScreenshots.isActivated = it
+        }
 
-            binding.menuScreenshots.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showScreenshots()
-                }
+        binding.menuScreenshots.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.showScreenshots()
             }
-            binding.menuBookmark.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showBookmarks.call()
-                    TelemetryWrapper.clickMenuBookmark()
-                }
+        }
+        binding.menuBookmark.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.showBookmarks.call()
+                TelemetryWrapper.clickMenuBookmark()
             }
-            binding.menuHistory.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showHistory.call()
-                    TelemetryWrapper.clickMenuHistory()
-                }
+        }
+        binding.menuHistory.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.showHistory.call()
+                TelemetryWrapper.clickMenuHistory()
             }
-            binding.menuDownload.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showDownloadPanel.call()
-                    TelemetryWrapper.clickMenuDownload()
-                }
+        }
+        binding.menuDownload.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.showDownloadPanel.call()
+                TelemetryWrapper.clickMenuDownload()
             }
         }
     }
 
     private fun initMenuItems(binding: BottomSheetBrowserMenuBinding) {
-        binding.contentLayout.apply {
-            chromeViewModel.isTurboModeEnabled.observe(this@BottomSheetBrowserMenuFragment) {
-                binding.turboModeSwitch.isChecked = it
-            }
+        chromeViewModel.isTurboModeEnabled.observe(this@BottomSheetBrowserMenuFragment) {
+            binding.turboModeSwitch.isChecked = it
+        }
 
-            chromeViewModel.isBlockImageEnabled.observe(this@BottomSheetBrowserMenuFragment) {
-                binding.blockImagesSwitch.isChecked = it
-            }
+        chromeViewModel.isBlockImageEnabled.observe(this@BottomSheetBrowserMenuFragment) {
+            binding.blockImagesSwitch.isChecked = it
+        }
 
-            chromeViewModel.isNightMode.observe(this@BottomSheetBrowserMenuFragment) { nightModeSettings ->
-                binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
-            }
+        chromeViewModel.isNightMode.observe(this@BottomSheetBrowserMenuFragment) { nightModeSettings ->
+            binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
+        }
 
-            binding.menuFindInPage.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.showFindInPage.call()
-                }
+        binding.menuFindInPage.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.showFindInPage.call()
             }
-            binding.menuPinShortcut.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.pinShortcut.call()
-                    TelemetryWrapper.clickMenuPinShortcut()
-                }
+        }
+        binding.menuPinShortcut.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.pinShortcut.call()
+                TelemetryWrapper.clickMenuPinShortcut()
             }
-            binding.menuPinSite.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.pinSite.call()
-                }
+        }
+        binding.menuPinSite.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.pinSite.call()
             }
-            binding.menuNightMode.setOnClickListener {
-                chromeViewModel.adjustNightMode()
+        }
+        binding.menuNightMode.setOnClickListener {
+            chromeViewModel.adjustNightMode()
+        }
+        binding.menuTurboMode.setOnClickListener { binding.turboModeSwitch.toggle() }
+        binding.turboModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            val needToUpdate = isChecked != (chromeViewModel.isTurboModeEnabled.value == true)
+            if (needToUpdate) {
+                chromeViewModel.onTurboModeToggled()
             }
-            binding.menuTurboMode.setOnClickListener { binding.turboModeSwitch.toggle() }
-            binding.turboModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-                val needToUpdate = isChecked != (chromeViewModel.isTurboModeEnabled.value == true)
-                if (needToUpdate) {
-                    chromeViewModel.onTurboModeToggled()
-                }
+        }
+        binding.menuBlockImg.setOnClickListener { binding.blockImagesSwitch.toggle() }
+        binding.blockImagesSwitch.setOnCheckedChangeListener { _, isChecked ->
+            val needToUpdate = isChecked != (chromeViewModel.isBlockImageEnabled.value == true)
+            if (needToUpdate) {
+                chromeViewModel.onBlockImageToggled()
             }
-            binding.menuBlockImg.setOnClickListener { binding.blockImagesSwitch.toggle() }
-            binding.blockImagesSwitch.setOnCheckedChangeListener { _, isChecked ->
-                val needToUpdate = isChecked != (chromeViewModel.isBlockImageEnabled.value == true)
-                if (needToUpdate) {
-                    chromeViewModel.onBlockImageToggled()
-                }
+        }
+        binding.nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            val needToUpdate =
+                isChecked != (chromeViewModel.isNightMode.value?.isEnabled == true)
+            if (needToUpdate) {
+                chromeViewModel.onNightModeToggled()
             }
-            binding.nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-                val needToUpdate =
-                    isChecked != (chromeViewModel.isNightMode.value?.isEnabled == true)
-                if (needToUpdate) {
-                    chromeViewModel.onNightModeToggled()
-                }
+        }
+        binding.menuPreferences.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.checkToDriveDefaultBrowser()
+                chromeViewModel.openPreference.call()
+                TelemetryWrapper.clickMenuSettings()
             }
-            binding.menuPreferences.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.checkToDriveDefaultBrowser()
-                    chromeViewModel.openPreference.call()
-                    TelemetryWrapper.clickMenuSettings()
-                }
+        }
+        binding.menuDelete.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                onDeleteClicked()
+                TelemetryWrapper.clickMenuClearCache()
             }
-            binding.menuDelete.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    onDeleteClicked()
-                    TelemetryWrapper.clickMenuClearCache()
-                }
-            }
-            binding.menuExit.setOnClickListener {
-                postDelayClickEvent {
-                    dismissAllowingStateLoss()
-                    chromeViewModel.exitApp.call()
-                    TelemetryWrapper.clickMenuExit()
-                }
+        }
+        binding.menuExit.setOnClickListener {
+            postDelayClickEvent {
+                dismissAllowingStateLoss()
+                chromeViewModel.exitApp.call()
+                TelemetryWrapper.clickMenuExit()
             }
         }
     }

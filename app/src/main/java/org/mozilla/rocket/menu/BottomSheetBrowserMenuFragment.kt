@@ -16,12 +16,13 @@ import org.mozilla.fileutils.FileUtils
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.BottomSheetBrowserMenuBinding
 import org.mozilla.focus.telemetry.TelemetryWrapper
+import org.mozilla.focus.telemetry.TelemetryWrapper.Extra_Value
 import org.mozilla.focus.utils.FormatUtils
 import org.mozilla.focus.utils.ScrollableBottomSheetHelper
 import org.mozilla.rocket.chrome.BottomBarItemAdapter
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.MenuViewModel
-import org.mozilla.rocket.chrome.bottombar.BottomBarItem
+import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.extension.nonNullObserve
@@ -205,89 +206,13 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
 
     private fun initBottomBar(binding: BottomSheetBrowserMenuBinding) {
         val bottomBar = binding.menuBottomBar
+
         bottomBar.setOnItemClickListener { type, position ->
             dismissAllowingStateLoss()
-            when (type) {
-                BottomBarItem.ItemType.TAB_COUNTER -> {
-                    chromeViewModel.showTabTray.call()
-                    TelemetryWrapper.showTabTrayToolbar(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.MENU -> {
-                    chromeViewModel.showBrowserMenu.call()
-                    TelemetryWrapper.showMenuToolbar(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.HOME -> {
-                    chromeViewModel.showNewTab.call()
-                    TelemetryWrapper.clickAddTabToolbar(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.SEARCH -> {
-                    chromeViewModel.showUrlInput.call()
-                    TelemetryWrapper.clickToolbarSearch(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.CAPTURE -> chromeViewModel.onDoScreenshot(
-                    ChromeViewModel.ScreenCaptureTelemetryData(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                )
-                BottomBarItem.ItemType.PIN_SHORTCUT -> {
-                    chromeViewModel.pinShortcut.call()
-                    TelemetryWrapper.clickAddToHome(TelemetryWrapper.Extra_Value.MENU, position)
-                }
-                BottomBarItem.ItemType.BOOKMARK -> {
-                    val nullableItem = bottomBarItemAdapter.getItem(BottomBarItem.ItemType.BOOKMARK)
-                    val isActivated = nullableItem?.view?.isActivated == true
-                    TelemetryWrapper.clickToolbarBookmark(
-                        !isActivated,
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                    chromeViewModel.toggleBookmark()
-                }
-                BottomBarItem.ItemType.REFRESH -> {
-                    chromeViewModel.refreshOrStop.call()
-                    TelemetryWrapper.clickToolbarReload(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.SHARE -> {
-                    chromeViewModel.share.call()
-                    TelemetryWrapper.clickToolbarShare(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.NEXT -> {
-                    chromeViewModel.goNext.call()
-                    TelemetryWrapper.clickToolbarForward(
-                        TelemetryWrapper.Extra_Value.MENU,
-                        position
-                    )
-                }
-                BottomBarItem.ItemType.BACK -> {
-                    chromeViewModel.goBack.call()
-                    TelemetryWrapper.clickToolbarBack(position)
-                }
-                BottomBarItem.ItemType.PRIVATE_HOME,
-                BottomBarItem.ItemType.DELETE,
-                BottomBarItem.ItemType.TRACKER,
-                BottomBarItem.ItemType.SHOPPING_SEARCH ->
-                    throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
-            } // move Telemetry to ScreenCaptureTask doInBackground() cause we need to init category first.
+            handleBottomBarClickEvent(type, position)
+            sendBottomBarClickTelemetry(type, position)
         }
+
         bottomBarItemAdapter = BottomBarItemAdapter(bottomBar, BottomBarItemAdapter.Theme.Light)
         menuViewModel.bottomItems.nonNullObserve(this) { bottomItems ->
             bottomBarItemAdapter.setItems(bottomItems)
@@ -306,13 +231,61 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
             .observe(this) { bottomBarItemAdapter.setBookmark(it == true) }
     }
 
+    private fun handleBottomBarClickEvent(type: ItemType, position: Int) {
+        when (type) {
+            ItemType.TAB_COUNTER -> chromeViewModel.showTabTray.call()
+            ItemType.MENU -> chromeViewModel.showBrowserMenu.call()
+            ItemType.HOME -> chromeViewModel.showNewTab.call()
+            ItemType.SEARCH -> chromeViewModel.showUrlInput.call()
+            ItemType.PIN_SHORTCUT -> chromeViewModel.pinShortcut.call()
+            ItemType.BOOKMARK -> chromeViewModel.toggleBookmark()
+            ItemType.REFRESH -> chromeViewModel.refreshOrStop.call()
+            ItemType.SHARE -> chromeViewModel.share.call()
+            ItemType.NEXT -> chromeViewModel.goNext.call()
+            ItemType.BACK -> chromeViewModel.goBack.call()
+            ItemType.CAPTURE -> chromeViewModel.onDoScreenshot(
+                ChromeViewModel.ScreenCaptureTelemetryData(Extra_Value.MENU, position)
+            )
+            ItemType.PRIVATE_HOME,
+            ItemType.DELETE,
+            ItemType.TRACKER,
+            ItemType.SHOPPING_SEARCH ->
+                throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
+        }
+    }
+
+    private fun sendBottomBarClickTelemetry(type: ItemType, position: Int) {
+        // move Telemetry to ScreenCaptureTask doInBackground() cause need to init category first.
+        when (type) {
+            ItemType.TAB_COUNTER -> TelemetryWrapper.showTabTrayToolbar(Extra_Value.MENU, position)
+            ItemType.MENU -> TelemetryWrapper.showMenuToolbar(Extra_Value.MENU, position)
+            ItemType.HOME -> TelemetryWrapper.clickAddTabToolbar(Extra_Value.MENU, position)
+            ItemType.SEARCH -> TelemetryWrapper.clickToolbarSearch(Extra_Value.MENU, position)
+            ItemType.PIN_SHORTCUT -> TelemetryWrapper.clickAddToHome(Extra_Value.MENU, position)
+            ItemType.REFRESH -> TelemetryWrapper.clickToolbarReload(Extra_Value.MENU, position)
+            ItemType.SHARE -> TelemetryWrapper.clickToolbarShare(Extra_Value.MENU, position)
+            ItemType.NEXT -> TelemetryWrapper.clickToolbarForward(Extra_Value.MENU, position)
+            ItemType.BACK -> TelemetryWrapper.clickToolbarBack(position)
+            ItemType.BOOKMARK -> {
+                val nullableItem = bottomBarItemAdapter.getItem(ItemType.BOOKMARK)
+                val isActivated = nullableItem?.view?.isActivated == true
+                TelemetryWrapper.clickToolbarBookmark(!isActivated, Extra_Value.MENU, position)
+            }
+            ItemType.CAPTURE,
+            ItemType.PRIVATE_HOME,
+            ItemType.DELETE,
+            ItemType.TRACKER,
+            ItemType.SHOPPING_SEARCH -> Unit
+        }
+    }
+
     private fun hidePinShortcutButtonIfNotSupported() {
         val context = context ?: return
         val requestPinShortcutSupported =
             ShortcutManagerCompat.isRequestPinShortcutSupported(context)
         if (!requestPinShortcutSupported) {
             val pinShortcutItem =
-                bottomBarItemAdapter.getItem(BottomBarItem.ItemType.PIN_SHORTCUT)
+                bottomBarItemAdapter.getItem(ItemType.PIN_SHORTCUT)
             pinShortcutItem?.view?.apply {
                 visibility = View.GONE
             }

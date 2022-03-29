@@ -62,7 +62,10 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View = BottomSheetBrowserMenuBinding.inflate(inflater, container, false).also {
         binding = it
-        initLayout(it)
+        initBottomSheet(it)
+        initMenuTabs(it)
+        initMenuItems(it)
+        initBottomBar(it)
         observeChromeAction()
     }.root
 
@@ -72,7 +75,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
         binding = null
     }
 
-    private fun initLayout(binding: BottomSheetBrowserMenuBinding) {
+    private fun initBottomSheet(binding: BottomSheetBrowserMenuBinding) {
         val helperBinding = ScrollableBottomSheetHelper.Binding(
             binding.root,
             binding.container,
@@ -82,10 +85,6 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
         ScrollableBottomSheetHelper.makeViewScrollable(this.requireContext(), helperBinding) {
             this.dismissAllowingStateLoss()
         }
-
-        initMenuTabs(binding)
-        initMenuItems(binding)
-        initBottomBar(binding)
     }
 
     private fun initMenuTabs(binding: BottomSheetBrowserMenuBinding) {

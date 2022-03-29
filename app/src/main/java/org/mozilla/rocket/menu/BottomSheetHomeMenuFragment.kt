@@ -57,7 +57,9 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View = BottomSheetHomeMenuBinding.inflate(inflater, container, false).also {
         binding = it
-        initLayout(it)
+        initBottomSheet(it)
+        initMenuTabs(it)
+        initMenuItems(it)
         observeChromeAction()
     }.root
 
@@ -67,7 +69,7 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         binding = null
     }
 
-    private fun initLayout(binding: BottomSheetHomeMenuBinding) {
+    private fun initBottomSheet(binding: BottomSheetHomeMenuBinding) {
         val helperBinding = ScrollableBottomSheetHelper.Binding(
             binding.root,
             binding.container,
@@ -77,9 +79,6 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         ScrollableBottomSheetHelper.makeViewScrollable(this.requireContext(), helperBinding) {
             this.dismissAllowingStateLoss()
         }
-
-        initMenuTabs(binding)
-        initMenuItems(binding)
     }
 
     private fun initMenuTabs(binding: BottomSheetHomeMenuBinding) {
@@ -193,16 +192,13 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     private fun observeChromeAction() {
-        chromeViewModel.showAdjustBrightness.observe(this) { showAdjustBrightness() }
+        chromeViewModel.showAdjustBrightness.observe(this) { showAdjustBrightnessDialog() }
     }
 
-    private fun showAdjustBrightness() {
+    private fun showAdjustBrightnessDialog() {
         val context = context ?: return
-        ContextCompat.startActivity(
-            context,
-            AdjustBrightnessDialog.Intents.getStartIntentFromMenu(context),
-            null
-        )
+        val openDialogIntent = AdjustBrightnessDialog.Intents.getStartIntentFromMenu(context)
+        ContextCompat.startActivity(context, openDialogIntent, null)
     }
 
     private fun showShoppingSearch() {

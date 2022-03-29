@@ -88,32 +88,26 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
             binding.imgScreenshots.isActivated = it
         }
 
-        binding.menuScreenshots.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showScreenshots()
-            }
+        binding.menuScreenshots.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showScreenshots()
         }
-        binding.menuBookmark.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showBookmarks.call()
-                TelemetryWrapper.clickMenuBookmark()
-            }
+
+        binding.menuBookmark.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showBookmarks.call()
+            TelemetryWrapper.clickMenuBookmark()
         }
-        binding.menuHistory.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showHistory.call()
-                TelemetryWrapper.clickMenuHistory()
-            }
+
+        binding.menuHistory.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showHistory.call()
+            TelemetryWrapper.clickMenuHistory()
         }
-        binding.menuDownload.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showDownloadPanel.call()
-                TelemetryWrapper.clickMenuDownload()
-            }
+        binding.menuDownload.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showDownloadPanel.call()
+            TelemetryWrapper.clickMenuDownload()
         }
     }
 
@@ -137,64 +131,50 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
             }
         }
 
-        binding.btnPrivateBrowsing.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.togglePrivateMode.call()
-                TelemetryWrapper.togglePrivateMode(true)
-            }
+        binding.btnPrivateBrowsing.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.togglePrivateMode.call()
+            TelemetryWrapper.togglePrivateMode(true)
         }
-        binding.menuSmartShoppingSearch.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                showShoppingSearch()
-            }
+        binding.menuSmartShoppingSearch.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            showShoppingSearch()
         }
-        binding.menuNightMode.setOnClickListener {
+        binding.menuNightMode.setOnClickDelayedListener {
             chromeViewModel.adjustNightMode()
         }
         binding.nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            val needToUpdate =
-                isChecked != (chromeViewModel.isNightMode.value?.isEnabled == true)
+            val isNightModeSwitchEnabled = (chromeViewModel.isNightMode.value?.isEnabled == true)
+            val needToUpdate = isChecked != isNightModeSwitchEnabled
             if (needToUpdate) {
                 chromeViewModel.onNightModeToggled()
             }
         }
-        binding.menuAddTopSites.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.onAddNewTopSiteMenuClicked()
-                TelemetryWrapper.clickMenuAddTopsite()
-            }
+        binding.menuAddTopSites.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.onAddNewTopSiteMenuClicked()
+            TelemetryWrapper.clickMenuAddTopsite()
         }
-        binding.menuThemes.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.onThemeSettingMenuClicked()
-                TelemetryWrapper.clickMenuTheme()
-            }
+        binding.menuThemes.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.onThemeSettingMenuClicked()
+            TelemetryWrapper.clickMenuTheme()
         }
-        binding.menuPreferences.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.checkToDriveDefaultBrowser()
-                chromeViewModel.openPreference.call()
-                TelemetryWrapper.clickMenuSettings()
-            }
+        binding.menuPreferences.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.checkToDriveDefaultBrowser()
+            chromeViewModel.openPreference.call()
+            TelemetryWrapper.clickMenuSettings()
         }
-        binding.menuDelete.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                onDeleteClicked()
-                TelemetryWrapper.clickMenuClearCache()
-            }
+        binding.menuDelete.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            onDeleteClicked()
+            TelemetryWrapper.clickMenuClearCache()
         }
-        binding.menuExit.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.exitApp.call()
-                TelemetryWrapper.clickMenuExit()
-            }
+        binding.menuExit.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.exitApp.call()
+            TelemetryWrapper.clickMenuExit()
         }
     }
 
@@ -232,15 +212,12 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
     }
 
     /**
-     * Post delay click event to wait the clicking feedback shows
+     * Extension to set callback that posts delay click event to wait the clicking feedback shows.
      */
-    private fun postDelayClickEvent(action: () -> Unit) {
-        uiHandler.postDelayed(
-            {
-                action()
-            },
-            150
-        )
+    private fun View.setOnClickDelayedListener(action: () -> Unit) {
+        this.setOnClickListener {
+            uiHandler.postDelayed({ action() }, 150)
+        }
     }
 
     companion object {

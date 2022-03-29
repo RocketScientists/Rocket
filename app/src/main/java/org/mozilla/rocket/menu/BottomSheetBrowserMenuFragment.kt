@@ -93,32 +93,24 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
             binding.imgScreenshots.isActivated = it
         }
 
-        binding.menuScreenshots.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showScreenshots()
-            }
+        binding.menuScreenshots.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showScreenshots()
         }
-        binding.menuBookmark.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showBookmarks.call()
-                TelemetryWrapper.clickMenuBookmark()
-            }
+        binding.menuBookmark.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showBookmarks.call()
+            TelemetryWrapper.clickMenuBookmark()
         }
-        binding.menuHistory.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showHistory.call()
-                TelemetryWrapper.clickMenuHistory()
-            }
+        binding.menuHistory.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showHistory.call()
+            TelemetryWrapper.clickMenuHistory()
         }
-        binding.menuDownload.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showDownloadPanel.call()
-                TelemetryWrapper.clickMenuDownload()
-            }
+        binding.menuDownload.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showDownloadPanel.call()
+            TelemetryWrapper.clickMenuDownload()
         }
     }
 
@@ -135,24 +127,18 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
             binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
         }
 
-        binding.menuFindInPage.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.showFindInPage.call()
-            }
+        binding.menuFindInPage.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.showFindInPage.call()
         }
-        binding.menuPinShortcut.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.pinShortcut.call()
-                TelemetryWrapper.clickMenuPinShortcut()
-            }
+        binding.menuPinShortcut.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.pinShortcut.call()
+            TelemetryWrapper.clickMenuPinShortcut()
         }
-        binding.menuPinSite.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.pinSite.call()
-            }
+        binding.menuPinSite.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.pinSite.call()
         }
         binding.menuNightMode.setOnClickListener {
             chromeViewModel.adjustNightMode()
@@ -178,27 +164,21 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
                 chromeViewModel.onNightModeToggled()
             }
         }
-        binding.menuPreferences.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.checkToDriveDefaultBrowser()
-                chromeViewModel.openPreference.call()
-                TelemetryWrapper.clickMenuSettings()
-            }
+        binding.menuPreferences.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.checkToDriveDefaultBrowser()
+            chromeViewModel.openPreference.call()
+            TelemetryWrapper.clickMenuSettings()
         }
-        binding.menuDelete.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                onDeleteClicked()
-                TelemetryWrapper.clickMenuClearCache()
-            }
+        binding.menuDelete.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            onDeleteClicked()
+            TelemetryWrapper.clickMenuClearCache()
         }
-        binding.menuExit.setOnClickListener {
-            postDelayClickEvent {
-                dismissAllowingStateLoss()
-                chromeViewModel.exitApp.call()
-                TelemetryWrapper.clickMenuExit()
-            }
+        binding.menuExit.setOnClickDelayedListener {
+            dismissAllowingStateLoss()
+            chromeViewModel.exitApp.call()
+            TelemetryWrapper.clickMenuExit()
         }
     }
 
@@ -341,15 +321,12 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
     }
 
     /**
-     * Post delay click event to wait the clicking feedback shows
+     * Extension to set callback that posts delay click event to wait the clicking feedback shows.
      */
-    private fun postDelayClickEvent(action: () -> Unit) {
-        uiHandler.postDelayed(
-            {
-                action()
-            },
-            150
-        )
+    private fun View.setOnClickDelayedListener(action: () -> Unit) {
+        this.setOnClickListener {
+            uiHandler.postDelayed({ action() }, 150)
+        }
     }
 
     companion object {

@@ -11,11 +11,14 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.os.Looper
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.InfoActivity
+import org.mozilla.focus.locale.LocaleManager
+import org.mozilla.focus.locale.Locales
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.DialogUtils.createRateAppDialog
@@ -26,6 +29,7 @@ import org.mozilla.rocket.debugging.DebugActivity.Companion.getStartIntent
 import org.mozilla.rocket.deeplink.DeepLinkConstants
 import org.mozilla.rocket.nightmode.AdjustBrightnessDialog.Intents.getStartIntentFromSetting
 import org.mozilla.rocket.privately.ShortcutUtils.Companion.createShortcut
+import java.util.Locale
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
     private var localeUpdated = false
@@ -146,15 +150,13 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 return
             }
             localeUpdated = true
-            // FIXME_PREFERENCE
-            /*
             val languagePreference =
                 findPreference(getString(R.string.pref_key_locale)) as ListPreference?
             languagePreference?.let {
                 val value = it.value
                 val localeManager = LocaleManager.getInstance()
                 val locale: Locale
-                if (TextUtils.isEmpty(value)) {
+                if (value.isEmpty()) {
                     localeManager.resetToSystemLocale(activity)
                     locale = localeManager.getCurrentLocale(activity)
                 } else {
@@ -164,7 +166,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 TelemetryWrapper.settingsLocaleChangeEvent(
                     key,
                     locale.toString(),
-                    TextUtils.isEmpty(value)
+                    value.isEmpty()
                 )
                 localeManager.updateConfiguration(activity, locale)
 
@@ -177,11 +179,10 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                     setResult(SettingsActivity.ACTIVITY_RESULT_LOCALE_CHANGED)
                 }
                 // The easiest way to ensure we update the language is by replacing the entire fragment:
-                fragmentManager.beginTransaction()
+                parentFragmentManager.beginTransaction()
                     .replace(R.id.container, SettingsFragment())
                     .commit()
             }
-             */
             return
         } else if (key != getString(R.string.pref_key_telemetry)) {
             // We'll handle the pref_key_telemetry by TelemetrySwitchPreference.

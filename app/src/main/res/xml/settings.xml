@@ -6,13 +6,11 @@
     <!-- Empty default: we use an empty string to indicate "system default" language being selected -->
     <!--suppress AndroidDomInspection -->
 
-    <!-- FIXME_PREFERENCE
-    <org.mozilla.focus.widget.LocaleListPreference
+    <org.mozilla.rocket.settings.LocaleListPreference
         android:defaultValue=""
         android:key="@string/pref_key_locale"
         android:layout="@layout/focus_preference"
         android:title="@string/preference_language" />
-    -->
 
     <!-- FIXME_PREFERENCE
     <org.mozilla.focus.search.SearchEnginePreference

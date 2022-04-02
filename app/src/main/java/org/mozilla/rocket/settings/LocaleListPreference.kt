@@ -4,13 +4,12 @@
 package org.mozilla.rocket.settings
 
 import android.content.Context
-import android.preference.ListPreference
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
+import androidx.preference.ListPreference
 import org.mozilla.focus.R
 import org.mozilla.focus.locale.LocaleManager
-import org.mozilla.focus.locale.Locales
 import org.mozilla.focus.utils.CharacterValidator
 import org.mozilla.rocket.settings.locale.LocaleDescriptor
 import java.util.Arrays
@@ -50,33 +49,13 @@ class LocaleListPreference @JvmOverloads constructor(
             return descriptors
         }
 
-    private val selectedLocale: Locale
-        private get() {
-            val tag = value
-            return if (tag.isNullOrEmpty()) {
-                Locale.getDefault()
-            } else Locales.parseLocaleCode(tag)
-        }
-
-    override fun onAttachedToActivity() {
-        super.onAttachedToActivity()
+    override fun onAttached() {
+        super.onAttached()
 
         // Thus far, missing glyphs are replaced by whitespace, not a box
         // or other Unicode codepoint.
         characterValidator = CharacterValidator(" ")
         buildList()
-    }
-
-    override fun onDialogClosed(positiveResult: Boolean) {
-        // The superclass will take care of persistence.
-        super.onDialogClosed(positiveResult)
-
-        // Use this hook to try to fix up the environment ASAP.
-        // Do this so that the redisplayed fragment is inflated
-        // with the right locale.
-        val selectedLocale = selectedLocale
-        val context = context
-        LocaleManager.getInstance().updateConfiguration(context, selectedLocale)
     }
 
     override fun getSummary(): CharSequence {
@@ -157,5 +136,4 @@ class LocaleListPreference @JvmOverloads constructor(
             "ml" to "മലയാളം"
         )
     }
-
 }

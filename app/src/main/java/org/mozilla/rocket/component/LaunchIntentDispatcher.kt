@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.CheckResult
 import org.mozilla.focus.activity.MainActivity
-import org.mozilla.focus.activity.SettingsActivity
 import org.mozilla.focus.notification.RocketMessagingService
 import org.mozilla.focus.notification.RocketMessagingService.Companion.STR_PUSH_COMMAND
 import org.mozilla.focus.notification.RocketMessagingService.Companion.STR_PUSH_DEEP_LINK
@@ -17,6 +16,7 @@ import org.mozilla.focus.widget.DefaultBrowserPreference
 import org.mozilla.rocket.deeplink.DeepLinkConstants
 import org.mozilla.rocket.deeplink.DeepLinkType
 import org.mozilla.rocket.deeplink.task.StartSettingsActivityTask
+import org.mozilla.rocket.settings.SettingsActivity
 import java.net.URI
 import java.net.URISyntaxException
 

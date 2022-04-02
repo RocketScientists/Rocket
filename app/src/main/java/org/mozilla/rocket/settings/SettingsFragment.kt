@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 @file:Suppress("DEPRECATION")
 
-package org.mozilla.focus.settings
+package org.mozilla.rocket.settings
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -16,7 +16,6 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.InfoActivity
-import org.mozilla.focus.activity.SettingsActivity
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.DialogUtils.createRateAppDialog

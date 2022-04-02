@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mozilla.focus.R;
 import org.mozilla.focus.autobot.MenuRobot;
 import org.mozilla.focus.utils.AndroidTestUtils;
+import org.mozilla.rocket.settings.SettingsActivity;
 
 import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static androidx.test.espresso.Espresso.onData;

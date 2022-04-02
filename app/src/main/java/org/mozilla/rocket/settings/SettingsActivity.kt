@@ -1,14 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.activity
+package org.mozilla.rocket.settings
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import org.mozilla.focus.R
+import org.mozilla.focus.activity.BaseActivity
 import org.mozilla.focus.databinding.ActivitySettingsBinding
-import org.mozilla.focus.settings.SettingsFragment
 
 class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

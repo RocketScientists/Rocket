@@ -4,33 +4,16 @@
 package org.mozilla.focus.activity
 
 import android.content.Context
-import org.mozilla.focus.settings.SettingsFragment.Companion.newInstance
-import org.mozilla.focus.activity.BaseActivity
+import android.content.Intent
 import android.os.Bundle
 import org.mozilla.focus.R
-import android.content.Intent
-import android.view.View
-import androidx.appcompat.widget.Toolbar
-import org.mozilla.focus.activity.SettingsActivity
+import org.mozilla.focus.databinding.ActivitySettingsBinding
 import org.mozilla.focus.settings.SettingsFragment
 
 class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar!!
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { finish() }
-        val intent = intent
-        val action =
-            if (intent != null && intent.getStringExtra(EXTRA_ACTION) != null) intent.getStringExtra(
-                EXTRA_ACTION
-            ) else ""
-        fragmentManager.beginTransaction()
-            .replace(R.id.container, newInstance(action!!), SettingsFragment.TAG)
-            .commit()
+        initView()
 
         // Ensure all locale specific Strings are initialised on first run, we don't set the title
         // anywhere before now (the title can only be set via AndroidManifest, and ensuring
@@ -52,9 +35,32 @@ class SettingsActivity : BaseActivity() {
         setTitle(R.string.menu_settings)
     }
 
+    private fun initView() {
+        val binding = ActivitySettingsBinding.inflate(layoutInflater)
+            .also { setContentView(it.root) }
+        setContentView(R.layout.activity_settings)
+
+        setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        showFragment()
+    }
+
+    private fun showFragment() {
+        val action = intent?.getStringExtra(EXTRA_ACTION) ?: ""
+        val settingsFragment = SettingsFragment.newInstance(action)
+        fragmentManager.beginTransaction()
+            .replace(R.id.container, settingsFragment, SettingsFragment.TAG)
+            .commit()
+    }
+
     companion object {
+
         const val ACTIVITY_RESULT_LOCALE_CHANGED = 1
         const val EXTRA_ACTION = "action"
+
         fun getStartIntent(context: Context?, action: String?): Intent {
             return Intent(context, SettingsActivity::class.java).putExtra(EXTRA_ACTION, action)
         }

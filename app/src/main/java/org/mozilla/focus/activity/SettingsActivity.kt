@@ -25,7 +25,7 @@ class SettingsActivity : BaseActivity() {
     // or it won't be acted as expected when the settings page is already in foreground.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val fragment = fragmentManager.findFragmentByTag(SettingsFragment.TAG)
+        val fragment = supportFragmentManager.findFragmentByTag(SettingsFragment.TAG)
         if (fragment is SettingsFragment) {
             fragment.onNewIntent(intent)
         }
@@ -51,7 +51,7 @@ class SettingsActivity : BaseActivity() {
     private fun showFragment() {
         val action = intent?.getStringExtra(EXTRA_ACTION) ?: ""
         val settingsFragment = SettingsFragment.newInstance(action)
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
             .replace(R.id.container, settingsFragment, SettingsFragment.TAG)
             .commit()
     }

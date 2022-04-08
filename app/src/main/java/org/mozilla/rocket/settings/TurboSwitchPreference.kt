@@ -2,16 +2,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.widget
+package org.mozilla.rocket.settings
 
 import android.content.Context
-import android.preference.Preference
-import android.preference.Preference.OnPreferenceClickListener
 import android.util.AttributeSet
 import android.util.TypedValue
-import android.view.View
-import android.widget.Switch
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
+import androidx.preference.Preference
+import androidx.preference.Preference.OnPreferenceClickListener
+import androidx.preference.PreferenceViewHolder
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.InfoActivity
 import org.mozilla.focus.telemetry.TelemetryWrapper.settingsLearnMoreClickEvent
@@ -45,15 +45,15 @@ class TurboSwitchPreference : Preference {
         isPersistent = false
     }
 
-    override fun onBindView(view: View) {
-        super.onBindView(view)
-        val switchWidget: Switch = view.findViewById(R.id.switch_widget)
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        val switchWidget = holder.findViewById(R.id.switch_widget) as? SwitchCompat ?: return
+        val summary: TextView = holder.findViewById(android.R.id.summary) as? TextView ?: return
+
         switchWidget.isChecked = Settings.getInstance(context).shouldUseTurboMode()
         switchWidget.setOnCheckedChangeListener { buttonView, isChecked ->
             Settings.getInstance(context).setTurboMode(isChecked)
         }
-
-        val summary: TextView = view.findViewById(android.R.id.summary)
 
         val typedValue = TypedValue()
         val styledAttributes = context.obtainStyledAttributes(

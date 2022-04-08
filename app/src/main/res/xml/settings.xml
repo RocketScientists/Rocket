@@ -81,12 +81,10 @@
     <!-- AboutPreference performs some string substitutions, so that we can show "About <AppName>".
          We keep a plain "About" as the title here in xml as a fallback, but AboutPreference
          will use the substitution regardless of what is set here. -->
-    <!-- FIXME_PREFERENCE
-    <org.mozilla.focus.widget.AboutPreference
+    <org.mozilla.rocket.settings.AboutPreference
         android:key="@string/pref_key_about"
         android:layout="@layout/focus_preference"
         android:title="@string/menu_about" />
-    -->
 
     <!-- Preferences for experimental features, only visible in dev-build -->
     <androidx.preference.PreferenceCategory

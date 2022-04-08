@@ -28,6 +28,7 @@ import org.mozilla.focus.utils.Settings
 import org.mozilla.rocket.debugging.DebugActivity.Companion.getStartIntent
 import org.mozilla.rocket.deeplink.DeepLinkConstants
 import org.mozilla.rocket.nightmode.AdjustBrightnessDialog.Intents.getStartIntentFromSetting
+import org.mozilla.rocket.preference.DefaultBrowserPreference
 import org.mozilla.rocket.privately.ShortcutUtils.Companion.createShortcut
 import java.util.Locale
 
@@ -115,10 +116,9 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         Looper.myQueue().addIdleHandler {
             activity?.isFinishing ?: return@addIdleHandler false
             activity?.isDestroyed ?: return@addIdleHandler false
-            // FIXME_PREFERENCE: uncomment this after migration of DefaultBrowserPreference
-            // val defaultBrowserKey = getString(R.string.pref_key_default_browser)
-            // val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
-            // preference?.performClick()
+            val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+            val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
+            preference?.performActionFromNotification()
             false
         }
     }
@@ -126,17 +126,16 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     override fun onResume() {
         super.onResume()
         preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        // FIXME_PREFERENCE: uncomment this after migration of DefaultBrowserPreference
-        // val defaultBrowserKey = getString(R.string.pref_key_default_browser)
-        // val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
-        // preference?.onFragmentResume()
+        val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+        val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
+        preference?.onFragmentResume()
     }
 
     override fun onPause() {
         super.onPause()
-        // val defaultBrowserKey = getString(R.string.pref_key_default_browser)
-        // val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
-        // preference?.onFragmentPause()
+        val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+        val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
+        preference?.onFragmentPause()
         preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 

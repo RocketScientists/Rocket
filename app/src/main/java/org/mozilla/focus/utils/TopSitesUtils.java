@@ -6,14 +6,13 @@
 package org.mozilla.focus.utils;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.RawRes;
+import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.focus.R;
 import org.mozilla.focus.history.model.Site;
 import org.mozilla.rocket.home.topsites.data.TopSitesRepo;
 

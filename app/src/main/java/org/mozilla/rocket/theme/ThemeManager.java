@@ -3,7 +3,8 @@ package org.mozilla.rocket.theme;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
+
+import androidx.preference.PreferenceManager;
 
 import org.mozilla.focus.R;
 

@@ -14,7 +14,7 @@ import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.mozilla.focus.BuildConfig
 
 class PreferencesContentProvider : ContentProvider() {

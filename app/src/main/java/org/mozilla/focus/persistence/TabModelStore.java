@@ -1,12 +1,14 @@
 package org.mozilla.focus.persistence;
 
+import static android.os.AsyncTask.SERIAL_EXECUTOR;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import org.mozilla.fileutils.FileUtils;
 import org.mozilla.focus.R;
@@ -19,8 +21,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static android.os.AsyncTask.SERIAL_EXECUTOR;
 
 public class TabModelStore {
 

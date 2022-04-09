@@ -9,10 +9,10 @@ import android.app.Activity
 import android.os.Bundle
 import android.os.StrictMode
 import android.os.Trace
-import android.preference.PreferenceManager
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.preference.PreferenceManager
 import mozilla.components.browser.engine.system.SystemEngine
 import mozilla.components.browser.session.SessionManager
 import mozilla.components.concept.engine.DefaultSettings

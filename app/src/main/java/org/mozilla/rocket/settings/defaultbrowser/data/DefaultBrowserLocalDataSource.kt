@@ -1,7 +1,7 @@
 package org.mozilla.rocket.settings.defaultbrowser.data
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.mozilla.focus.utils.Browsers
 import org.mozilla.focus.utils.FirebaseHelper
 import org.mozilla.rocket.util.toJsonObject

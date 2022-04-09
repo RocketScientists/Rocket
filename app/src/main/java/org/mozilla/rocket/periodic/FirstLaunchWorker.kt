@@ -3,8 +3,8 @@ package org.mozilla.rocket.periodic
 import android.app.PendingIntent
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import org.json.JSONException

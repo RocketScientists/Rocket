@@ -2,15 +2,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.widget
+package org.mozilla.rocket.preference
 
-import android.app.AlertDialog
 import android.content.Context
-import android.preference.MultiSelectListPreference
 import android.util.AttributeSet
 import android.webkit.CookieManager
 import android.webkit.WebViewDatabase
 import android.widget.Toast
+import androidx.preference.MultiSelectListPreference
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.fileutils.FileUtils.DeleteFolderRunnable
 import org.mozilla.focus.R
@@ -29,35 +28,42 @@ class CleanBrowsingDataPreference @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : MultiSelectListPreference(context, attrs, defStyleAttr) {
 
-    override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
-        super.onPrepareDialogBuilder(builder)
-        builder.setTitle(null)
-    }
+    override fun onAttached() {
+        super.onAttached()
+        dialogTitle = null
 
-    override fun onDialogClosed(positiveResult: Boolean) {
-        super.onDialogClosed(positiveResult)
-        if (!positiveResult) {
-            return
-        }
         val resources = context.resources
+
+        // Workaround: always clear user's choice to ensure OnPreferenceChangeListener is invoked
+        // if user choose any option. We need this workaround since there is no `onDialogClosed`
+        // in androidx.preference.ListPreference
+        persistStringSet(emptySet<String>())
+        setDefaultValue(emptyArray<String>())
+        isPersistent = false
+
         //  On click positive callback here get current value by getValues();
         val clearBrowsingHistory = resources.getString(R.string.pref_value_clear_browsing_history)
         val clearCookie = resources.getString(R.string.pref_value_clear_cookies)
         val clearCache = resources.getString(R.string.pref_value_clear_cache)
         val clearFormHistory = resources.getString(R.string.pref_value_clear_form_history)
-        for (value in values) {
-            when (value) {
-                clearBrowsingHistory -> clearBrowsingHistory()
-                clearCookie -> clearCookie()
-                clearCache -> FileUtils.clearCache(context)
-                clearFormHistory -> WebViewDatabase.getInstance(context).clearFormData()
-            }
+        setOnPreferenceChangeListener { _, newValue ->
+            val newValueMap: Set<String> = newValue as? Set<String>
+                ?: return@setOnPreferenceChangeListener false
+            for (value in newValueMap) {
+                when (value) {
+                    clearBrowsingHistory -> clearBrowsingHistory()
+                    clearCookie -> clearCookie()
+                    clearCache -> FileUtils.clearCache(context)
+                    clearFormHistory -> WebViewDatabase.getInstance(context).clearFormData()
+                }
 
-            settingsEvent(key, value)
-        }
-        if (values.size > 0) {
-            Toast.makeText(context, R.string.message_cleared_browsing_data, Toast.LENGTH_SHORT)
-                .show()
+                settingsEvent(key, value)
+            }
+            if (newValueMap.isNotEmpty()) {
+                Toast.makeText(context, R.string.message_cleared_browsing_data, Toast.LENGTH_SHORT)
+                    .show()
+            }
+            false
         }
     }
 

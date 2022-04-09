@@ -27,7 +27,7 @@ import org.junit.Assert
 import org.junit.Rule
 import org.mozilla.focus.R
 import org.mozilla.focus.helper.ActivityRecreateLeakWatcherIdlingResource
-import org.mozilla.focus.widget.TelemetrySwitchPreference
+import org.mozilla.rocket.preference.TelemetrySwitchPreference
 import org.mozilla.rocket.settings.SettingsActivity
 import org.mozilla.rocket.settings.TurboSwitchPreference
 

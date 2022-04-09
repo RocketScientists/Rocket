@@ -2,20 +2,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.widget
+package org.mozilla.rocket.preference
 
 import android.content.Context
-import android.preference.Preference
 import android.util.AttributeSet
-import android.view.View
+import androidx.appcompat.widget.SwitchCompat
+import androidx.preference.Preference
+import androidx.preference.Preference.OnPreferenceClickListener
+import androidx.preference.PreferenceViewHolder
+import org.mozilla.focus.R
 import org.mozilla.focus.telemetry.TelemetryWrapper.isTelemetryEnabled
 import org.mozilla.focus.telemetry.TelemetryWrapper.setTelemetryEnabled
 import org.mozilla.focus.utils.FirebaseHelper.enableAnalytics
-import org.mozilla.focus.R
-import org.mozilla.focus.telemetry.TelemetryWrapper
-import android.widget.CompoundButton
-import android.widget.Switch
-import org.mozilla.focus.utils.FirebaseHelper
 
 /**
  * Ideally we'd extend SwitchPreference, and only do the summary modification. Unfortunately
@@ -42,18 +40,20 @@ class TelemetrySwitchPreference : Preference {
         isPersistent = false
     }
 
-    override fun onBindView(view: View) {
-        val switchWidget = view.findViewById<View>(R.id.switch_widget) as Switch
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        val switchWidget = holder.findViewById(R.id.switch_widget) as SwitchCompat
         switchWidget.isChecked = isTelemetryEnabled(context)
         switchWidget.setOnCheckedChangeListener { buttonView, isChecked ->
             setTelemetryEnabled(context, isChecked)
             // we should use the value from UI (isChecked) instead of relying on SharePreference.
             enableAnalytics(context.applicationContext, isEnabled)
         }
+
         onPreferenceClickListener = OnPreferenceClickListener {
             switchWidget.toggle()
             true
         }
-        super.onBindView(view)
+
+        super.onBindViewHolder(holder)
     }
 }

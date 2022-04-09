@@ -1,13 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.widget
+package org.mozilla.rocket.preference
 
 import android.content.Context
-import android.preference.ListPreference
 import android.text.TextUtils
 import android.util.AttributeSet
 import androidx.annotation.WorkerThread
+import androidx.preference.ListPreference
 import org.mozilla.focus.R
 import org.mozilla.focus.utils.NoRemovableStorageException
 import org.mozilla.focus.utils.StorageUtils
@@ -20,18 +20,20 @@ class DataSavingPathPreference @JvmOverloads constructor(
 
     private var hasRemovableStorage = false
 
-    override fun onAttachedToActivity() {
-        super.onAttachedToActivity()
+    override fun onAttached() {
+        super.onAttached()
         buildList()
+
         // Put pingRemovableStorage() in background thread to avoid strict mode violation: disk I/O on main thread.
         ThreadUtils.postToBackgroundThread { pingRemovableStorage() }
-    }
 
-    override fun onDialogClosed(positiveResult: Boolean) {
         // The superclass will take care of persistence.
-        super.onDialogClosed(positiveResult)
-        if (positiveResult) {
-            persistString(value)
+        setOnPreferenceChangeListener { preference, newValue ->
+            val newValueStr = newValue.toString()
+            if (newValueStr.isNotEmpty()) {
+                persistString(newValueStr)
+            }
+            true
         }
     }
 

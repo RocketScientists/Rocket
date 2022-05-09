@@ -117,11 +117,11 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
             binding.btnPrivateBrowsing.isVisible = !it
             binding.menuSmartShoppingSearch.isVisible = it
         }
-        chromeViewModel.isPrivateBrowsingActive.observe(this) {
-            // TODO: how to re-enable this?
-            // we removed this image, and use `drawableStart` instead
-            // binding.imgPrivateMode.isActivated = it
-        }
+        // TODO: how to re-enable this?
+        // chromeViewModel.isPrivateBrowsingActive.observe(this) {
+        //     // we removed this image, and use `drawableStart` instead
+        //     // binding.imgPrivateMode.isActivated = it
+        // }
         menuViewModel.shouldShowNewMenuItemHint.observe(this) {
             if (it) {
                 showNewItemHint()

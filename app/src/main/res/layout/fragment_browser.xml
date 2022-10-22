@@ -10,7 +10,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/browser_background">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,8 +52,7 @@
                 tools:progress="50" />
 
         </org.mozilla.rocket.nightmode.themed.ThemedFrameLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <org.mozilla.rocket.nightmode.themed.ThemedView
         android:id="@+id/inset_cover"
@@ -64,13 +63,14 @@
     <org.mozilla.focus.widget.ResizableKeyboardLayout
         android:id="@+id/webview_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/main_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/app_bar_height"
+            android:layout_marginBottom="@dimen/fixed_menu_height"
             android:orientation="vertical">
 
             <FrameLayout

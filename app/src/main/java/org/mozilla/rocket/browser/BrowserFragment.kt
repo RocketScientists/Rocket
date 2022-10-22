@@ -164,7 +164,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             insets
         }
         binding.mainContent.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-            v.setPadding(0, 0, 0, insets.systemWindowInsetTop)
+            v.setPadding(0, insets.systemWindowInsetTop, 0, 0)
             insets
         }
 
@@ -224,7 +224,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
 
         chromeViewModel.currentUrl.observeOnViewLifecycle {
-            binding?.appBar?.setExpanded(true)
             binding?.browserBottomBar?.slideUp()
         }
     }
@@ -529,12 +528,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val focusTab = sessionCtrl.getFocusSession() ?: return
 
         binding.root.isActivated = false
-        binding.appBar.setExpanded(false)
         binding.browserBottomBar.visibility = View.INVISIBLE
         hidePluggableUi()
         findInPage.onDismissListener = {
             binding.root.isActivated = true
-            binding.appBar.setExpanded(true)
             binding.browserBottomBar.visibility = View.VISIBLE
             showPluggableUi()
         }

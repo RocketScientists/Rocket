@@ -7,7 +7,7 @@
     style="?toolBarAppearance"
     android:id="@+id/toolbar_root"
     android:layout_width="match_parent"
-    android:layout_height="26dp"
+    android:layout_height="@dimen/app_bar_height"
     android:animateLayoutChanges="true"
     android:orientation="horizontal"
     android:paddingEnd="0dp"

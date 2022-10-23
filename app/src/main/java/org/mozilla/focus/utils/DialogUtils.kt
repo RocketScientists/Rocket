@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
-import org.mozilla.focus.activity.SettingsActivity
 import org.mozilla.focus.notification.NotificationId
 import org.mozilla.focus.notification.NotificationUtil
 import org.mozilla.focus.telemetry.TelemetryWrapper
@@ -38,6 +37,7 @@ import org.mozilla.focus.utils.SpotlightDialog.SpotlightConfigs.CircleSpotlightC
 import org.mozilla.rocket.extension.dpToPx
 import org.mozilla.rocket.extension.inflate
 import org.mozilla.rocket.home.HomeViewModel
+import org.mozilla.rocket.settings.SettingsActivity
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserPreferenceViewModel
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserTutorialDialog
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserTutorialDialogData

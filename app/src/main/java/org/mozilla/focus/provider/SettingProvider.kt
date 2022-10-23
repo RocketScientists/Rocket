@@ -12,7 +12,7 @@ import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.mozilla.focus.provider.SettingContract.GET_BOOLEAN
 import org.mozilla.focus.provider.SettingContract.GET_FLOAT
 import org.mozilla.focus.provider.SettingContract.KEY

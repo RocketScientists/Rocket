@@ -2,7 +2,7 @@ package org.mozilla.rocket.shopping.search.data
 
 import android.app.ActivityManager
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
 
 class ShoppingSearchMode private constructor(context: Context) {

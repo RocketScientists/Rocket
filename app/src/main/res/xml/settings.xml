@@ -1,83 +1,83 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
+<?xml version="1.0" encoding="utf-8"?><!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="root_preferences">
     <!-- Empty default: we use an empty string to indicate "system default" language being selected -->
     <!--suppress AndroidDomInspection -->
-    <org.mozilla.focus.widget.LocaleListPreference
-        android:layout="@layout/focus_preference"
+
+    <org.mozilla.rocket.settings.LocaleListPreference
+        android:defaultValue=""
         android:key="@string/pref_key_locale"
-        android:title="@string/preference_language"
-        android:defaultValue=""/>
-
-    <org.mozilla.focus.search.SearchEnginePreference
         android:layout="@layout/focus_preference"
-        android:title="@string/preference_search_engine_default"
-        android:key="@string/pref_key_search_engine" />
+        android:title="@string/preference_language" />
 
-    <org.mozilla.focus.widget.CleanBrowsingDataPreference
+    <org.mozilla.rocket.preference.SearchEnginePreference
+        android:key="@string/pref_key_search_engine"
         android:layout="@layout/focus_preference"
-        android:positiveButtonText="@string/setting_dialog_clear_data"
-        android:negativeButtonText="@string/setting_dialog_cancel"
-        android:defaultValue="@array/clean_browsing_data_values"
-        android:entryValues="@array/clean_browsing_data_values"
+        android:title="@string/preference_search_engine_default" />
+
+    <!-- The implementation of this preference does not really persist value as workaround -->
+    <org.mozilla.rocket.preference.CleanBrowsingDataPreference
         android:entries="@array/clean_browsing_data_entries"
-        android:title="@string/preference_privacy_storage_clear_browsing_data"
-        android:key="@string/pref_key_storage_clear_browsing_data" />
-
-    <org.mozilla.focus.widget.DataSavingPathPreference
+        android:entryValues="@array/clean_browsing_data_values"
+        android:key="@string/pref_key_storage_clear_browsing_data"
         android:layout="@layout/focus_preference"
-        android:title="@string/preference_privacy_storage_save_downloads_to"
-        android:key="@string/pref_key_storage_save_downloads_to" />
+        android:negativeButtonText="@string/setting_dialog_cancel"
+        android:positiveButtonText="@string/setting_dialog_clear_data"
+        android:title="@string/preference_privacy_storage_clear_browsing_data" />
 
-    <Preference
+    <org.mozilla.rocket.preference.DataSavingPathPreference
+        android:key="@string/pref_key_storage_save_downloads_to"
         android:layout="@layout/focus_preference"
-        android:title="@string/preference_night_mode_brightness"
-        android:key="@string/pref_key_night_mode_brightness" />
+        android:title="@string/preference_privacy_storage_save_downloads_to" />
 
-    <org.mozilla.focus.widget.TurboSwitchPreference
+    <androidx.preference.Preference
+        android:key="@string/pref_key_night_mode_brightness"
         android:layout="@layout/focus_preference"
+        android:title="@string/preference_night_mode_brightness" />
+
+    <org.mozilla.rocket.settings.TurboSwitchPreference
         android:key="@string/pref_key_turbo_mode"
-        android:title="@string/preference_turbo_mode"
-        android:summary="@string/preference_learn_more" />
-
-    <org.mozilla.focus.widget.DefaultBrowserPreference
         android:layout="@layout/focus_preference"
+        android:summary="@string/preference_learn_more"
+        android:title="@string/preference_turbo_mode" />
+
+    <org.mozilla.rocket.preference.DefaultBrowserPreference
         android:key="@string/pref_key_default_browser"
+        android:layout="@layout/focus_preference"
         android:title="@string/preference_default_browser" />
 
     <Preference
+        android:key="@string/pref_key_private_mode_shortcut"
         android:layout="@layout/focus_preference"
-        android:title="@string/preference_add_private_browsing_shortcut"
-        android:key="@string/pref_key_private_mode_shortcut" />
+        android:title="@string/preference_add_private_browsing_shortcut" />
 
-    <org.mozilla.focus.widget.TelemetrySwitchPreference
+    <org.mozilla.rocket.preference.TelemetrySwitchPreference
         android:layout="@layout/focus_preference"
-        android:title="@string/preference_mozilla_telemetry"
-        android:persistent="false" />
-
-    <Preference
-        android:layout="@layout/focus_preference"
-        android:title="@string/menu_give_feedback"
-        android:key="@string/pref_key_give_feedback" />
+        android:persistent="false"
+        android:title="@string/preference_mozilla_telemetry" />
 
     <Preference
+        android:key="@string/pref_key_give_feedback"
         android:layout="@layout/focus_preference"
-        android:title="@string/menu_share_with_friends"
-        android:key="@string/pref_key_share_with_friends" />
+        android:title="@string/menu_give_feedback" />
+
+    <Preference
+        android:key="@string/pref_key_share_with_friends"
+        android:layout="@layout/focus_preference"
+        android:title="@string/menu_share_with_friends" />
 
     <!-- AboutPreference performs some string substitutions, so that we can show "About <AppName>".
          We keep a plain "About" as the title here in xml as a fallback, but AboutPreference
          will use the substitution regardless of what is set here. -->
-    <org.mozilla.focus.widget.AboutPreference
+    <org.mozilla.rocket.settings.AboutPreference
+        android:key="@string/pref_key_about"
         android:layout="@layout/focus_preference"
-        android:title="@string/menu_about"
-        android:key="@string/pref_key_about" />
+        android:title="@string/menu_about" />
 
     <!-- Preferences for experimental features, only visible in dev-build -->
-    <PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:key="@string/pref_key_category_experiment"
         android:title="For experiment">
 
@@ -86,18 +86,18 @@
             android:layout="@layout/focus_preference"
             android:title="Block JavaScript" />
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
     <!-- Preferences for debugging purpose, only visible in dev-build -->
-    <PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:key="@string/pref_key_category_debug"
         android:title="For debugging">
 
         <Preference
             android:key="@string/pref_key_debug_page"
             android:layout="@layout/focus_preference"
-            android:title="Debug Page"/>
+            android:title="Debug Page" />
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

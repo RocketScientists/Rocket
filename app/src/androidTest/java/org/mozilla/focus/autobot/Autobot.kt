@@ -26,10 +26,10 @@ import org.hamcrest.core.Is
 import org.junit.Assert
 import org.junit.Rule
 import org.mozilla.focus.R
-import org.mozilla.focus.activity.SettingsActivity
 import org.mozilla.focus.helper.ActivityRecreateLeakWatcherIdlingResource
-import org.mozilla.focus.widget.TelemetrySwitchPreference
-import org.mozilla.focus.widget.TurboSwitchPreference
+import org.mozilla.rocket.preference.TelemetrySwitchPreference
+import org.mozilla.rocket.settings.SettingsActivity
+import org.mozilla.rocket.settings.TurboSwitchPreference
 
 inline fun setting(func: SettingRobot.() -> Unit) = SettingRobot().apply(func)
 inline fun screenshot(func: ScreenshotRobot.() -> Unit) = ScreenshotRobot().apply(func)

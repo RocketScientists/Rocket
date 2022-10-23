@@ -7,7 +7,7 @@ import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,7 +30,6 @@ import org.mozilla.rocket.persistance.History.HistoryDatabase
 import org.mozilla.rocket.util.AssetsUtils
 import org.mozilla.rocket.util.getJsonArray
 import org.mozilla.rocket.util.toJsonArray
-import java.util.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

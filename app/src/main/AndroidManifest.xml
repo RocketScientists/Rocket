@@ -169,7 +169,7 @@
 
         <!-- SettingsActivity title is set dynamically for multilocale support -->
         <activity
-            android:name="org.mozilla.focus.activity.SettingsActivity"
+            android:name="org.mozilla.rocket.settings.SettingsActivity"
             android:enabled="true"
             android:exported="false"
             android:launchMode="singleTask"

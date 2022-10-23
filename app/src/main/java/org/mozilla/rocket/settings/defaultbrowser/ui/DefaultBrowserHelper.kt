@@ -11,7 +11,7 @@ import org.mozilla.focus.activity.InfoActivity
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.SupportUtils
-import org.mozilla.focus.widget.DefaultBrowserPreference
+import org.mozilla.rocket.preference.DefaultBrowserPreference
 import java.util.concurrent.TimeUnit
 
 class DefaultBrowserHelper(

@@ -19,6 +19,7 @@ import org.mozilla.focus.locale.LocaleAwareApplication;
 import org.mozilla.focus.locale.LocaleManager;
 import org.mozilla.focus.locale.Locales;
 import org.mozilla.focus.utils.Settings;
+import org.mozilla.rocket.settings.SettingsActivity;
 
 import java.util.Locale;
 

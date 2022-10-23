@@ -1,10 +1,25 @@
 package org.mozilla.focus.activity;
 
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.PreferenceMatchers.withKey;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.core.Is.is;
+
 import android.content.Intent;
 import android.content.res.Resources;
-import android.preference.Preference;
+
 import androidx.annotation.NonNull;
+import androidx.preference.Preference;
 import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.filters.FlakyTest;
 import androidx.test.rule.ActivityTestRule;
@@ -20,20 +35,7 @@ import org.junit.Test;
 import org.mozilla.focus.R;
 import org.mozilla.focus.helper.BeforeTestTask;
 import org.mozilla.focus.utils.AndroidTestUtils;
-
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
-import static androidx.test.espresso.Espresso.onData;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.PreferenceMatchers.withKey;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.core.Is.is;
+import org.mozilla.rocket.settings.SettingsActivity;
 
 @FlakyTest
 public class ChangeLanguageTest {

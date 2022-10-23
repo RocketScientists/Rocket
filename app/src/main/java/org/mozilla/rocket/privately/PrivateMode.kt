@@ -7,7 +7,7 @@ package org.mozilla.rocket.privately
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.mozilla.fileutils.FileUtils
 import org.mozilla.rocket.component.PrivateSessionNotificationService
 import org.mozilla.threadutils.ThreadUtils

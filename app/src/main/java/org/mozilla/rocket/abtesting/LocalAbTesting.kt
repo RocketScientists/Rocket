@@ -1,8 +1,8 @@
 package org.mozilla.rocket.abtesting
 
 import android.content.Context
-import android.preference.PreferenceManager
 import androidx.collection.ArrayMap
+import androidx.preference.PreferenceManager
 import org.json.JSONObject
 import org.mozilla.focus.R
 import org.mozilla.rocket.util.AssetsUtils

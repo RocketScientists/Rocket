@@ -3,13 +3,13 @@ package org.mozilla.rocket.content
 import android.app.IntentService
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.preference.Preference
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.Preference
 import dagger.Lazy
 import org.mozilla.focus.FocusApplication
 import org.mozilla.rocket.di.AppComponent

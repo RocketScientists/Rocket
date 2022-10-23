@@ -2,16 +2,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package org.mozilla.focus.widget
+package org.mozilla.rocket.preference
 
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
-import android.preference.Preference
 import android.util.AttributeSet
-import android.view.View
-import android.widget.Switch
-import androidx.lifecycle.Observer
+import androidx.appcompat.widget.SwitchCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.preference.Preference
+import androidx.preference.PreferenceViewHolder
 import dagger.Lazy
 import org.mozilla.focus.R
 import org.mozilla.focus.utils.DialogUtils
@@ -32,10 +32,14 @@ class DefaultBrowserPreference : Preference {
     private lateinit var viewModel: DefaultBrowserPreferenceViewModel
     private lateinit var defaultBrowserHelper: DefaultBrowserHelper
 
-    private var switchView: Switch? = null
+    private var switchView: SwitchCompat? = null
 
     // Instantiated from XML
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         widgetLayoutResource = R.layout.preference_default_browser
         init()
     }
@@ -50,32 +54,53 @@ class DefaultBrowserPreference : Preference {
         appComponent().inject(this)
     }
 
-    override fun onAttachedToActivity() {
-        super.onAttachedToActivity()
+    override fun onAttached() {
+        super.onAttached()
         viewModel = getActivityViewModel(viewModelCreator)
         defaultBrowserHelper = DefaultBrowserHelper(context.toFragmentActivity(), viewModel)
     }
 
-    override fun onBindView(view: View) {
-        super.onBindView(view)
-        switchView = view.findViewById<View>(R.id.switch_widget) as Switch?
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+        switchView = holder.findViewById(R.id.switch_widget) as SwitchCompat?
 
-        viewModel.uiModel.observe(context.toFragmentActivity(), Observer { update(it) })
-        viewModel.openDefaultAppsSettings.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.openDefaultAppsSettings() })
-        viewModel.openAppDetailSettings.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.openAppDetailSettings() })
-        viewModel.openSumoPage.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.openSumoPage() })
-        viewModel.triggerWebOpen.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.triggerWebOpen() })
-        viewModel.openDefaultAppsSettingsTutorialDialog.observe(context.toFragmentActivity(), Observer { DialogUtils.showGoToSystemAppsSettingsDialog(context, viewModel) })
-        viewModel.openUrlTutorialDialog.observe(context.toFragmentActivity(), Observer { DialogUtils.showOpenUrlDialog(context, viewModel) })
-        viewModel.successToSetDefaultBrowser.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.showSuccessMessage() })
-        viewModel.failToSetDefaultBrowser.observe(context.toFragmentActivity(), Observer { defaultBrowserHelper.showFailMessage() })
+        val hostActivity: FragmentActivity = context.toFragmentActivity()
+
+        viewModel.uiModel.observe(hostActivity) { update(it) }
+        viewModel.openDefaultAppsSettings.observe(hostActivity) {
+            defaultBrowserHelper.openDefaultAppsSettings()
+        }
+        viewModel.openAppDetailSettings.observe(hostActivity) {
+            defaultBrowserHelper.openAppDetailSettings()
+        }
+        viewModel.openSumoPage.observe(hostActivity) {
+            defaultBrowserHelper.openSumoPage()
+        }
+        viewModel.triggerWebOpen.observe(hostActivity) {
+            defaultBrowserHelper.triggerWebOpen()
+        }
+        viewModel.openDefaultAppsSettingsTutorialDialog.observe(hostActivity) {
+            DialogUtils.showGoToSystemAppsSettingsDialog(context, viewModel)
+        }
+        viewModel.openUrlTutorialDialog.observe(hostActivity) {
+            DialogUtils.showOpenUrlDialog(context, viewModel)
+        }
+        viewModel.successToSetDefaultBrowser.observe(hostActivity) {
+            defaultBrowserHelper.showSuccessMessage()
+        }
+        viewModel.failToSetDefaultBrowser.observe(hostActivity) {
+            defaultBrowserHelper.showFailMessage()
+        }
     }
 
     fun update(uiModel: DefaultBrowserPreferenceUiModel) {
-        switchView?.let {
-            it.isChecked = uiModel.isDefaultBrowser
-            Settings.updatePrefDefaultBrowserIfNeeded(context, uiModel.isDefaultBrowser, uiModel.hasDefaultBrowser)
-        }
+        val capturedSwitchView = switchView ?: return
+        capturedSwitchView.isChecked = uiModel.isDefaultBrowser
+        Settings.updatePrefDefaultBrowserIfNeeded(
+            context,
+            uiModel.isDefaultBrowser,
+            uiModel.hasDefaultBrowser
+        )
     }
 
     override fun onClick() {
@@ -90,7 +115,7 @@ class DefaultBrowserPreference : Preference {
         viewModel.onPause()
     }
 
-    fun performClick() {
+    fun performActionFromNotification() {
         viewModel.performActionFromNotification()
     }
 

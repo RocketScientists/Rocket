@@ -8,11 +8,11 @@ package org.mozilla.focus.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.preference.PreferenceManager;
 
 import org.mozilla.focus.R;
 import org.mozilla.focus.provider.SettingPreferenceWrapper;

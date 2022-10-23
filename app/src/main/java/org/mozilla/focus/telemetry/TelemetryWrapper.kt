@@ -13,9 +13,9 @@ package org.mozilla.focus.telemetry
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.StrictMode.ThreadPolicy.Builder
-import android.preference.PreferenceManager
 import android.util.Log
 import android.webkit.PermissionRequest
+import androidx.preference.PreferenceManager
 import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.FocusApplication
 import org.mozilla.focus.R

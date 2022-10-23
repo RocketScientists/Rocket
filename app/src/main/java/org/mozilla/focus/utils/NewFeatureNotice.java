@@ -2,9 +2,9 @@ package org.mozilla.focus.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.VisibleForTesting;
+import androidx.preference.PreferenceManager;
 
 public class NewFeatureNotice {
 

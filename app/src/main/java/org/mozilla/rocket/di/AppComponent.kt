@@ -28,7 +28,6 @@ import org.mozilla.focus.persistence.TabsDatabase
 import org.mozilla.focus.persistence.di.TabsModule
 import org.mozilla.focus.tabs.tabtray.TabTrayFragment
 import org.mozilla.focus.urlinput.UrlInputFragment
-import org.mozilla.focus.widget.DefaultBrowserPreference
 import org.mozilla.rocket.browser.BrowserFragment
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.di.ChromeModule
@@ -46,6 +45,7 @@ import org.mozilla.rocket.home.topsites.ui.AddNewTopSitesFragment
 import org.mozilla.rocket.menu.BottomSheetBrowserMenuFragment
 import org.mozilla.rocket.menu.BottomSheetHomeMenuFragment
 import org.mozilla.rocket.menu.PrivateBrowserMenuDialog
+import org.mozilla.rocket.preference.DefaultBrowserPreference
 import org.mozilla.rocket.privately.PrivateModeActivity
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.shopping.search.ShoppingSearchController

@@ -4,21 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 @file:Suppress("DEPRECATION")
 
-package org.mozilla.focus.settings
+package org.mozilla.rocket.settings
 
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.os.Looper
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceScreen
-import android.text.TextUtils
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceScreen
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.InfoActivity
-import org.mozilla.focus.activity.SettingsActivity
 import org.mozilla.focus.locale.LocaleManager
 import org.mozilla.focus.locale.Locales
 import org.mozilla.focus.telemetry.TelemetryWrapper
@@ -27,26 +25,29 @@ import org.mozilla.focus.utils.DialogUtils.createRateAppDialog
 import org.mozilla.focus.utils.DialogUtils.createShareAppDialog
 import org.mozilla.focus.utils.FirebaseHelper.getFirebase
 import org.mozilla.focus.utils.Settings
-import org.mozilla.focus.widget.DefaultBrowserPreference
 import org.mozilla.rocket.debugging.DebugActivity.Companion.getStartIntent
 import org.mozilla.rocket.deeplink.DeepLinkConstants
 import org.mozilla.rocket.nightmode.AdjustBrightnessDialog.Intents.getStartIntentFromSetting
+import org.mozilla.rocket.preference.DefaultBrowserPreference
 import org.mozilla.rocket.privately.ShortcutUtils.Companion.createShortcut
 import java.util.Locale
 
-class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
     private var localeUpdated = false
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
-        val rootPreferences = findPreference(PREF_KEY_ROOT) as PreferenceScreen?
+        val rootPreferences = findPreference<PreferenceScreen>(PREF_KEY_ROOT)
         if (!AppConstants.isDevBuild() && !AppConstants.isFirebaseBuild() && !AppConstants.isNightlyBuild()) {
-            val experimentCategory = findPreference(getString(R.string.pref_key_category_experiment))
+            val experimentCategory =
+                findPreference<Preference>(getString(R.string.pref_key_category_experiment))
             rootPreferences?.removePreference(experimentCategory)
-            val debuggingCategory = findPreference(getString(R.string.pref_key_category_debug))
+            val debuggingCategory =
+                findPreference<Preference>(getString(R.string.pref_key_category_debug))
             rootPreferences?.removePreference(debuggingCategory)
         }
-        val preferenceNightMode = findPreference(getString(R.string.pref_key_night_mode_brightness))
+        val preferenceNightMode =
+            findPreference<Preference>(getString(R.string.pref_key_night_mode_brightness))
         preferenceNightMode?.isEnabled = Settings.getInstance(activity).isNightModeEnable
 
         if (DeepLinkConstants.COMMAND_SET_DEFAULT_BROWSER == arguments?.getString(SettingsActivity.EXTRA_ACTION)) {
@@ -54,7 +55,9 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
         }
     }
 
-    override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
+    override fun onPreferenceTreeClick(
+        preference: Preference
+    ): Boolean {
         val resources = resources
         val keyClicked = preference.key
         TelemetryWrapper.settingsClickEvent(keyClicked)
@@ -82,7 +85,7 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
                 startActivity(getStartIntent(preference.context))
             }
         }
-        return super.onPreferenceTreeClick(preferenceScreen, preference)
+        return super.onPreferenceTreeClick(preferenceScreen)
     }
 
     private fun debuggingFirebase(): Boolean {
@@ -92,7 +95,12 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
             debugShare.action = Intent.ACTION_SEND
             debugShare.type = "text/plain"
             debugShare.putExtra(Intent.EXTRA_TEXT, "${getFirebase().getFcmToken()}")
-            startActivity(Intent.createChooser(debugShare, "This token is only for QA to test in Nightly and debug build"))
+            startActivity(
+                Intent.createChooser(
+                    debugShare,
+                    "This token is only for QA to test in Nightly and debug build"
+                )
+            )
             return true
         }
         return false
@@ -106,10 +114,11 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
 
     private fun triggerSetDefaultBrowserAction() {
         Looper.myQueue().addIdleHandler {
-            if (!activity.isFinishing && !activity.isDestroyed) {
-                val preference = findPreference(getString(R.string.pref_key_default_browser)) as DefaultBrowserPreference?
-                preference?.performClick()
-            }
+            activity?.isFinishing ?: return@addIdleHandler false
+            activity?.isDestroyed ?: return@addIdleHandler false
+            val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+            val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
+            preference?.performActionFromNotification()
             false
         }
     }
@@ -117,13 +126,15 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
     override fun onResume() {
         super.onResume()
         preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        val preference = findPreference(getString(R.string.pref_key_default_browser)) as DefaultBrowserPreference?
+        val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+        val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
         preference?.onFragmentResume()
     }
 
     override fun onPause() {
         super.onPause()
-        val preference = findPreference(getString(R.string.pref_key_default_browser)) as DefaultBrowserPreference?
+        val defaultBrowserKey = getString(R.string.pref_key_default_browser)
+        val preference = findPreference<DefaultBrowserPreference>(defaultBrowserKey)
         preference?.onFragmentPause()
         preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
@@ -138,19 +149,24 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
                 return
             }
             localeUpdated = true
-            val languagePreference = findPreference(getString(R.string.pref_key_locale)) as ListPreference?
+            val languagePreference =
+                findPreference(getString(R.string.pref_key_locale)) as ListPreference?
             languagePreference?.let {
                 val value = it.value
                 val localeManager = LocaleManager.getInstance()
                 val locale: Locale
-                if (TextUtils.isEmpty(value)) {
+                if (value.isEmpty()) {
                     localeManager.resetToSystemLocale(activity)
                     locale = localeManager.getCurrentLocale(activity)
                 } else {
                     locale = Locales.parseLocaleCode(value)
                     localeManager.setSelectedLocale(activity, value)
                 }
-                TelemetryWrapper.settingsLocaleChangeEvent(key, locale.toString(), TextUtils.isEmpty(value))
+                TelemetryWrapper.settingsLocaleChangeEvent(
+                    key,
+                    locale.toString(),
+                    value.isEmpty()
+                )
                 localeManager.updateConfiguration(activity, locale)
 
                 activity?.apply {
@@ -162,7 +178,7 @@ class SettingsFragment : PreferenceFragment(), OnSharedPreferenceChangeListener 
                     setResult(SettingsActivity.ACTIVITY_RESULT_LOCALE_CHANGED)
                 }
                 // The easiest way to ensure we update the language is by replacing the entire fragment:
-                fragmentManager.beginTransaction()
+                parentFragmentManager.beginTransaction()
                     .replace(R.id.container, SettingsFragment())
                     .commit()
             }

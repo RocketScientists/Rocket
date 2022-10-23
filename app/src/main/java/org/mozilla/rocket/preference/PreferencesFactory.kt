@@ -6,7 +6,7 @@
 package org.mozilla.rocket.preference
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 interface PreferencesFactory {
     fun createPreferences(context: Context, name: String = ""): Preferences

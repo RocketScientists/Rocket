@@ -156,7 +156,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
         viewLifecycleOwner.lifecycle.addObserver(viewController)
 
-        binding.appBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
+        binding.urlBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
             (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
             // we might leak Views here
             binding.insetCover.layoutParams?.height = insets.systemWindowInsetTop
@@ -263,13 +263,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val es = current.engineSession ?: return
         es.detach()
         val tabView = es.tabView ?: return
-        binding?.webviewSlot?.removeView(tabView.getView())
+        binding?.webViewSlot?.removeView(tabView.getView())
     }
 
     override fun goForeground() {
         val current = sessionCtrl.getFocusSession() ?: return
         val tabView = current.engineSession?.tabView ?: return
-        val webViewSlot = binding?.webviewSlot ?: return
+        val webViewSlot = binding?.webViewSlot ?: return
 
         if (webViewSlot.childCount == 0) {
             webViewSlot.addView(tabView.getView())
@@ -516,7 +516,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         binding.toolbar.toolbarRoot.setDarkTheme(enable)
         binding.toolbar.displayUrl.setDarkTheme(enable)
         binding.toolbar.siteIdentity.setDarkTheme(enable)
-        binding.urlbar.setDarkTheme(enable)
+        binding.urlBar.setDarkTheme(enable)
         binding.urlBarDivider.setDarkTheme(enable)
         val isLightStatusBarIcon = !enable && !chromeViewModel.isInPrivateMode
         ViewUtils.updateStatusBarStyle(isLightStatusBarIcon, requireActivity().window)
@@ -527,7 +527,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val focusTab = sessionCtrl.getFocusSession() ?: return
 
         binding.root.isActivated = false
-        binding.browserBottomBar.visibility = View.INVISIBLE
+        binding.browserBottomBar.visibility = View.GONE
         hidePluggableUi()
         findInPage.onDismissListener = {
             binding.root.isActivated = true

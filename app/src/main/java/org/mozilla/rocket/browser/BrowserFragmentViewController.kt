@@ -48,8 +48,8 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLife
     fun enterVideoFullScreen(videoView: View) {
         val binding = binding ?: return
         // Hide browser UI and web content
-        binding.appBar.visibility = View.INVISIBLE
-        binding.webviewContainer.visibility = View.INVISIBLE
+        binding.urlBar.visibility = View.INVISIBLE
+        binding.resizableContainer.visibility = View.INVISIBLE
         binding.browserBottomBar.visibility = View.INVISIBLE
 
         // Add view to video container and make it visible
@@ -71,8 +71,8 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLife
         binding.videoContainer.visibility = View.GONE
 
         // Show browser UI and web content again
-        binding.appBar.visibility = View.VISIBLE
-        binding.webviewContainer.visibility = View.VISIBLE
+        binding.urlBar.visibility = View.VISIBLE
+        binding.resizableContainer.visibility = View.VISIBLE
         binding.browserBottomBar.visibility = View.VISIBLE
         if (systemVisibility != ViewUtils.SYSTEM_UI_VISIBILITY_NONE) {
             // TODO: check, should we reset systemVisibility after exiting immersive mode?
@@ -128,7 +128,7 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLife
     fun transitToTab(view: View?) {
         val binding = this.binding ?: return
         val inView = view ?: return
-        val webViewSlot = binding.webviewSlot
+        val webViewSlot = binding.webViewSlot
         val outView = webViewSlot.findExistingTabView()
 
         webViewSlot.removeView(outView)

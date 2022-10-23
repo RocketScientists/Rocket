@@ -44,7 +44,7 @@ public class InfoFragment extends DefaultWebFragment {
                               @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_info, container, false);
         progressView = view.findViewById(R.id.progress);
-        ViewGroup webViewSlot = view.findViewById(R.id.webview_slot);
+        ViewGroup webViewSlot = view.findViewById(R.id.web_view_slot);
         webView = (WebView) WebViewProvider.createDefaultWebView(getContext(), null);
         webViewSlot.addView(webView);
 

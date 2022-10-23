@@ -10,15 +10,15 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import org.mozilla.focus.R;
 import org.mozilla.rocket.extension.ViewExtensionKt;
 
 /**
- * A CoordinatorLayout implementation that resizes dynamically (by adding padding to the bottom)
+ * A ViewGroup implementation that resizes dynamically (by adding padding to the bottom)
  * based on whether a keyboard is visible or not.
  * <p>
  * Implementation based on:
@@ -27,7 +27,7 @@ import org.mozilla.rocket.extension.ViewExtensionKt;
  * An optional viewToHideWhenActivated can be set: this is a View that will be hidden when the keyboard
  * is showing. That can be useful for things like FABs that you don't need when someone is typing.
  */
-public class ResizableKeyboardLayout extends CoordinatorLayout {
+public class ResizableKeyboardLayout extends FrameLayout {
 
     private final static int BOTTOM_INSET_THRESHOLD_IN_DP = 150;
 

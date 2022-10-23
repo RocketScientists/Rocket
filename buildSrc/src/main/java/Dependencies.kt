@@ -19,7 +19,7 @@ object Versions {
     const val arch_work = "2.7.0"
     const val guava_android = "28.2-android"
     const val lifecycle = "2.4.0"
-    const val room = "2.3.0"
+    const val room = "2.4.3"
     const val glide = "4.0.0"
     const val kotlin = "1.6.0"
     const val kotlinXCoroutine = "1.6.0"

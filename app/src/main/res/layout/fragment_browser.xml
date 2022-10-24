@@ -74,7 +74,7 @@
 
             </org.mozilla.rocket.nightmode.themed.ThemedFrameLayout>
 
-            <FrameLayout
+            <org.mozilla.rocket.view.NestedFrameLayout
                 android:id="@+id/web_view_slot"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

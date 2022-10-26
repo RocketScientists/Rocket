@@ -43,7 +43,6 @@ import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
-import org.mozilla.rocket.content.view.BottomBar.BottomBarBehavior.Companion.slideUp
 import org.mozilla.rocket.extension.UrlStringExtension.removeUrlFragment
 import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.Session
@@ -224,7 +223,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
 
         chromeViewModel.currentUrl.observeOnViewLifecycle {
-            binding?.browserBottomBar?.slideUp()
+            binding?.browserBottomBar?.showBottomBar()
         }
     }
 

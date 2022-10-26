@@ -1,5 +1,8 @@
 package org.mozilla.rocket.content.view
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.TimeInterpolator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -8,7 +11,9 @@ import android.util.SparseIntArray
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import android.widget.FrameLayout
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import org.mozilla.focus.R
 import org.mozilla.focus.widget.EqualDistributeGrid
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem
@@ -21,6 +26,8 @@ open class BottomBar : FrameLayout {
     private var onItemClickListener: OnItemClickListener? = null
     private var onItemLongClickListener: OnItemLongClickListener? = null
     private val itemVisibilities = SparseIntArray()
+
+    private var currentAnimator: ViewPropertyAnimator? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -143,11 +150,47 @@ open class BottomBar : FrameLayout {
         }
     }
 
+    fun showBottomBar() {
+        cancelRunningAnimator()
+        val destinationY = 0f
+        currentAnimator = createAnimator(destinationY)
+    }
+
+    fun hideBottomBar() {
+        cancelRunningAnimator()
+        val destinationY = measuredHeight.toFloat()
+        currentAnimator = createAnimator(destinationY)
+    }
+
+    private fun cancelRunningAnimator() {
+        currentAnimator?.cancel()
+        currentAnimator = null
+    }
+
+    private fun createAnimator(destinationY: Float): ViewPropertyAnimator {
+        return this.animate()
+            .setDuration(ANIMATION_DURATION)
+            .setInterpolator(ANIMATOR_INTERPOLATOR)
+            .translationY(destinationY)
+            .setListener(AnimatorCleaner(this));
+    }
+
     fun interface OnItemClickListener {
         fun onItemClick(type: ItemType, position: Int): Unit
     }
 
     fun interface OnItemLongClickListener {
         fun onItemLongClick(type: ItemType, position: Int): Boolean
+    }
+
+    private class AnimatorCleaner(val bottomBar: BottomBar) : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            bottomBar.currentAnimator = null
+        }
+    }
+
+    companion object {
+        private const val ANIMATION_DURATION: Long = 500L
+        private val ANIMATOR_INTERPOLATOR: TimeInterpolator = LinearOutSlowInInterpolator()
     }
 }

@@ -12,12 +12,16 @@ import androidx.lifecycle.LifecycleOwner
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentBrowserBinding
 import org.mozilla.focus.utils.ViewUtils
+import org.mozilla.rocket.chrome.BrowserFragmentLayoutController
+import org.mozilla.rocket.chrome.ScrollingBehavior
 import org.mozilla.rocket.tabs.TabView
+import androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams as CoordinatorLayoutParams
 
 private const val ANIMATION_DURATION = 300
 
 class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLifecycleObserver {
 
+    var layoutController: BrowserFragmentLayoutController? = null
     private var binding: FragmentBrowserBinding? = null
     private var tabTransitionAnimator: ValueAnimator? = null
 
@@ -27,9 +31,11 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLife
 
     // onViewCreated
     override fun onCreate(owner: LifecycleOwner) {
-        this.binding = fragment.binding ?: return
-        appBarBgTransition = binding?.toolbar?.toolbarRoot?.background as? TransitionDrawable
-        statusBarBgTransition = binding?.insetCover?.background as? TransitionDrawable
+        val binding = fragment.binding ?: return
+        this.binding = binding
+        appBarBgTransition = binding.toolbar.toolbarRoot.background as? TransitionDrawable
+        statusBarBgTransition = binding.insetCover.background as? TransitionDrawable
+        injectControllerToBehavior(binding)
     }
 
     // onDestroyView
@@ -171,6 +177,14 @@ class BrowserFragmentViewController(val fragment: BrowserFragment) : DefaultLife
         })
 
         return animator
+    }
+
+    private fun injectControllerToBehavior(binding: FragmentBrowserBinding) {
+        val ctrl = BrowserFragmentLayoutController(binding)
+        val param = binding.webViewSlot.layoutParams as CoordinatorLayoutParams
+        val behavior = param.behavior as ScrollingBehavior
+        behavior.injectController(ctrl)
+        this.layoutController = ctrl
     }
 
     private fun ViewGroup?.findExistingTabView(): View? {

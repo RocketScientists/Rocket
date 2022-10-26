@@ -307,7 +307,6 @@ class ShoppingSearchResultTabFragment : Fragment(), ContentTabViewContract, Back
                     animateToTab(binding, position)
                     selectContentFragment(shoppingSearchTabsAdapter, position)
                     binding.appbar.setExpanded(true)
-                    binding.bottomBar.showBottomBar()
                 }
             })
             binding.viewPager.setSwipeable(false)
@@ -434,7 +433,6 @@ class ShoppingSearchResultTabFragment : Fragment(), ContentTabViewContract, Back
 
         chromeViewModel.currentUrl.observe(viewLifecycleOwner) {
             binding?.appbar?.setExpanded(true)
-            binding?.bottomBar?.showBottomBar()
             telemetryViewModel.onUrlOpened()
         }
     }

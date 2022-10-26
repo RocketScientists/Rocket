@@ -216,7 +216,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
 
         chromeViewModel.currentUrl.observeOnViewLifecycle {
-            binding?.browserBottomBar?.showBottomBar()
+            viewController.layoutController?.showTopBar()
+            viewController.layoutController?.showBottomBar()
         }
     }
 

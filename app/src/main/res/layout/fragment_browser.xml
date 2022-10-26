@@ -10,63 +10,24 @@
     android:layout_height="match_parent"
     android:background="@drawable/browser_background">
 
-    <org.mozilla.rocket.nightmode.themed.ThemedFrameLayout
-        android:id="@+id/url_bar"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/url_bar_height"
-        android:clipChildren="false"
-        app:elevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_scrollFlags="scroll|enterAlways|snap|exitUntilCollapsed">
-
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="1dp" />
-
-        <!-- divider between urlBar and web-vew, will be covered by progress bar -->
-        <org.mozilla.rocket.nightmode.themed.ThemedView
-            android:id="@+id/url_bar_divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/url_bar_divider"
-            tools:background="#FF0000" />
-
-        <org.mozilla.focus.widget.AnimatedProgressBar
-            android:id="@+id/progress_bar"
-            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="-1dp"
-            android:importantForAccessibility="yes"
-            android:progressDrawable="@drawable/photon_progressbar"
-            app:shiftDuration="@integer/progress_shift_duration"
-            app:wrapShiftDrawable="true"
-            tools:progress="50" />
-
-    </org.mozilla.rocket.nightmode.themed.ThemedFrameLayout>
-
     <org.mozilla.rocket.nightmode.themed.ThemedView
         android:id="@+id/inset_cover"
         style="?toolBarAppearance"
         android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_height="40dp" />
 
     <org.mozilla.focus.widget.ResizableKeyboardLayout
         android:id="@+id/resizable_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/url_bar_height"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/inset_cover">
 
         <org.mozilla.rocket.nightmode.themed.ThemedCoordinatorLayout
             android:id="@+id/main_content"
@@ -74,10 +35,50 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <org.mozilla.rocket.nightmode.themed.ThemedFrameLayout
+                android:id="@+id/url_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/url_bar_height"
+                android:clipChildren="false"
+                app:elevation="0dp"
+                app:layout_scrollFlags="scroll|enterAlways|snap|exitUntilCollapsed">
+
+                <include
+                    android:id="@+id/toolbar"
+                    layout="@layout/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="1dp" />
+
+                <!-- divider between urlBar and web-vew, will be covered by progress bar -->
+                <org.mozilla.rocket.nightmode.themed.ThemedView
+                    android:id="@+id/url_bar_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/url_bar_divider"
+                    tools:background="#FF0000" />
+
+                <org.mozilla.focus.widget.AnimatedProgressBar
+                    android:id="@+id/progress_bar"
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="-1dp"
+                    android:importantForAccessibility="yes"
+                    android:progressDrawable="@drawable/photon_progressbar"
+                    app:shiftDuration="@integer/progress_shift_duration"
+                    app:wrapShiftDrawable="true"
+                    tools:progress="50" />
+
+            </org.mozilla.rocket.nightmode.themed.ThemedFrameLayout>
+
             <FrameLayout
                 android:id="@+id/web_view_slot"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/url_bar_height"
                 android:layout_marginBottom="@dimen/fixed_menu_height" />
 
             <org.mozilla.rocket.nightmode.themed.ThemedBottomBar

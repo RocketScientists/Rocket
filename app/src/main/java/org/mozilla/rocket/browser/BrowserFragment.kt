@@ -13,7 +13,6 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowInsets
 import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
@@ -156,14 +155,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
         viewLifecycleOwner.lifecycle.addObserver(viewController)
 
-        binding.urlBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-            (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
-            // we might leak Views here
-            binding.insetCover.layoutParams?.height = insets.systemWindowInsetTop
-            insets
-        }
-        binding.mainContent.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-            v.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+        binding.insetCover.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
+            v.layoutParams?.height = insets.systemWindowInsetTop
             insets
         }
 

@@ -256,7 +256,6 @@ object TelemetryWrapper {
         const val SNACKBAR = "snackbar"
         const val NEW = "new"
         const val REMINDER = "reminder"
-        const val SHOPPING = "shopping"
         const val ALL = "all"
         const val URL = "url"
         const val DEEPLINK = "deeplink"
@@ -1570,7 +1569,6 @@ object TelemetryWrapper {
         `object` = Object.SEARCH_BAR,
         value = Value.MINI_URLBAR,
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = "${Extra_Value.SHOPPING}"),
             TelemetryExtra(name = Extra.ORIENTATION, value = "portrait,landscape")
         ]
     )
@@ -2557,7 +2555,6 @@ object TelemetryWrapper {
         `object` = Object.LOGOMAN,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.TYPE, value = "${Extra_Value.SHOPPING},null"),
             TelemetryExtra(
                 name = Extra.LINK,
                 value = "${Extra_Value.URL},${Extra_Value.DEEPLINK},null"
@@ -2580,7 +2577,6 @@ object TelemetryWrapper {
         `object` = Object.LOGOMAN,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.TYPE, value = "${Extra_Value.SHOPPING},null"),
             TelemetryExtra(
                 name = Extra.LINK,
                 value = "${Extra_Value.URL},${Extra_Value.DEEPLINK},null"
@@ -2603,7 +2599,6 @@ object TelemetryWrapper {
         `object` = Object.LOGOMAN,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.TYPE, value = "${Extra_Value.SHOPPING},null"),
             TelemetryExtra(
                 name = Extra.LINK,
                 value = "${Extra_Value.URL},${Extra_Value.DEEPLINK},null"
@@ -2764,7 +2759,6 @@ object TelemetryWrapper {
         `object` = Object.CONTENT_TAB,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(name = Extra.CATEGORY, value = "category"),
@@ -2792,7 +2786,6 @@ object TelemetryWrapper {
         `object` = Object.CONTENT_TAB,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(name = Extra.CATEGORY, value = "category"),
@@ -2836,12 +2829,7 @@ object TelemetryWrapper {
         method = Method.START,
         `object` = Object.PROCESS,
         value = Value.VERTICAL,
-        extras = [
-            TelemetryExtra(
-                name = Extra.VERTICAL,
-                value = "${Extra_Value.SHOPPING},${Extra_Value.ALL}"
-            )
-        ]
+        extras = []
     )
     fun startVerticalProcess(vertical: String) {
         EventBuilder(Category.ACTION, Method.START, Object.PROCESS, Value.VERTICAL)
@@ -2856,10 +2844,6 @@ object TelemetryWrapper {
         `object` = Object.PROCESS,
         value = Value.VERTICAL,
         extras = [
-            TelemetryExtra(
-                name = Extra.VERTICAL,
-                value = "${Extra_Value.SHOPPING},${Extra_Value.ALL}"
-            ),
             TelemetryExtra(name = Extra.LOADTIME, value = "[0-9]+")
         ]
     )
@@ -2876,12 +2860,7 @@ object TelemetryWrapper {
         method = Method.START,
         `object` = Object.PROCESS,
         value = Value.TAB_SWIPE,
-        extras = [
-            TelemetryExtra(
-                name = Extra.VERTICAL,
-                value = "${Extra_Value.SHOPPING},${Extra_Value.ALL}"
-            )
-        ]
+        extras = []
     )
     fun startTabSwipeProcess(vertical: String) {
         EventBuilder(Category.ACTION, Method.START, Object.PROCESS, Value.TAB_SWIPE)
@@ -2896,10 +2875,6 @@ object TelemetryWrapper {
         `object` = Object.PROCESS,
         value = Value.TAB_SWIPE,
         extras = [
-            TelemetryExtra(
-                name = Extra.VERTICAL,
-                value = "${Extra_Value.SHOPPING},${Extra_Value.ALL}"
-            ),
             TelemetryExtra(name = Extra.LOADTIME, value = "[0-9]+")
         ]
     )
@@ -2917,7 +2892,6 @@ object TelemetryWrapper {
         `object` = Object.TAB_SWIPE,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source")
         ]
@@ -2937,7 +2911,6 @@ object TelemetryWrapper {
         `object` = Object.TAB_SWIPE,
         value = "",
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(
@@ -2976,7 +2949,6 @@ object TelemetryWrapper {
         extras = [
             TelemetryExtra(name = Extra.MODE, value = "webview"),
             TelemetryExtra(name = Extra.POSITION, value = "[0-9]"),
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(name = Extra.CATEGORY, value = "category"),
@@ -3011,7 +2983,6 @@ object TelemetryWrapper {
         extras = [
             TelemetryExtra(name = Extra.MODE, value = "webview"),
             TelemetryExtra(name = Extra.POSITION, value = "[0-9]"),
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(name = Extra.CATEGORY, value = "category"),
@@ -3050,10 +3021,6 @@ object TelemetryWrapper {
         extras = [
             TelemetryExtra(name = Extra.MODE, value = "webview"),
             TelemetryExtra(name = Extra.POSITION, value = "[0-9]"),
-            TelemetryExtra(
-                name = Extra.VERTICAL,
-                value = "${Extra_Value.SHOPPING},${Extra_Value.ALL}"
-            ),
             TelemetryExtra(name = Extra.FEED, value = "feed"),
             TelemetryExtra(name = Extra.SOURCE, value = "source"),
             TelemetryExtra(name = Extra.CATEGORY, value = "category"),
@@ -3095,7 +3062,6 @@ object TelemetryWrapper {
         `object` = Object.TOOLBAR,
         value = Value.TAB_SWIPE,
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(
                 name = Extra.FROM,
                 value = "${Extra_Value.HOME},${Extra_Value.TAB_SWIPE}"
@@ -3117,7 +3083,6 @@ object TelemetryWrapper {
         `object` = Object.DRAWER,
         value = Value.TAB_SWIPE,
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed")
         ]
     )
@@ -3136,7 +3101,6 @@ object TelemetryWrapper {
         `object` = Object.DRAWER,
         value = Value.TAB_SWIPE,
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.FEED, value = "feed")
         ]
     )
@@ -3154,7 +3118,7 @@ object TelemetryWrapper {
         method = Method.ADD,
         `object` = Object.TAB,
         value = Value.TAB_SWIPE,
-        extras = [TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING)]
+        extras = []
     )
     @JvmStatic
     fun addTabSwipeTab(vertical: String) {
@@ -3184,9 +3148,7 @@ object TelemetryWrapper {
         method = Method.SHOW,
         `object` = Object.SEARCH_BAR,
         value = Value.TAB_SWIPE,
-        extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING)
-        ]
+        extras = []
     )
     @JvmStatic
     fun showSearchBarFromTabSwipe(vertical: String) {
@@ -3201,9 +3163,7 @@ object TelemetryWrapper {
         method = Method.SHOW_KEYBOARD,
         `object` = Object.SEARCH_BAR,
         value = Value.TAB_SWIPE,
-        extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING)
-        ]
+        extras = []
     )
     @JvmStatic
     fun showKeyboardFromTabSwipeSearchBar(vertical: String) {
@@ -3218,9 +3178,7 @@ object TelemetryWrapper {
         method = Method.START_TYPING,
         `object` = Object.SEARCH_BAR,
         value = Value.TAB_SWIPE,
-        extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING)
-        ]
+        extras = []
     )
     @JvmStatic
     fun startTypingFromTabSwipeSearchBar(vertical: String) {
@@ -3235,9 +3193,7 @@ object TelemetryWrapper {
         method = Method.TYPE_QUERY,
         `object` = Object.SEARCH_BAR,
         value = Value.TAB_SWIPE,
-        extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING)
-        ]
+        extras = []
     )
     @JvmStatic
     fun searchWithTextInSearchBar(vertical: String) {
@@ -3253,7 +3209,6 @@ object TelemetryWrapper {
         `object` = Object.SEARCH_BAR,
         value = Value.TAB_SWIPE,
         extras = [
-            TelemetryExtra(name = Extra.VERTICAL, value = Extra_Value.SHOPPING),
             TelemetryExtra(name = Extra.DEFAULT, value = "true,false"),
             TelemetryExtra(name = Extra.KEYWORD, value = "default name xxx,null")
         ]

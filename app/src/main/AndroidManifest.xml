@@ -15,9 +15,6 @@
     <!-- Since targeting version 28: Need this permission to run foreground services. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <!-- Needed to prompt the user to give permission to install a downloaded apk -->
-    <uses-permission-sdk-23 android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
     <!-- Permission needed to publish the app on Samsung AppStore -->
     <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
 

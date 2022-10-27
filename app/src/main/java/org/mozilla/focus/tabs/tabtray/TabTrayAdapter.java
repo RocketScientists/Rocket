@@ -10,16 +10,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
@@ -33,10 +33,10 @@ import com.bumptech.glide.request.transition.Transition;
 
 import org.mozilla.focus.R;
 import org.mozilla.focus.utils.DimenUtils;
+import org.mozilla.icon.FavIconUtils;
 import org.mozilla.rocket.nightmode.themed.ThemedRecyclerView;
 import org.mozilla.rocket.nightmode.themed.ThemedRelativeLayout;
 import org.mozilla.rocket.nightmode.themed.ThemedTextView;
-import org.mozilla.icon.FavIconUtils;
 import org.mozilla.rocket.nightmode.themed.ThemedView;
 import org.mozilla.rocket.tabs.Session;
 
@@ -46,10 +46,8 @@ import java.util.List;
 
 public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int VIEW_TYPE_SHOPPING_SEARCH = 1;
-    private static final int VIEW_TYPE_TAB = 2;
+    private static final int VIEW_TYPE_TAB = 1;
 
-    private boolean showShoppingSearch;
     private String keyword;
 
     private List<Session> tabs = new ArrayList<>();
@@ -70,16 +68,6 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case VIEW_TYPE_SHOPPING_SEARCH: {
-                ShoppingSearchViewHolder holder = new ShoppingSearchViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.item_shopping_search, parent, false));
-
-                InternalTabClickListener listener = new InternalTabClickListener(holder, tabClickListener);
-
-                holder.itemView.setOnClickListener(listener);
-                holder.closeButton.setOnClickListener(listener);
-                return holder;
-            }
             case VIEW_TYPE_TAB: {
                 TabViewHolder holder = new TabViewHolder(LayoutInflater.from(parent.getContext()).inflate(
                         R.layout.item_tab_tray, parent, false));
@@ -100,16 +88,8 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         Resources resources = holder.itemView.getResources();
         switch (getItemViewType(position)) {
-            case VIEW_TYPE_SHOPPING_SEARCH: {
-                ShoppingSearchViewHolder ssHolder = (ShoppingSearchViewHolder) holder;
-                String title = TextUtils.isEmpty(keyword) ? resources.getString(R.string.shopping_switch_ui_tabtray_title_no_keyword) :
-                        resources.getString(R.string.shopping_switch_ui_tabtray_title, keyword);
-                ssHolder.title.setText(title);
-                ssHolder.closeIcon.setDarkTheme(isNight);
-                break;
-            }
             case VIEW_TYPE_TAB: {
-                Session tab = tabs.get(showShoppingSearch ? position - 1 : position);
+                Session tab = tabs.get(position);
                 TabViewHolder tabHolder = (TabViewHolder) holder;
                 tabHolder.itemView.setSelected(tab == focusedTab);
 
@@ -144,12 +124,12 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return showShoppingSearch ? tabs.size() + 1 : tabs.size();
+        return tabs.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (showShoppingSearch && position == 0) ? VIEW_TYPE_SHOPPING_SEARCH : VIEW_TYPE_TAB;
+        return VIEW_TYPE_TAB;
     }
 
     @Override
@@ -163,11 +143,6 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     void setTabClickListener(TabClickListener tabClickListener) {
         this.tabClickListener = tabClickListener;
-    }
-
-    void setShoppingSearch(boolean showShoppingSearch, String keyword) {
-        this.showShoppingSearch = showShoppingSearch;
-        this.keyword = keyword;
     }
 
     void setData(List<Session> tabs) {
@@ -274,19 +249,6 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    static class ShoppingSearchViewHolder extends RecyclerView.ViewHolder {
-        TextView title;
-        View closeButton;
-        ThemedView closeIcon;
-
-        ShoppingSearchViewHolder(View itemView) {
-            super(itemView);
-            title = itemView.findViewById(R.id.title);
-            closeButton = itemView.findViewById(R.id.close_button);
-            closeIcon = itemView.findViewById(R.id.close_icon);
-        }
-    }
-
     class TabViewHolder extends RecyclerView.ViewHolder {
         ThemedRelativeLayout rootView;
         ThemedTextView websiteTitle;
@@ -310,13 +272,12 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (position == RecyclerView.NO_POSITION) {
                 return position;
             } else {
-                return showShoppingSearch ? position - 1 : position;
+                return position;
             }
         }
     }
 
     static class InternalTabClickListener implements View.OnClickListener {
-        private static final int POSITION_OF_SHOPPING_SEARCH = -99;
 
         private RecyclerView.ViewHolder holder;
         private TabClickListener tabClickListener;
@@ -332,9 +293,7 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return;
             }
 
-            if (holder instanceof ShoppingSearchViewHolder) {
-                dispatchOnClick(v, POSITION_OF_SHOPPING_SEARCH);
-            } else if (holder instanceof  TabViewHolder) {
+            if (holder instanceof TabViewHolder) {
                 int pos = ((TabViewHolder) holder).getOriginPosition();
                 if (pos != RecyclerView.NO_POSITION) {
                     dispatchOnClick(v, pos);
@@ -345,19 +304,11 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private void dispatchOnClick(View v, int position) {
             switch (v.getId()) {
                 case R.id.root_view:
-                    if (position == POSITION_OF_SHOPPING_SEARCH) {
-                        tabClickListener.onShoppingSearchClick();
-                    } else {
-                        tabClickListener.onTabClick(position);
-                    }
+                    tabClickListener.onTabClick(position);
                     break;
 
                 case R.id.close_button:
-                    if (position == POSITION_OF_SHOPPING_SEARCH) {
-                        tabClickListener.onShoppingSearchCloseClick();
-                    } else {
-                        tabClickListener.onTabCloseClick(position);
-                    }
+                    tabClickListener.onTabCloseClick(position);
                     break;
 
                 default:
@@ -367,9 +318,6 @@ public class TabTrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public interface TabClickListener {
-        void onShoppingSearchClick();
-
-        void onShoppingSearchCloseClick();
 
         void onTabClick(int tabPosition);
 

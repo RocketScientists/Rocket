@@ -303,20 +303,6 @@ object DialogUtils {
             .build()
             .also { it.show() }
 
-    fun showShoppingSearchSpotlight(
-        activity: Activity,
-        targetView: View,
-        dismissListener: DialogInterface.OnDismissListener
-    ): Dialog =
-        SpotlightDialog.Builder(activity, targetView)
-            .spotlightConfigs(
-                CircleSpotlightConfigs(radius = activity.resources.getDimensionPixelSize(R.dimen.shopping_focus_view_radius))
-            )
-            .addView(activity.inflate(R.layout.onboarding_spotlight_shopping_search))
-            .dismissListener(dismissListener)
-            .build()
-            .also { it.show() }
-
     fun showThemeSettingDialog(activity: FragmentActivity, homeViewModel: HomeViewModel) {
         ThemeSettingDialogBuilder(activity, homeViewModel).show()
     }

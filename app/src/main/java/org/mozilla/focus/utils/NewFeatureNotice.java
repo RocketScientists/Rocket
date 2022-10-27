@@ -11,7 +11,6 @@ public class NewFeatureNotice {
     private static final String PREF_KEY_BOOLEAN_FIRSTRUN_SHOWN = "firstrun_shown";
     private static final String PREF_KEY_INT_FEATURE_UPGRADE_VERSION = "firstrun_upgrade_version";
     private static final String PREF_KEY_BOOLEAN_HOME_PAGE_ONBOARDING = "has_home_page_onboarding_shown";
-    private static final String PREF_KEY_BOOLEAN_HOME_SHOPPING_SEARCH_ONBOARDING = "has_home_shopping_search_onboarding_shown";
     private static final String PREF_KEY_BOOLEAN_HOME_THEME_ONBOARDING = "has_home_theme_onboarding_shown";
     private static final String PREF_KEY_BOOLEAN_SET_DEFAULT_BROWSER_ONBOARDING = "has_set_default_browser_onboarding_shown";
 
@@ -113,23 +112,6 @@ public class NewFeatureNotice {
     public void resetHomePageOnboardingDidShow() {
         preferences.edit()
                 .putBoolean(PREF_KEY_BOOLEAN_HOME_PAGE_ONBOARDING, false)
-                .apply();
-    }
-
-    public void setHomeShoppingSearchOnboardingDidShow() {
-        preferences.edit()
-                .putBoolean(PREF_KEY_BOOLEAN_HOME_SHOPPING_SEARCH_ONBOARDING, true)
-                .apply();
-    }
-
-    public boolean hasHomeShoppingSearchOnboardingShown() {
-        return preferences.getBoolean(PREF_KEY_BOOLEAN_HOME_SHOPPING_SEARCH_ONBOARDING, false);
-    }
-
-    @VisibleForTesting
-    public void resetHomeShoppingSearchOnboardingDidShow() {
-        preferences.edit()
-                .putBoolean(PREF_KEY_BOOLEAN_HOME_SHOPPING_SEARCH_ONBOARDING, false)
                 .apply();
     }
 

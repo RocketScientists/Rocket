@@ -10,17 +10,14 @@ import org.mozilla.focus.utils.Settings
 import org.mozilla.rocket.chrome.domain.ShouldShowNewMenuItemHintUseCase
 import org.mozilla.rocket.home.HomeViewModel
 import org.mozilla.rocket.home.data.ContentPrefRepo
-import org.mozilla.rocket.home.domain.IsHomeScreenShoppingButtonEnabledUseCase
 import org.mozilla.rocket.home.domain.SetContentPrefUseCase
 import org.mozilla.rocket.home.logoman.data.LogoManNotificationRepo
 import org.mozilla.rocket.home.logoman.domain.DismissLogoManNotificationUseCase
 import org.mozilla.rocket.home.logoman.domain.GetLogoManNotificationUseCase
 import org.mozilla.rocket.home.logoman.domain.LastReadLogoManNotificationUseCase
 import org.mozilla.rocket.home.onboarding.domain.SetSetDefaultBrowserOnboardingIsShownUseCase
-import org.mozilla.rocket.home.onboarding.domain.SetShoppingSearchOnboardingIsShownUseCase
 import org.mozilla.rocket.home.onboarding.domain.SetThemeOnboardingIsShownUseCase
 import org.mozilla.rocket.home.onboarding.domain.ShouldShowSetDefaultBrowserOnboardingUseCase
-import org.mozilla.rocket.home.onboarding.domain.ShouldShowShoppingSearchOnboardingUseCase
 import org.mozilla.rocket.home.onboarding.domain.ShouldShowThemeOnboardingUseCase
 import org.mozilla.rocket.home.topsites.data.PinSiteManager
 import org.mozilla.rocket.home.topsites.data.SharedPreferencePinSiteDelegate
@@ -31,7 +28,6 @@ import org.mozilla.rocket.home.topsites.domain.IsTopSiteFullyPinnedUseCase
 import org.mozilla.rocket.home.topsites.domain.PinTopSiteUseCase
 import org.mozilla.rocket.home.topsites.domain.RemoveTopSiteUseCase
 import org.mozilla.rocket.home.topsites.ui.AddNewTopSitesViewModel
-import org.mozilla.rocket.shopping.search.data.ShoppingSearchRepository
 import javax.inject.Singleton
 
 @Module
@@ -48,9 +44,6 @@ object HomeModule {
         getLogoManNotificationUseCase: GetLogoManNotificationUseCase,
         lastReadLogoManNotificationUseCase: LastReadLogoManNotificationUseCase,
         dismissLogoManNotificationUseCase: DismissLogoManNotificationUseCase,
-        isHomeScreenShoppingButtonEnabledUseCase: IsHomeScreenShoppingButtonEnabledUseCase,
-        shouldShowShoppingSearchOnboardingUseCase: ShouldShowShoppingSearchOnboardingUseCase,
-        setShoppingSearchOnboardingIsShownUseCase: SetShoppingSearchOnboardingIsShownUseCase,
         shouldShowNewMenuItemHintUseCase: ShouldShowNewMenuItemHintUseCase,
         shouldShowThemeOnboardingUseCase: ShouldShowThemeOnboardingUseCase,
         setThemeOnboardingIsShownUseCase: SetThemeOnboardingIsShownUseCase,
@@ -65,9 +58,6 @@ object HomeModule {
         getLogoManNotificationUseCase,
         lastReadLogoManNotificationUseCase,
         dismissLogoManNotificationUseCase,
-        isHomeScreenShoppingButtonEnabledUseCase,
-        shouldShowShoppingSearchOnboardingUseCase,
-        setShoppingSearchOnboardingIsShownUseCase,
         shouldShowNewMenuItemHintUseCase,
         shouldShowThemeOnboardingUseCase,
         setThemeOnboardingIsShownUseCase,
@@ -141,31 +131,6 @@ object HomeModule {
         logoManNotificationRepo: LogoManNotificationRepo
     ): DismissLogoManNotificationUseCase =
         DismissLogoManNotificationUseCase(logoManNotificationRepo)
-
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun provideIsHomeScreenShoppingButtonEnabledUseCase(
-        shoppingSearchRepository: ShoppingSearchRepository,
-        contentPrefRepo: ContentPrefRepo
-    ): IsHomeScreenShoppingButtonEnabledUseCase =
-        IsHomeScreenShoppingButtonEnabledUseCase(shoppingSearchRepository, contentPrefRepo)
-
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun provideShouldShowShoppingSearchOnboardingUseCase(
-        shoppingSearchRepository: ShoppingSearchRepository,
-        contentPrefRepo: ContentPrefRepo,
-        newFeatureNotice: NewFeatureNotice
-    ): ShouldShowShoppingSearchOnboardingUseCase =
-        ShouldShowShoppingSearchOnboardingUseCase(shoppingSearchRepository, contentPrefRepo, newFeatureNotice)
-
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun provideSetShoppingSearchOnboardingIsShownUseCase(newFeatureNotice: NewFeatureNotice): SetShoppingSearchOnboardingIsShownUseCase =
-        SetShoppingSearchOnboardingIsShownUseCase(newFeatureNotice)
 
     @JvmStatic
     @Provides

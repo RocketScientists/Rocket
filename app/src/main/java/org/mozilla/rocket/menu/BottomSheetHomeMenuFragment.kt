@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import dagger.Lazy
@@ -23,7 +22,6 @@ import org.mozilla.rocket.chrome.MenuViewModel
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.nightmode.AdjustBrightnessDialog
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
 import javax.inject.Inject
 
 class BottomSheetHomeMenuFragment : DialogFragment() {
@@ -113,10 +111,6 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         chromeViewModel.isNightMode.observe(this) { nightModeSettings ->
             binding.nightModeSwitch.isChecked = nightModeSettings.isEnabled
         }
-        menuViewModel.isHomeScreenShoppingSearchEnabled.observe(this) {
-            binding.btnPrivateBrowsing.isVisible = !it
-            binding.menuSmartShoppingSearch.isVisible = it
-        }
         // TODO: how to re-enable this?
         // chromeViewModel.isPrivateBrowsingActive.observe(this) {
         //     // we removed this image, and use `drawableStart` instead
@@ -133,10 +127,6 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
             dismissAllowingStateLoss()
             chromeViewModel.togglePrivateMode.call()
             TelemetryWrapper.togglePrivateMode(true)
-        }
-        binding.menuSmartShoppingSearch.setOnClickDelayedListener {
-            dismissAllowingStateLoss()
-            showShoppingSearch()
         }
         binding.menuNightMode.setOnClickDelayedListener {
             chromeViewModel.adjustNightMode()
@@ -199,11 +189,6 @@ class BottomSheetHomeMenuFragment : DialogFragment() {
         val context = context ?: return
         val openDialogIntent = AdjustBrightnessDialog.Intents.getStartIntentFromMenu(context)
         ContextCompat.startActivity(context, openDialogIntent, null)
-    }
-
-    private fun showShoppingSearch() {
-        val context = context ?: return
-        context.startActivity(ShoppingSearchActivity.getStartIntent(context))
     }
 
     /**

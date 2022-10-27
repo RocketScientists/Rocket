@@ -100,8 +100,7 @@ class PrivateBrowserMenuDialog : LifecycleBottomSheetDialog {
                 ItemType.BOOKMARK,
                 ItemType.PRIVATE_HOME,
                 ItemType.DELETE,
-                ItemType.TRACKER,
-                ItemType.SHOPPING_SEARCH ->
+                ItemType.TRACKER ->
                     throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
             } // move Telemetry to ScreenCaptureTask doInBackground() cause we need to init category first.
         }

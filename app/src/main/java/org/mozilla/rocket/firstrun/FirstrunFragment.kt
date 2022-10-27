@@ -40,7 +40,6 @@ import org.mozilla.rocket.content.getViewModel
 import org.mozilla.rocket.firstrun.FirstrunFragment.ContentPrefItem.Browsing
 import org.mozilla.rocket.firstrun.FirstrunFragment.ContentPrefItem.Games
 import org.mozilla.rocket.firstrun.FirstrunFragment.ContentPrefItem.News
-import org.mozilla.rocket.firstrun.FirstrunFragment.ContentPrefItem.Shopping
 import org.mozilla.rocket.home.data.ContentPrefRepo
 import org.mozilla.rocket.home.domain.SetContentPrefUseCase
 import org.mozilla.rocket.periodic.FirstLaunchWorker
@@ -141,7 +140,6 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
             true,
             when (selectedItem) {
                 Browsing -> TelemetryWrapper.Extra_Value.CONTENT_PREF_DEFAULT
-                Shopping -> TelemetryWrapper.Extra_Value.CONTENT_PREF_DEALS
                 Games -> TelemetryWrapper.Extra_Value.CONTENT_PREF_ENTERTAINMENT
                 News -> TelemetryWrapper.Extra_Value.CONTENT_PREF_NEWS
             }
@@ -242,7 +240,6 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
         setContentPrefSelected(Browsing)
 
         binding.itemBrowsing.setOnClickListener { setContentPrefSelected(Browsing) }
-        binding.itemShopping.setOnClickListener { setContentPrefSelected(Shopping) }
         binding.itemGames.setOnClickListener { setContentPrefSelected(Games) }
         binding.itemNews.setOnClickListener { setContentPrefSelected(News) }
     }
@@ -251,7 +248,7 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
         if (currentSelectedItem == item) return
 
         currentSelectedItem = item
-        listOf(Browsing, Shopping, Games, News).groupBy { it == item }.run {
+        listOf(Browsing, Games, News).groupBy { it == item }.run {
             get(true)?.forEach { view?.setContentPrefSelected(it, true) }
             get(false)?.forEach { view?.setContentPrefSelected(it, false) }
         }
@@ -275,9 +272,6 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
         object Browsing :
             ContentPrefItem(R.id.item_browsing, R.id.text_browsing, R.id.icon_browsing)
 
-        object Shopping :
-            ContentPrefItem(R.id.item_shopping, R.id.text_shopping, R.id.icon_shopping)
-
         object Games : ContentPrefItem(R.id.item_games, R.id.text_games, R.id.icon_games)
         object News : ContentPrefItem(R.id.item_news, R.id.text_news, R.id.icon_news)
     }
@@ -285,7 +279,6 @@ class FirstrunFragment : Fragment(), ScreenNavigator.FirstrunScreen {
     private fun ContentPrefItem.toContentPref(): ContentPrefRepo.ContentPref {
         return when (this) {
             Browsing -> ContentPrefRepo.ContentPref.Browsing
-            Shopping -> ContentPrefRepo.ContentPref.Shopping
             Games -> ContentPrefRepo.ContentPref.Games
             News -> ContentPrefRepo.ContentPref.News
         }

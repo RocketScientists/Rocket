@@ -1,7 +1,6 @@
 package org.mozilla.rocket.home
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -54,7 +53,6 @@ import org.mozilla.rocket.home.ui.MenuButton.Companion.DOWNLOAD_STATE_UNREAD
 import org.mozilla.rocket.home.ui.MenuButton.Companion.DOWNLOAD_STATE_WARNING
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserHelper
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserPreferenceViewModel
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
 import org.mozilla.rocket.theme.ThemeManager
 import org.mozilla.rocket.util.ToastMessage
 import org.mozilla.rocket.util.setCurrentItem
@@ -86,7 +84,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
     private lateinit var themeManager: ThemeManager
     private lateinit var topSitesAdapter: DelegateAdapter
     private lateinit var defaultBrowserHelper: DefaultBrowserHelper
-    private var currentShoppingBtnVisibleState = false
 
     private val topSitesPageChangeCallback = object : OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -130,7 +127,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
         initTopSites(binding)
         initLogoManNotification(binding)
         observeDarkTheme(binding)
-        initOnboardingSpotlight(binding)
         observeAddNewTopSites(binding)
         observeSetDefaultBrowser()
         observeActions(binding)
@@ -167,20 +163,7 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
                 setTabCount(it ?: 0)
             }
         )
-        homeViewModel.isShoppingSearchEnabled.observe(
-            viewLifecycleOwner,
-            Observer { isEnabled ->
-                binding.shoppingButton.isVisible = isEnabled
-                binding.privateModeButton.isVisible = !isEnabled
-            }
-        )
-        binding.shoppingButton.setOnClickListener { homeViewModel.onShoppingButtonClicked() }
-        homeViewModel.openShoppingSearch.observe(
-            viewLifecycleOwner,
-            Observer {
-                showShoppingSearch()
-            }
-        )
+
         chromeViewModel.isPrivateBrowsingActive.observe(
             viewLifecycleOwner,
             Observer {
@@ -355,7 +338,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
                 binding.homeFragmentTabCounter.setDarkTheme(darkThemeEnable)
                 binding.homeFragmentMenuButton.setDarkTheme(darkThemeEnable)
                 binding.homeFragmentMenuButton.setDarkTheme(darkThemeEnable)
-                binding.shoppingButton.setDarkTheme(darkThemeEnable)
                 binding.privateModeButton.setDarkTheme(darkThemeEnable)
             }
         )
@@ -461,11 +443,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
         }
     }
 
-    private fun showShoppingSearch() {
-        val context: Context = this.context ?: return
-        startActivity(ShoppingSearchActivity.getStartIntent(context))
-    }
-
     private fun showAddNewTopSitesPage() {
         activity?.let {
             it.startActivityForResult(
@@ -515,24 +492,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
         binding?.logoManNotification?.isVisible = false
     }
 
-    private fun showShoppingSearchSpotlight(binding: FragmentHomeBinding) {
-        val dismissListener = DialogInterface.OnDismissListener {
-            restoreStatusBarColor()
-            binding.shoppingButton.isVisible = currentShoppingBtnVisibleState
-            binding.privateModeButton.isVisible = !currentShoppingBtnVisibleState
-        }
-        binding.shoppingButton.post {
-            if (isAdded) {
-                setOnboardingStatusBarColor()
-                DialogUtils.showShoppingSearchSpotlight(
-                    requireActivity(),
-                    binding.shoppingButton,
-                    dismissListener
-                )
-            }
-        }
-    }
-
     private fun restoreStatusBarColor() {
         activity?.window?.statusBarColor = Color.TRANSPARENT
     }
@@ -541,18 +500,6 @@ class HomeFragment : LocaleAwareFragment(), ScreenNavigator.HomeScreen {
         activity?.let {
             it.window.statusBarColor = ContextCompat.getColor(it, R.color.paletteBlack50)
         }
-    }
-
-    private fun initOnboardingSpotlight(binding: FragmentHomeBinding) {
-        homeViewModel.showShoppingSearchOnboardingSpotlight.observe(
-            viewLifecycleOwner,
-            Observer {
-                currentShoppingBtnVisibleState = binding.shoppingButton.isVisible
-                binding.shoppingButton.isVisible = true
-                binding.privateModeButton.isVisible = false
-                showShoppingSearchSpotlight(binding)
-            }
-        )
     }
 
     private fun observeAddNewTopSites(binding: FragmentHomeBinding) {

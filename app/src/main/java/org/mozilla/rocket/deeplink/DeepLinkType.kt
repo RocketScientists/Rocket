@@ -4,22 +4,12 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import org.mozilla.rocket.deeplink.task.OpenPrivateModeTask
 import org.mozilla.rocket.deeplink.task.StartSettingsActivityTask
-import org.mozilla.rocket.deeplink.task.StartShoppingSearchActivityTask
 import org.mozilla.rocket.deeplink.task.Task
 import org.mozilla.rocket.extension.getParam
 import java.net.URI
 import java.net.URISyntaxException
 
 enum class DeepLinkType {
-
-    SHOPPING_SEARCH_HOME {
-        override fun match(uri: URI) =
-            isContentLink(uri, DeepLinkConstants.PATH_SHOPPING_SEARCH, hasQuery = false)
-
-        override fun addTasks(uri: URI) {
-            addTask(StartShoppingSearchActivityTask())
-        }
-    },
 
     PRIVATE_MODE {
         override fun match(uri: URI) = isDeepLink(uri) &&

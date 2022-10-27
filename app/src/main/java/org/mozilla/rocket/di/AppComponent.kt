@@ -48,12 +48,6 @@ import org.mozilla.rocket.menu.PrivateBrowserMenuDialog
 import org.mozilla.rocket.preference.DefaultBrowserPreference
 import org.mozilla.rocket.privately.PrivateModeActivity
 import org.mozilla.rocket.privately.home.PrivateHomeFragment
-import org.mozilla.rocket.shopping.search.ShoppingSearchController
-import org.mozilla.rocket.shopping.search.di.ShoppingSearchModule
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchKeywordInputFragment
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchPreferencesActivity
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchResultTabFragment
 import javax.inject.Singleton
 
 /**
@@ -71,7 +65,6 @@ import javax.inject.Singleton
         ChromeModule::class,
         TabsModule::class,
         HomeModule::class,
-        ShoppingSearchModule::class,
         FirstrunModule::class
     ]
 )
@@ -83,7 +76,6 @@ interface AppComponent {
     fun inject(bookmarksFragment: BookmarksFragment)
     fun inject(browserFragment: BrowserFragment)
     fun inject(bottomBarController: org.mozilla.rocket.browser.BottomBarController)
-    fun inject(shoppingSearchController: ShoppingSearchController)
     fun inject(browserFragment: org.mozilla.rocket.privately.browse.BrowserFragment)
     fun inject(browserFragmentLegacy: org.mozilla.rocket.privately.browse.BrowserFragmentLegacy)
     fun inject(downloadsFragment: DownloadsFragment)
@@ -98,10 +90,6 @@ interface AppComponent {
     fun inject(privateModeActivity: PrivateModeActivity)
     fun inject(contentTabActivity: ContentTabActivity)
     fun inject(contentTabFragment: ContentTabFragment)
-    fun inject(shoppingSearchActivity: ShoppingSearchActivity)
-    fun inject(shoppingSearchKeywordInputFragment: ShoppingSearchKeywordInputFragment)
-    fun inject(shoppingSearchResultTabFragment: ShoppingSearchResultTabFragment)
-    fun inject(shoppingSearchPreferencesActivity: ShoppingSearchPreferencesActivity)
     fun inject(defaultBrowserPreference: DefaultBrowserPreference)
     fun inject(addNewTopSitesFragment: AddNewTopSitesFragment)
     fun inject(firstrunFragment: FirstrunFragment)

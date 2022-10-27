@@ -7,7 +7,6 @@ object DeepLinkConstants {
     const val HOST_COMMAND = "command"
     const val PATH_NEWS = "/news"
     const val PATH_NEWS_ITEM = "/news/item"
-    const val PATH_SHOPPING_SEARCH = "/shopping-search"
 
     const val COMMAND_PARAM_KEY = "command"
     const val COMMAND_SET_DEFAULT_BROWSER = "setDefaultBrowser"

@@ -43,7 +43,6 @@ import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.extension.UrlStringExtension.removeUrlFragment
-import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabView
@@ -90,8 +89,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     private val fileChooseController = FileChooseController(this)
     private val downloadCtrl = DownloadController(this)
 
-    private var shoppingSearchCtrl: ShoppingSearchController? = null
-
     // This is used for things like sharing the current Url. We could try to access Url of WebView,
     // but sometimes itself is null, and sometimes it returns a null Url. Sometimes it returns a
     // Url with `data:` scheme for error pages. The Url we show in the toolbar should be 1) always
@@ -108,10 +105,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         lifecycle.addObserver(geolocationController)
         lifecycle.addObserver(fileChooseController)
         lifecycle.addObserver(downloadCtrl)
-
-        if (chromeViewModel.isInPrivateMode) {
-            shoppingSearchCtrl = ShoppingSearchController(this).also { lifecycle.addObserver(it) }
-        }
     }
 
     override fun onCreateView(
@@ -136,7 +129,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
             return
         }
         binding?.toolbar?.displayUrl?.text = UrlUtils.stripUserInfo(url)
-        shoppingSearchCtrl?.notifyUrlChanged()
     }
 
     fun updateLoadingState(isLoading: Boolean) {
@@ -163,7 +155,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         observeChromeAction()
         findInPage = FindInPage(container)
         initialiseNormalBrowserUi()
-        shoppingSearchCtrl?.onViewCreated(binding.shoppingSearchStub)
 
         // maybe Fragment was destroyed
         sessionCtrl.maybeRestoreWebViewState(savedInstanceState)
@@ -281,7 +272,6 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     override fun onDestroyView() {
-        shoppingSearchCtrl?.onDestroyView()
         binding = null
         super.onDestroyView()
     }
@@ -495,11 +485,9 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
     }
 
     private fun showPluggableUi() {
-        shoppingSearchCtrl?.setVisible()
     }
 
     private fun hidePluggableUi() {
-        shoppingSearchCtrl?.setInvisible()
     }
 
     private fun setDarkThemeEnabled(enable: Boolean) {

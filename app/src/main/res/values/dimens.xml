@@ -98,10 +98,6 @@
 
     <!--  HomeFragment  -->
     <item name="top_sites_pager_indicator_visibility" type="integer">@integer/visibility_gone</item>
-    <dimen name="shopping_focus_view_radius">51dp</dimen>
-
-    <!-- Shopping Search -->
-    <dimen name="shopping_search_tab_bar_height">47dp</dimen>
 
     <!-- Set default browser tutorial dialog -->
     <dimen name="set_default_browser_tutorial_image_width">256dp</dimen>

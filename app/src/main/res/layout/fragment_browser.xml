@@ -103,16 +103,6 @@
 
     </org.mozilla.focus.widget.ResizableKeyboardLayout>
 
-    <ViewStub
-        android:id="@+id/shopping_search_stub"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:inflatedId="@+id/subTree"
-        android:layout="@layout/shopping_search_prompt_message"
-        app:layout_anchor="@id/browser_bottom_bar"
-        app:layout_anchorGravity="top"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <FrameLayout
         android:id="@+id/video_container"
         android:layout_width="0dp"

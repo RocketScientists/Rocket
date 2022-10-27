@@ -161,17 +161,10 @@
     <color name="homeArcPanelBackgroundNight">#414146</color>
     <color name="homeSearchPanelBackground">#F4F4F4</color>
     <color name="homeSearchPanelBackgroundNight">@color/paletteDarkGreyC100</color>
-    <color name="homeShoppingSearchButtonTint">@color/paletteLightBlack100</color>
-    <color name="homeShoppingSearchButtonTintNight">@color/paletteWhite100</color>
-    <color name="homeShoppingSearchButtonBackground">@color/paletteWhite100</color>
-    <color name="homeShoppingSearchButtonBackgroundNight">#414146</color>
-
-    <!-- Shopping Search -->
-    <color name="shoppingSearchInputBackgroundGradientStart">#FF3C61</color>
-    <color name="shoppingSearchInputBackgroundGradientCenter">#FF803E</color>
-    <color name="shoppingSearchInputBackgroundGradientEnd">#FDBC61</color>
-    <color name="shoppingSearchIcon">#FF5654</color>
-    <color name="shoppingSearchPreferencesToolbarBackground">#212121</color>
+    <color name="homeSearchButtonTint">@color/paletteLightBlack100</color>
+    <color name="homeSearchButtonTintNight">@color/paletteWhite100</color>
+    <color name="homeSearchButtonBackground">@color/paletteWhite100</color>
+    <color name="homeSearchButtonBackgroundNight">#414146</color>
 
     <!-- Theme setting dialog -->
     <color name="themeButton01GradientStart">#5BCEF2</color>

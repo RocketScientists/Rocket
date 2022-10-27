@@ -73,11 +73,6 @@ public class MenuTest {
         // check my shots
         onView(withId(R.id.menu_screenshots)).check(matches(isDisplayed()));
 
-        // check private mode displayed
-        onView(withId(R.id.menu_smart_shopping_search))
-                .perform(nestedScrollTo())
-                .check(matches(isDisplayed()));
-
         // check night mode displayed
         onView(withId(R.id.menu_night_mode))
                 .perform(nestedScrollTo())

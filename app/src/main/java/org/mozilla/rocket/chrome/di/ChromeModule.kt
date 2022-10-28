@@ -9,7 +9,6 @@ import org.mozilla.focus.utils.Browsers
 import org.mozilla.focus.utils.NewFeatureNotice
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.viewmodel.BookmarkViewModel
-import org.mozilla.focus.viewmodel.ShoppingSearchPromptViewModel
 import org.mozilla.rocket.chrome.BottomBarViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.MenuViewModel
@@ -24,16 +23,12 @@ import org.mozilla.rocket.download.data.AndroidDownloadManagerDataSource
 import org.mozilla.rocket.download.data.DownloadsLocalDataSource
 import org.mozilla.rocket.download.data.DownloadsRepository
 import org.mozilla.rocket.helper.StorageHelper
-import org.mozilla.rocket.home.domain.IsHomeScreenShoppingButtonEnabledUseCase
 import org.mozilla.rocket.persistance.History.HistoryDatabase
 import org.mozilla.rocket.persistance.History.HistoryRepository
 import org.mozilla.rocket.privately.PrivateMode
 import org.mozilla.rocket.settings.defaultbrowser.data.DefaultBrowserLocalDataSource
 import org.mozilla.rocket.settings.defaultbrowser.data.DefaultBrowserRepository
 import org.mozilla.rocket.settings.defaultbrowser.ui.DefaultBrowserPreferenceViewModel
-import org.mozilla.rocket.shopping.search.domain.GetSearchPromptMessageShowCountUseCase
-import org.mozilla.rocket.shopping.search.domain.GetShoppingSitesUseCase
-import org.mozilla.rocket.shopping.search.domain.SetSearchPromptMessageShowCountUseCase
 import org.mozilla.rocket.urlinput.GlobalDataSource
 import org.mozilla.rocket.urlinput.LocaleDataSource
 import org.mozilla.rocket.urlinput.QuickSearchRepository
@@ -99,11 +94,9 @@ object ChromeModule {
     fun provideMenuViewModel(
         shouldShowNewMenuItemHintUseCase: ShouldShowNewMenuItemHintUseCase,
         readNewMenuItemsUseCase: ReadNewMenuItemsUseCase,
-        isHomeScreenShoppingButtonEnabledUseCase: IsHomeScreenShoppingButtonEnabledUseCase
     ): MenuViewModel = MenuViewModel(
         shouldShowNewMenuItemHintUseCase,
         readNewMenuItemsUseCase,
-        isHomeScreenShoppingButtonEnabledUseCase
     )
 
     @JvmStatic
@@ -180,19 +173,6 @@ object ChromeModule {
         storageHelper,
         downloadsRepository
     )
-
-    @JvmStatic
-    @Provides
-    fun provideShoppingSearchPromptViewModel(
-        getShoppingSitesUseCase: GetShoppingSitesUseCase,
-        getSearchPromptMessageShowCountUseCase: GetSearchPromptMessageShowCountUseCase,
-        setSearchPromptMessageShowCountUseCase: SetSearchPromptMessageShowCountUseCase
-    ): ShoppingSearchPromptViewModel =
-        ShoppingSearchPromptViewModel(
-            getShoppingSitesUseCase,
-            getSearchPromptMessageShowCountUseCase,
-            setSearchPromptMessageShowCountUseCase
-        )
 
     @JvmStatic
     @Singleton

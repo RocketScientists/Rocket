@@ -247,8 +247,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
             )
             ItemType.PRIVATE_HOME,
             ItemType.DELETE,
-            ItemType.TRACKER,
-            ItemType.SHOPPING_SEARCH ->
+            ItemType.TRACKER ->
                 throw IllegalArgumentException("Unhandled bottom bar item, type: $type")
         }
     }
@@ -273,8 +272,7 @@ class BottomSheetBrowserMenuFragment : DialogFragment() {
             ItemType.CAPTURE,
             ItemType.PRIVATE_HOME,
             ItemType.DELETE,
-            ItemType.TRACKER,
-            ItemType.SHOPPING_SEARCH -> Unit
+            ItemType.TRACKER -> Unit
         }
     }
 

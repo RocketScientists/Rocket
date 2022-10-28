@@ -75,26 +75,11 @@
             android:backgroundTint="@color/home_search_panel">
 
             <org.mozilla.rocket.nightmode.themed.ThemedImageView
-                android:id="@+id/shopping_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/bg_shopping_search_btn"
-                android:foreground="@drawable/ripple_circle"
-                android:elevation="1dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_shopping_search"
-                android:tint="@color/home_shopping_search"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <org.mozilla.rocket.nightmode.themed.ThemedImageView
                 android:id="@+id/private_mode_button"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/bg_shopping_search_btn"
+                android:background="@drawable/bg_search_btn"
                 android:foreground="@drawable/ripple_circle"
                 android:elevation="1dp"
                 android:scaleType="centerInside"
@@ -109,7 +94,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="76dp"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/bg_shopping_search_btn"
+                android:background="@drawable/bg_search_btn"
                 android:foreground="@drawable/ripple_round_rectangle_radius_20"
                 android:elevation="1dp"
                 app:layout_constraintBottom_toBottomOf="parent"

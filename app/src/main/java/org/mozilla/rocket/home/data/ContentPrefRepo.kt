@@ -5,7 +5,6 @@ import org.mozilla.focus.R
 import org.mozilla.rocket.home.data.ContentPrefRepo.ContentPref.Browsing
 import org.mozilla.rocket.home.data.ContentPrefRepo.ContentPref.Games
 import org.mozilla.rocket.home.data.ContentPrefRepo.ContentPref.News
-import org.mozilla.rocket.home.data.ContentPrefRepo.ContentPref.Shopping
 import org.mozilla.strictmodeviolator.StrictModeViolation
 
 class ContentPrefRepo(private val appContext: Context) {
@@ -28,14 +27,12 @@ class ContentPrefRepo(private val appContext: Context) {
 
     sealed class ContentPref(val id: Int, val topSitesResId: Int) {
         object Browsing : ContentPref(0, R.raw.topsites_browsing)
-        object Shopping : ContentPref(1, R.raw.topsites_shopping)
         object Games : ContentPref(2, R.raw.topsites_games)
         object News : ContentPref(3, R.raw.topsites_news)
     }
 
     private fun Int.toContentPref(): ContentPref = mapOf(
         Browsing.id to Browsing,
-        Shopping.id to Shopping,
         Games.id to Games,
         News.id to News
     ).getOrElse(this) { error("Invalid content preference id") }

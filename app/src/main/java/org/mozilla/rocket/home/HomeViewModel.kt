@@ -13,16 +13,13 @@ import org.mozilla.rocket.chrome.domain.ShouldShowNewMenuItemHintUseCase
 import org.mozilla.rocket.download.SingleLiveEvent
 import org.mozilla.rocket.extension.first
 import org.mozilla.rocket.extension.map
-import org.mozilla.rocket.home.domain.IsHomeScreenShoppingButtonEnabledUseCase
 import org.mozilla.rocket.home.logoman.domain.DismissLogoManNotificationUseCase
 import org.mozilla.rocket.home.logoman.domain.GetLogoManNotificationUseCase
 import org.mozilla.rocket.home.logoman.domain.LastReadLogoManNotificationUseCase
 import org.mozilla.rocket.home.logoman.ui.LogoManNotification.Notification
 import org.mozilla.rocket.home.onboarding.domain.SetSetDefaultBrowserOnboardingIsShownUseCase
-import org.mozilla.rocket.home.onboarding.domain.SetShoppingSearchOnboardingIsShownUseCase
 import org.mozilla.rocket.home.onboarding.domain.SetThemeOnboardingIsShownUseCase
 import org.mozilla.rocket.home.onboarding.domain.ShouldShowSetDefaultBrowserOnboardingUseCase
-import org.mozilla.rocket.home.onboarding.domain.ShouldShowShoppingSearchOnboardingUseCase
 import org.mozilla.rocket.home.onboarding.domain.ShouldShowThemeOnboardingUseCase
 import org.mozilla.rocket.home.topsites.domain.GetTopSitesUseCase
 import org.mozilla.rocket.home.topsites.domain.IsTopSiteFullyPinnedUseCase
@@ -43,9 +40,6 @@ class HomeViewModel(
     private val getLogoManNotificationUseCase: GetLogoManNotificationUseCase,
     private val lastReadLogoManNotificationUseCase: LastReadLogoManNotificationUseCase,
     private val dismissLogoManNotificationUseCase: DismissLogoManNotificationUseCase,
-    private val isHomeScreenShoppingButtonEnabledUseCase: IsHomeScreenShoppingButtonEnabledUseCase,
-    shouldShowShoppingSearchOnboardingUseCase: ShouldShowShoppingSearchOnboardingUseCase,
-    setShoppingSearchOnboardingIsShownUseCase: SetShoppingSearchOnboardingIsShownUseCase,
     shouldShowNewMenuItemHintUseCase: ShouldShowNewMenuItemHintUseCase,
     shouldShowThemeOnboardingUseCase: ShouldShowThemeOnboardingUseCase,
     setThemeOnboardingIsShownUseCase: SetThemeOnboardingIsShownUseCase,
@@ -56,19 +50,16 @@ class HomeViewModel(
     val sitePages = MutableLiveData<List<SitePage>>()
     val topSitesPageIndex = MutableLiveData<Int>()
     val logoManNotification = MediatorLiveData<StateNotification?>()
-    val isShoppingSearchEnabled =
-        MutableLiveData<Boolean>().apply { value = isHomeScreenShoppingButtonEnabledUseCase() }
+
     val shouldShowNewMenuItemHint: LiveData<Boolean> = shouldShowNewMenuItemHintUseCase()
 
     val toggleBackgroundColor = SingleLiveEvent<Unit>()
     val resetBackgroundColor = SingleLiveEvent<Unit>()
-    val openShoppingSearch = SingleLiveEvent<Unit>()
     val openPrivateMode = SingleLiveEvent<Unit>()
     val openBrowser = SingleLiveEvent<String>()
     val showTopSiteMenu = SingleLiveEvent<ShowTopSiteMenuData>()
     val showAddTopSiteMenu = SingleLiveEvent<Unit>()
     val showToast = SingleLiveEvent<ToastMessage>()
-    val showShoppingSearchOnboardingSpotlight = SingleLiveEvent<Unit>()
     val hideLogoManNotification = SingleLiveEvent<Unit>()
     val executeUriAction = SingleLiveEvent<String>()
     val showKeyboard = SingleLiveEvent<Unit>()
@@ -93,9 +84,6 @@ class HomeViewModel(
             setThemeOnboardingIsShownUseCase()
             showThemeSetting.call()
             TelemetryWrapper.showThemeContextualHint()
-        } else if (shouldShowShoppingSearchOnboardingUseCase()) {
-            setShoppingSearchOnboardingIsShownUseCase()
-            showShoppingSearchOnboardingSpotlight.call()
         }
     }
 
@@ -202,14 +190,6 @@ class HomeViewModel(
             return
         }
         homeBackgroundColorThemeClicked.value = theme
-    }
-
-    fun onShoppingButtonClicked() {
-        openShoppingSearch.call()
-        TelemetryWrapper.clickToolbarTabSwipe(
-            TelemetryWrapper.Extra_Value.SHOPPING,
-            TelemetryWrapper.Extra_Value.HOME
-        )
     }
 
     fun onPrivateModeButtonClicked() {

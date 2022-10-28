@@ -635,42 +635,6 @@
     <string name="low_priority_notification_channel">Hidden notifications</string>
     
     <string name="about_link_terms_of_service">Terms of Service</string>
-   
-    
-    <!--Shopping Vertical-->
-    <!--Artboard Name: 1.1 Shopping Search Overview-->
-    <!--Shopping Search Onboarding-->
-    <string name="shopping_search_onboarding_title">Find great prices</string>
-    <!--Shopping Search Onboarding Message, and would need to localize "Smart Shopping Search"-->
-    <string name="shopping_search_onboarding_body">Compare prices across many online stores with Smart Shopping Search.</string>
-    <!--Smart Shopping Search onboarding message-->
-    <string name="shopping_search_onboarding_body_A">Compare prices easily on popular shopping sites.</string> 
-    <!--Smart Shopping Search onboarding message-->
-    <string name="shopping_search_onboarding_body_B">Start saving today. Search and compare prices on popular sites.</string>
-    <!--Shopping Search Input Placeholder-->
-    <string name="shopping_search_placeholder">Enter a product name</string>
-    <!--Shopping Search Prompt Message, and would need to localize "Smart Shopping Search"-->
-    <string name="shopping_search_prompt_message_body">Compare prices across many online stores with Smart Shopping Search.</string>
-    <string name="shopping_search_prompt_message_button">Search</string>
-    <!--Switch UI Onboarding-->
-    <string name="shopping_switch_ui_onboarding_body">Tap the shopping sites below to browse more results, or tap this button to edit.</string>
-    <string name="shopping_switch_ui_onboarding_button">OK</string>
-
-    <!--Artboard Name: 2.2 Switch UI Preference Behaviors-->
-    <!--Switch UI Preferences-->
-    <string name="shopping_switch_ui_preferences_title">Shopping Search Settings</string>
-    <string name="shopping_switch_ui_preferences_subtitle">Sites to compare</string>
-
-    <!--Artboard Name: 3.1 Switch UI Navigation - Activity Switch-->
-    <!--Switch UI Tab Tray. %1$s is the keyword user input -->
-    <string name="shopping_switch_ui_tabtray_title">Shopping Search: “%1$s”</string>
-    <string name="shopping_switch_ui_tabtray_title_no_keyword">Shopping Search</string>
-
-    <!--Artboard Name: 3.3 Switch UI Navigation - Tab Tray-->
-    <!--Closing dialog content.-->
-    <string name="shopping_closing_dialog_close">Close All</string>
-    <string name="shopping_closing_dialog_cancel">Cancel</string>
-    <string name="shopping_closing_dialog_body">Close all shopping search results?</string>
 
     <!-- Onboarding for new users to introduce Rocket 2.0 -->
     <!-- Introduce Content & Services -->

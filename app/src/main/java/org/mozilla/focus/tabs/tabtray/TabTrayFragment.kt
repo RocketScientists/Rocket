@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Canvas
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
@@ -28,7 +27,6 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.Interpolator
 import androidx.annotation.StyleRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -45,7 +43,6 @@ import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.FragmentTabTrayBinding
 import org.mozilla.focus.navigation.ScreenNavigator
-import org.mozilla.focus.tabs.tabtray.TabTrayAdapter.ShoppingSearchViewHolder
 import org.mozilla.focus.tabs.tabtray.TabTrayAdapter.TabViewHolder
 import org.mozilla.focus.telemetry.TelemetryWrapper.clickAddTabTray
 import org.mozilla.focus.telemetry.TelemetryWrapper.clickTabFromTabTray
@@ -61,7 +58,6 @@ import org.mozilla.rocket.content.getActivityViewModel
 import org.mozilla.rocket.home.HomeViewModel
 import org.mozilla.rocket.privately.PrivateMode.Companion.getInstance
 import org.mozilla.rocket.privately.PrivateModeActivity
-import org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity.Companion.getStartIntent
 import org.mozilla.rocket.tabs.Session
 import org.mozilla.rocket.tabs.TabsSessionProvider
 import javax.inject.Inject
@@ -83,14 +79,12 @@ class TabTrayFragment :
 
     private lateinit var presenter: TabTrayContract.Presenter
     private lateinit var adapter: TabTrayAdapter
-    private lateinit var itemDecoration: ShoppingSearchItemDecoration
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var tabTrayViewModel: TabTrayViewModel
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var chromeViewModel: ChromeViewModel
 
     private var binding: FragmentTabTrayBinding? = null
-    private var closeShoppingSearchDialog: AlertDialog? = null
     private var closeTabsDialog: AlertDialog? = null
     private var backgroundDrawable: Drawable? = null
     private var backgroundOverlay: Drawable? = null
@@ -98,7 +92,6 @@ class TabTrayFragment :
     private val uiHandler = Handler(Looper.getMainLooper())
     private val slideCoordinator = SlideAnimationCoordinator(this)
     private val dismissRunnable = Runnable { dismissAllowingStateLoss() }
-    private var showShoppingSearch = false
     private var onDismissListener: DialogInterface.OnDismissListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,10 +105,6 @@ class TabTrayFragment :
         adapter = TabTrayAdapter(Glide.with(this))
         val sessionManager = TabsSessionProvider.getOrThrow(activity)
         presenter = TabTrayPresenter(this, TabsSessionModel(sessionManager))
-        itemDecoration = ShoppingSearchItemDecoration(
-            ContextCompat.getDrawable(requireContext(), R.drawable.tab_tray_item_divider),
-            ContextCompat.getDrawable(requireContext(), R.drawable.tab_tray_item_divider_night)
-        )
     }
 
     override fun onCreateView(
@@ -162,7 +151,6 @@ class TabTrayFragment :
     override fun onResume() {
         super.onResume()
         tabTrayViewModel.hasPrivateTab().value = getInstance(requireContext()).hasPrivateSession()
-        tabTrayViewModel.checkShoppingSearchMode(requireContext())
     }
 
     override fun onStart() {
@@ -177,9 +165,6 @@ class TabTrayFragment :
 
     override fun onStop() {
         super.onStop()
-        if (closeShoppingSearchDialog?.isShowing == true) {
-            closeShoppingSearchDialog?.dismiss()
-        }
         if (closeTabsDialog?.isShowing == true) {
             closeTabsDialog?.dismiss()
         }
@@ -227,25 +212,6 @@ class TabTrayFragment :
     private val isInLandscape: Boolean
         get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    override fun onShoppingSearchClick() {
-        presenter.shoppingSearchClicked()
-    }
-
-    override fun onShoppingSearchCloseClick() {
-        if (closeShoppingSearchDialog == null) {
-            val builder = AlertDialog.Builder(activity)
-            closeShoppingSearchDialog = builder.setMessage(R.string.shopping_closing_dialog_body)
-                .setPositiveButton(R.string.shopping_closing_dialog_close) { _: DialogInterface?, _: Int ->
-                    tabTrayViewModel.finishShoppingSearchMode(requireContext())
-                    presenter.shoppingSearchCloseClicked()
-                }
-                .setNegativeButton(R.string.shopping_closing_dialog_cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                .show()
-        } else {
-            closeShoppingSearchDialog?.show()
-        }
-    }
-
     override fun onTabClick(tabPosition: Int) {
         presenter.tabClicked(tabPosition)
         clickTabFromTabTray(isInLandscape)
@@ -266,27 +232,15 @@ class TabTrayFragment :
         DiffUtil.calculateDiff(
             object : DiffUtil.Callback() {
                 override fun getOldListSize(): Int {
-                    return if (showShoppingSearch) oldTabs.size + 1 else oldTabs.size
+                    return oldTabs.size
                 }
 
                 override fun getNewListSize(): Int {
-                    return if (showShoppingSearch) newTabs.size + 1 else newTabs.size
+                    return newTabs.size
                 }
 
                 override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return if (showShoppingSearch) {
-                        if (oldItemPosition == 0 && newItemPosition == 0) {
-                            true
-                        } else if (oldItemPosition == 0 && newItemPosition != 0 ||
-                            oldItemPosition != 0 && newItemPosition == 0
-                        ) {
-                            false
-                        } else {
-                            newTabs[newItemPosition - 1].id == oldTabs[oldItemPosition - 1].id
-                        }
-                    } else {
-                        newTabs[newItemPosition].id == oldTabs[oldItemPosition].id
-                    }
+                    return newTabs[newItemPosition].id == oldTabs[oldItemPosition].id
                 }
 
                 override fun areContentsTheSame(
@@ -304,10 +258,10 @@ class TabTrayFragment :
                 val oldFocused = adapter.focusedTab
                 val oldTabs1 = adapter.data
                 val oldFocusedPosition = oldTabs1.indexOf(oldFocused)
-                adapter.notifyItemChanged(if (showShoppingSearch) oldFocusedPosition + 1 else oldFocusedPosition)
+                adapter.notifyItemChanged(oldFocusedPosition)
                 adapter.focusedTab = newFocusedTab
                 val newFocusedPosition = oldTabs1.indexOf(newFocusedTab)
-                adapter.notifyItemChanged(if (showShoppingSearch) newFocusedPosition + 1 else newFocusedPosition)
+                adapter.notifyItemChanged(newFocusedPosition)
             }
         )
     }
@@ -316,7 +270,7 @@ class TabTrayFragment :
         val tabs = adapter.data
         val position = tabs.indexOf(tab)
         if (position >= 0 && position < tabs.size) {
-            adapter.notifyItemChanged(if (showShoppingSearch) position + 1 else position)
+            adapter.notifyItemChanged(position)
         }
     }
 
@@ -336,10 +290,6 @@ class TabTrayFragment :
 
     override fun navigateToHome() {
         ScreenNavigator.get(context).popToHomeScreen(false)
-    }
-
-    override fun navigateToShoppingSearch() {
-        startActivity(getStartIntent(requireContext()))
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -385,24 +335,6 @@ class TabTrayFragment :
                     if (hasPrivateTab) View.VISIBLE else View.INVISIBLE
             }
         )
-        tabTrayViewModel.uiModel.observe(
-            viewLifecycleOwner,
-            Observer { (showShoppingSearchNewState, keyword) ->
-                val isDiff = showShoppingSearch xor showShoppingSearchNewState
-                if (isDiff) {
-                    showShoppingSearch = showShoppingSearchNewState
-                    presenter.setShoppingSearch(showShoppingSearch)
-                    if (showShoppingSearch) {
-                        binding.tabTrayRecyclerView.addItemDecoration(itemDecoration)
-                        adapter.notifyItemInserted(0)
-                    } else {
-                        binding.tabTrayRecyclerView.removeItemDecoration(itemDecoration)
-                        adapter.notifyItemRemoved(0)
-                    }
-                    adapter.setShoppingSearch(showShoppingSearch, keyword)
-                }
-            }
-        )
     }
 
     private fun setupSwipeToDismiss(recyclerView: RecyclerView?) {
@@ -418,10 +350,7 @@ class TabTrayFragment :
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (viewHolder is ShoppingSearchViewHolder) {
-                    tabTrayViewModel.finishShoppingSearchMode(requireContext())
-                    presenter.shoppingSearchCloseClicked()
-                } else if (viewHolder is TabViewHolder) {
+                if (viewHolder is TabViewHolder) {
                     presenter.tabCloseClicked(viewHolder.originPosition)
                     swipeTabFromTabTray(isInLandscape)
                 }
@@ -465,7 +394,7 @@ class TabTrayFragment :
         val tabs = adapter.data
         val focusedPosition = tabs.indexOf(adapter.focusedTab)
         val shouldExpand =
-            isPositionVisibleWhenCollapse(if (showShoppingSearch) focusedPosition + 1 else focusedPosition)
+            isPositionVisibleWhenCollapse(focusedPosition)
         uiHandler.postDelayed(
             {
                 if (isVisible) {
@@ -717,61 +646,6 @@ class TabTrayFragment :
         }
     }
 
-    private class ShoppingSearchItemDecoration internal constructor(
-        private val divierDefault: Drawable?,
-        private val divierNight: Drawable?
-    ) : RecyclerView.ItemDecoration() {
-        private val bounds = Rect()
-        private var isNight = false
-        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            val divider = if (isNight) divierNight else divierDefault
-            if (parent.layoutManager == null || divider == null) {
-                return
-            }
-            c.save()
-            val left: Int
-            val right: Int
-            if (parent.clipToPadding) {
-                left = parent.paddingLeft
-                right = parent.width - parent.paddingRight
-                c.clipRect(
-                    left, parent.paddingTop, right,
-                    parent.height - parent.paddingBottom
-                )
-            } else {
-                left = 0
-                right = parent.width
-            }
-            val childCount = parent.childCount
-            for (i in 0 until childCount) {
-                val child = parent.getChildAt(0)
-                if (parent.getChildAdapterPosition(child) == 0) {
-                    parent.getDecoratedBoundsWithMargins(child, bounds)
-                    val bottom = bounds.bottom + Math.round(child.translationY)
-                    val top = bottom - divider.intrinsicHeight
-                    divider.setBounds(left, top, right, bottom)
-                    divider.draw(c)
-                }
-            }
-            c.restore()
-        }
-
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            if (parent.getChildAdapterPosition(view) == 1) {
-                outRect.top = view.resources.getDimensionPixelOffset(R.dimen.tab_tray_padding)
-            }
-        }
-
-        fun setDarkTheme(enable: Boolean) {
-            isNight = enable
-        }
-    }
-
     private fun setDarkThemeEnabled(enable: Boolean) {
         val binding = this.binding ?: return
         binding.newTabButton.setDarkTheme(enable)
@@ -779,7 +653,6 @@ class TabTrayFragment :
         binding.plusSign.setDarkTheme(enable)
         binding.bottomDivider.setDarkTheme(enable)
         binding.tabTrayRecyclerView.setDarkTheme(enable)
-        itemDecoration.setDarkTheme(enable)
         dialog?.window?.let {
             val isLightStatusBarIcon = !enable && !chromeViewModel.isInPrivateMode
             ViewUtils.updateStatusBarStyle(isLightStatusBarIcon, it)

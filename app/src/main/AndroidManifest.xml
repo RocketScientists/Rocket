@@ -287,23 +287,10 @@
             android:exported="false" />
 
         <activity
-            android:name="org.mozilla.rocket.shopping.search.ui.ShoppingSearchActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:taskAffinity=".shopping.search"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
             android:name="org.mozilla.rocket.content.common.ui.ContentTabActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:theme="@style/ContentTabTheme" />
-
-        <activity
-            android:name="org.mozilla.rocket.shopping.search.ui.ShoppingSearchPreferencesActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/ShoppingSearchPreferencesTheme"/>
 
         <activity
             android:name="org.mozilla.rocket.debugging.DebugActivity"

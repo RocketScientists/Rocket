@@ -14,7 +14,6 @@ public class TabTrayPresenter implements TabTrayContract.Presenter {
 
     private TabTrayContract.View view;
     private TabTrayContract.Model model;
-    private boolean showShoppingSearch;
 
     TabTrayPresenter(final TabTrayContract.View view, final TabTrayContract.Model model) {
         this.view = view;
@@ -30,11 +29,7 @@ public class TabTrayPresenter implements TabTrayContract.Presenter {
     @Override
     public void viewReady() {
         final List<Session> tabs = model.getTabs();
-        if (tabs.isEmpty()) {
-            if (!showShoppingSearch) {
-                view.closeTabTray();
-            }
-        } else {
+        if (!tabs.isEmpty()) {
             model.subscribe(new TabTrayContract.Model.Observer() {
                 @Override
                 public void onUpdate(List<Session> newTabs) {
@@ -65,10 +60,8 @@ public class TabTrayPresenter implements TabTrayContract.Presenter {
         int newFocusTab = newTabs.indexOf(model.getFocusedTab());
 
         if (newTabs.isEmpty()) {
-            if (!showShoppingSearch) {
-                view.closeTabTray();
-                view.navigateToHome();
-            }
+            view.closeTabTray();
+            view.navigateToHome();
         } else if (newFocusTab >= 0 && newFocusTab < newTabs.size()) {
             model.switchTab(newFocusTab);
         }
@@ -82,30 +75,9 @@ public class TabTrayPresenter implements TabTrayContract.Presenter {
     @Override
     public void closeAllTabs() {
         view.refreshData(new ArrayList<Session>(), null);
-        if (!showShoppingSearch) {
-            view.closeTabTray();
-            view.navigateToHome();
-        }
+        view.closeTabTray();
+        view.navigateToHome();
 
         model.clearTabs();
-    }
-
-    @Override
-    public void setShoppingSearch(boolean show) {
-        showShoppingSearch = show;
-    }
-
-    @Override
-    public void shoppingSearchClicked() {
-        view.closeTabTray();
-        view.navigateToShoppingSearch();
-    }
-
-    @Override
-    public void shoppingSearchCloseClicked() {
-        if (model.getTabs().isEmpty()) {
-            view.closeTabTray();
-            view.navigateToHome();
-        }
     }
 }

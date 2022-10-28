@@ -21,7 +21,6 @@ import org.mozilla.rocket.chrome.bottombar.BottomBarItem.PrivateHomeItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.RefreshItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.SearchItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ShareItem
-import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ShoppingSearchItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TabCounterItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.TrackerItem
 import org.mozilla.rocket.content.view.BottomBar
@@ -68,7 +67,6 @@ class BottomBarItemAdapter(
             ItemType.TRACKER -> TrackerItem(R.id.bottom_bar_tracker)
             ItemType.BACK -> BackItem(theme.buttonColorResId)
             ItemType.MENU -> MenuItem(theme)
-            ItemType.SHOPPING_SEARCH -> ShoppingSearchItem(theme)
         }
     }
 
@@ -242,7 +240,6 @@ class BottomBarItemAdapter(
         object Light : Theme(buttonColorResId = R.color.browser_menu_button)
         object Dark : Theme(buttonColorResId = R.color.home_bottom_button)
         object PrivateMode : Theme(buttonColorResId = R.color.private_menu_button)
-        object ShoppingSearch : Theme(buttonColorResId = R.color.browser_menu_button)
     }
 
     enum class DownloadState {

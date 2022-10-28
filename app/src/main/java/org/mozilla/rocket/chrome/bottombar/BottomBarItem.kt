@@ -12,7 +12,6 @@ import org.mozilla.focus.R
 import org.mozilla.focus.databinding.ButtonMoreBinding
 import org.mozilla.focus.databinding.ButtonPrivateToNormalBinding
 import org.mozilla.focus.databinding.ButtonRefreshBinding
-import org.mozilla.focus.databinding.ButtonShoppingSearchBinding
 import org.mozilla.focus.databinding.ButtonTrackerBinding
 import org.mozilla.focus.tabs.TabCounter
 import org.mozilla.rocket.chrome.BottomBarItemAdapter.Theme
@@ -131,21 +130,6 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         }
     }
 
-    class ShoppingSearchItem(private val theme: Theme) :
-        BottomBarItem(ItemType.SHOPPING_SEARCH, R.id.bottom_bar_shopping_search) {
-        override fun onCreateView(context: Context, parent: ViewGroup): View {
-            val inflater = LayoutInflater.from(context)
-            val binding = ButtonShoppingSearchBinding.inflate(inflater, parent, false)
-            val shoppingSearchColorResId =
-                if (theme == Theme.ShoppingSearch)
-                    R.color.shoppingSearchIcon
-                else
-                    theme.buttonColorResId
-            binding.actionShoppingSearch.setTint(context, shoppingSearchColorResId)
-            return binding.root
-        }
-    }
-
     enum class ItemType {
         TAB_COUNTER,
         MENU,
@@ -161,6 +145,5 @@ sealed class BottomBarItem(val type: ItemType, private val viewId: Int) {
         DELETE,
         TRACKER,
         BACK,
-        SHOPPING_SEARCH,
     }
 }

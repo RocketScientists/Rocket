@@ -1,5 +1,6 @@
 package org.mozilla.rocket.content.view
 
+import android.animation.TimeInterpolator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -9,21 +10,19 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import org.mozilla.focus.R
 import org.mozilla.focus.widget.EqualDistributeGrid
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem
 import org.mozilla.rocket.chrome.bottombar.BottomBarItem.ItemType
 import org.mozilla.rocket.extension.dpToPx
 
-open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
+open class BottomBar : FrameLayout {
     protected lateinit var dividerView: View
     private lateinit var grid: EqualDistributeGrid
     private var onItemClickListener: OnItemClickListener? = null
     private var onItemLongClickListener: OnItemLongClickListener? = null
     private val itemVisibilities = SparseIntArray()
-    private val bottomBarBehavior by lazy { BottomBarBehavior() }
 
     constructor(context: Context) : super(context) {
         init()
@@ -154,53 +153,8 @@ open class BottomBar : FrameLayout, CoordinatorLayout.AttachedBehavior {
         fun onItemLongClick(type: ItemType, position: Int): Boolean
     }
 
-    override fun getBehavior(): CoordinatorLayout.Behavior<*> = bottomBarBehavior
-
-    class BottomBarBehavior : HideBottomViewOnScrollBehavior<BottomBar> {
-
-        constructor() : super()
-
-        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-
-        private var currentState = STATE_SCROLLED_DOWN
-
-        override fun onNestedScroll(
-            coordinatorLayout: CoordinatorLayout,
-            child: BottomBar,
-            target: View,
-            dxConsumed: Int,
-            dyConsumed: Int,
-            dxUnconsumed: Int,
-            dyUnconsumed: Int
-        ) {
-            if (currentState != STATE_SCROLLED_DOWN && dyUnconsumed < 0) {
-                slideUp(child)
-            } else if (currentState != STATE_SCROLLED_UP && dyUnconsumed > 0) {
-                slideDown(child)
-            }
-        }
-
-        override fun slideUp(child: BottomBar) {
-            super.slideUp(child)
-            currentState = STATE_SCROLLED_DOWN
-        }
-
-        override fun slideDown(child: BottomBar) {
-            super.slideDown(child)
-            currentState = STATE_SCROLLED_UP
-        }
-
-        companion object {
-            private const val STATE_SCROLLED_DOWN = 1
-            private const val STATE_SCROLLED_UP = 2
-
-            fun BottomBar.slideUp() {
-                (behavior as BottomBarBehavior).slideUp(this)
-            }
-
-            fun BottomBar.slideDown() {
-                (behavior as BottomBarBehavior).slideDown(this)
-            }
-        }
+    companion object {
+        private const val ANIMATION_DURATION: Long = 500L
+        private val ANIMATOR_INTERPOLATOR: TimeInterpolator = LinearOutSlowInInterpolator()
     }
 }

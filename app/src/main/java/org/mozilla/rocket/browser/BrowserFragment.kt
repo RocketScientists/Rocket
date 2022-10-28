@@ -13,7 +13,6 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowInsets
 import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
@@ -43,7 +42,6 @@ import org.mozilla.rocket.chrome.ChromeViewModel
 import org.mozilla.rocket.chrome.ChromeViewModel.ScreenCaptureTelemetryData
 import org.mozilla.rocket.content.appComponent
 import org.mozilla.rocket.content.getActivityViewModel
-import org.mozilla.rocket.content.view.BottomBar.BottomBarBehavior.Companion.slideUp
 import org.mozilla.rocket.extension.UrlStringExtension.removeUrlFragment
 import org.mozilla.rocket.shopping.search.ShoppingSearchController
 import org.mozilla.rocket.tabs.Session
@@ -157,14 +155,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         viewLifecycleOwner.lifecycle.addObserver(bottomBarCtrl)
         viewLifecycleOwner.lifecycle.addObserver(viewController)
 
-        binding.appBar.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-            (v.layoutParams as MarginLayoutParams).topMargin = insets.systemWindowInsetTop
-            // we might leak Views here
-            binding.insetCover.layoutParams?.height = insets.systemWindowInsetTop
-            insets
-        }
-        binding.mainContent.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-            v.setPadding(0, 0, 0, insets.systemWindowInsetTop)
+        binding.insetCover.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
+            v.layoutParams?.height = insets.systemWindowInsetTop
             insets
         }
 
@@ -224,8 +216,8 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         }
 
         chromeViewModel.currentUrl.observeOnViewLifecycle {
-            binding?.appBar?.setExpanded(true)
-            binding?.browserBottomBar?.slideUp()
+            viewController.layoutController?.showTopBar()
+            viewController.layoutController?.showBottomBar()
         }
     }
 
@@ -265,13 +257,13 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val es = current.engineSession ?: return
         es.detach()
         val tabView = es.tabView ?: return
-        binding?.webviewSlot?.removeView(tabView.getView())
+        binding?.webViewSlot?.removeView(tabView.getView())
     }
 
     override fun goForeground() {
         val current = sessionCtrl.getFocusSession() ?: return
         val tabView = current.engineSession?.tabView ?: return
-        val webViewSlot = binding?.webviewSlot ?: return
+        val webViewSlot = binding?.webViewSlot ?: return
 
         if (webViewSlot.childCount == 0) {
             webViewSlot.addView(tabView.getView())
@@ -518,7 +510,7 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         binding.toolbar.toolbarRoot.setDarkTheme(enable)
         binding.toolbar.displayUrl.setDarkTheme(enable)
         binding.toolbar.siteIdentity.setDarkTheme(enable)
-        binding.urlbar.setDarkTheme(enable)
+        binding.urlBar.setDarkTheme(enable)
         binding.urlBarDivider.setDarkTheme(enable)
         val isLightStatusBarIcon = !enable && !chromeViewModel.isInPrivateMode
         ViewUtils.updateStatusBarStyle(isLightStatusBarIcon, requireActivity().window)
@@ -529,12 +521,10 @@ class BrowserFragment : LocaleAwareFragment(), BrowserScreen {
         val focusTab = sessionCtrl.getFocusSession() ?: return
 
         binding.root.isActivated = false
-        binding.appBar.setExpanded(false)
-        binding.browserBottomBar.visibility = View.INVISIBLE
+        binding.browserBottomBar.visibility = View.GONE
         hidePluggableUi()
         findInPage.onDismissListener = {
             binding.root.isActivated = true
-            binding.appBar.setExpanded(true)
             binding.browserBottomBar.visibility = View.VISIBLE
             showPluggableUi()
         }

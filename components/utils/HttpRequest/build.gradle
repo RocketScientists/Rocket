@@ -1,6 +1,10 @@
 apply plugin: 'java-library'
-apply from: '../../../buildSrc/pmd.gradle'
-apply from: '../../../buildSrc/checkstyle.gradle'
+apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
+apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
+
+checkstyle {
+    configFile = "${project.rootDir}/quality/checkstyle.xml" as File
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

@@ -1,5 +1,6 @@
 package org.mozilla.rocket.chrome
 
+import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock
@@ -176,14 +177,16 @@ class ChromeViewModel(
         }
     }
 
+    @SuppressLint("NullSafeMutableLiveData")
     fun onFocusedUrlChanged(url: String?) {
-        if (url != currentUrl.value) {
+        if (url != null && url != currentUrl.value) {
             currentUrl.value = url
         }
     }
 
+    @SuppressLint("NullSafeMutableLiveData")
     fun onFocusedTitleChanged(title: String?) {
-        if (title != currentTitle.value) {
+        if (title != null && title != currentTitle.value) {
             currentTitle.value = title
         }
     }
@@ -250,6 +253,7 @@ class ChromeViewModel(
         }
     }
 
+    @SuppressLint("NullSafeMutableLiveData")
     fun toggleBookmark() {
         if (isCurrentUrlBookmarked.value == true) {
             deleteBookmark()

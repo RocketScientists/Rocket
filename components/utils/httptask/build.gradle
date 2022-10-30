@@ -11,7 +11,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
+    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
     implementation project(path: ':HttpRequest')
     androidTestImplementation "androidx.test.ext:junit:${Versions.test_ext}"
     androidTestImplementation "androidx.test:runner:${Versions.test_runner}"

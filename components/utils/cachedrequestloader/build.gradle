@@ -15,7 +15,7 @@ dependencies {
     implementation project(':httptask')
     implementation project(':HttpRequest')
 
-    implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
+    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
     testImplementation "junit:junit:${Versions.junit4}"
     testImplementation "org.robolectric:robolectric:${Versions.robolectric}"
     androidTestImplementation "androidx.test.ext:junit:${Versions.test_ext}"

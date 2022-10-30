@@ -6,7 +6,7 @@ dependencies {
 
     implementation "androidx.annotation:annotation:${Versions.annotation}"
     implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
-    implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
+    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
 }
 
 android {

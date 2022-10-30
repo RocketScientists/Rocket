@@ -219,15 +219,15 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
 
     implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
-    implementation "androidx.appcompat:appcompat:${Versions.appcompat}"
+    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
     implementation "com.google.android.material:material:${Versions.material}"
     implementation "androidx.cardview:cardview:${Versions.cardview}"
     implementation "androidx.recyclerview:recyclerview:${Versions.recyclerview}"
-    implementation "androidx.constraintlayout:constraintlayout:${Versions.constraint}"
+    implementation "androidx.constraintlayout:constraintlayout:${Versions.android_x_constraint}"
     implementation "androidx.viewpager2:viewpager2:${Versions.viewpager2}"
-    implementation "androidx.preference:preference-ktx:${Versions.preference}"
+    implementation "androidx.preference:preference-ktx:${Versions.android_x_preference}"
     implementation "androidx.palette:palette-ktx:${Versions.palette}"
-    implementation "androidx.core:core-ktx:${Versions.core_ktx}"
+    implementation "androidx.core:core-ktx:${Versions.andrdoi_x_core_ktx}"
 
     // Architecture components
     implementation "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}"
@@ -300,7 +300,7 @@ dependencies {
 // We downgraded the libraries to 1.1.0-rc1 and need to check and upgrade to 1.2.0 in the future.
 configurations.all {
     resolutionStrategy {
-        force "androidx.appcompat:appcompat:${Versions.appcompat}"
+        force "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
     }
 }
 

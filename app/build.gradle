@@ -227,9 +227,9 @@ dependencies {
     implementation "androidx.core:core-ktx:${Versions.andrdoi_x_core_ktx}"
 
     // Architecture components
-    implementation "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-process:${Versions.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-common-java8:${Versions.android_x_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-process:${Versions.android_x_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.android_x_lifecycle}"
     implementation "androidx.navigation:navigation-fragment-ktx:${Versions.android_x_navigation}"
     implementation "androidx.navigation:navigation-ui-ktx:${Versions.android_x_navigation}"
     implementation "androidx.room:room-runtime:${Versions.room}"

@@ -26,7 +26,7 @@ object Versions {
     const val leakcanary = "2.7"
     const val android_components = "0.52.0"
     const val android_components_awesomebar = "0.56.0"
-    const val andrdoi_x_core_ktx = "1.7.0"
+    const val android_x_core_ktx = "1.7.0"
     const val android_x_appcompat = "1.3.1"
     const val android_x_constraint = "2.1.4"
     const val android_x_lifecycle = "2.5.1"

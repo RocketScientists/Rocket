@@ -224,7 +224,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:${Versions.viewpager2}"
     implementation "androidx.preference:preference-ktx:${Versions.android_x_preference}"
     implementation "androidx.palette:palette-ktx:${Versions.palette}"
-    implementation "androidx.core:core-ktx:${Versions.andrdoi_x_core_ktx}"
+    implementation "androidx.core:core-ktx:${Versions.android_x_core_ktx}"
 
     // Architecture components
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.android_x_lifecycle}"

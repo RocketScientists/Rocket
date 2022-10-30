@@ -476,6 +476,7 @@ class TabTrayFragment :
     }
 
     private fun setupTapBackgroundToExpand() {
+        val context = context ?: return
         val detector = GestureDetectorCompat(
             context,
             object : SimpleOnGestureListener() {
@@ -489,7 +490,7 @@ class TabTrayFragment :
                 }
             }
         )
-        binding?.rootLayout?.setOnTouchListener { v: View, event: MotionEvent? ->
+        binding?.rootLayout?.setOnTouchListener { v: View, event: MotionEvent ->
             val result = detector.onTouchEvent(event)
             if (result) {
                 v.performClick()

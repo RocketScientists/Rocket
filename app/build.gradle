@@ -183,9 +183,6 @@ android {
 }
 
 repositories {
-    flatDir {
-        dirs 'libs'
-    }
     mavenCentral()
 }
 
@@ -227,14 +224,14 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:${Versions.viewpager2}"
     implementation "androidx.preference:preference-ktx:${Versions.android_x_preference}"
     implementation "androidx.palette:palette-ktx:${Versions.palette}"
-    implementation "androidx.core:core-ktx:${Versions.andrdoi_x_core_ktx}"
+    implementation "androidx.core:core-ktx:${Versions.android_x_core_ktx}"
 
     // Architecture components
-    implementation "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-process:${Versions.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
-    implementation "androidx.navigation:navigation-fragment-ktx:${Versions.navigation}"
-    implementation "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.android_x_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-process:${Versions.android_x_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.android_x_lifecycle}"
+    implementation "androidx.navigation:navigation-fragment-ktx:${Versions.android_x_navigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${Versions.android_x_navigation}"
     implementation "androidx.room:room-runtime:${Versions.room}"
     kapt "androidx.room:room-compiler:${Versions.room}"
     implementation "androidx.paging:paging-runtime-ktx:${Versions.paging}"

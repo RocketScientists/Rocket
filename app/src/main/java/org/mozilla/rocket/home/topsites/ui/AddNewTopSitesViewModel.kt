@@ -1,5 +1,6 @@
 package org.mozilla.rocket.home.topsites.ui
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,7 @@ class AddNewTopSitesViewModel(
         getRecommendedSitesList()
     }
 
+    @SuppressLint("NullSafeMutableLiveData")
     override fun onTopSiteClicked(site: Site, position: Int) {
         when (site) {
             is Site.UrlSite -> {

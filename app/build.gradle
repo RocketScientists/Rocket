@@ -227,7 +227,6 @@ dependencies {
     implementation "androidx.core:core-ktx:${Versions.andrdoi_x_core_ktx}"
 
     // Architecture components
-    implementation "androidx.lifecycle:lifecycle-common-java8:${Versions.android_x_lifecycle}"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.android_x_lifecycle}"
     implementation "androidx.lifecycle:lifecycle-process:${Versions.android_x_lifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.android_x_lifecycle}"

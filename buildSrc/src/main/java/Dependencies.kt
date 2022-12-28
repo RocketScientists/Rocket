@@ -4,7 +4,7 @@ object Versions {
     const val compile_sdk = 31
     const val version_code = 1
     const val version_name = "2.9.2"
-    const val android_gradle_plugin = "7.0.3"
+    const val android_gradle_plugin = "7.2.0"
     const val gms_oss_licenses_plugin = "0.10.4"
     const val support = "1.0.0"
     const val material = "1.5.0"

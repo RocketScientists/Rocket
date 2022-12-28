@@ -1,7 +1,7 @@
 apply plugin: 'pmd'
 
 pmd {
-    toolVersion = '5.5.2'
+    toolVersion = '6.0.0'
     ignoreFailures = true
     ruleSetFiles = files("${project.rootDir}/quality/pmd-rules.xml")
     ruleSets = []

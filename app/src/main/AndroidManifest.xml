@@ -187,9 +187,10 @@
 
         <!-- This will either be an actual FCM messaging service, or a dummy service that do nothing-->
         <service
-            android:name="org.mozilla.focus.notification.RocketMessagingService">
+            android:name="org.mozilla.focus.notification.RocketMessagingService"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -257,9 +258,10 @@
 
         <receiver
             android:name="org.mozilla.focus.notification.NotificationActionBroadcastReceiver"
-            android:enabled="true">
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
-                <action android:name="action_notification"/>
+                <action android:name="action_notification" />
             </intent-filter>
         </receiver>
 

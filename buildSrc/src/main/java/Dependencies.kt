@@ -1,6 +1,6 @@
 object Versions {
     const val min_sdk = 21
-    const val target_sdk = 30
+    const val target_sdk = 31
     const val compile_sdk = 31
     const val version_code = 1
     const val version_name = "2.10.0"

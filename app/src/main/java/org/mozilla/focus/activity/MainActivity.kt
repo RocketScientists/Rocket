@@ -650,7 +650,7 @@ class MainActivity :
         )
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val builder = NotificationUtil.importantBuilder(this)
@@ -968,7 +968,7 @@ class MainActivity :
             this,
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val builder = NotificationUtil.baseBuilder(this, NotificationUtil.Channel.LOW_PRIORITY)

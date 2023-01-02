@@ -224,12 +224,22 @@ class RocketMessagingService : FirebaseMessagingServiceWrapper() {
                 command,
                 deepLink
             )
-            return PendingIntent.getBroadcast(appContext, RocketMessagingService.REQUEST_CODE_CLICK_NOTIFICATION, clickIntent, PendingIntent.FLAG_ONE_SHOT)
+            return PendingIntent.getBroadcast(
+                appContext,
+                REQUEST_CODE_CLICK_NOTIFICATION,
+                clickIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
 
         private fun addDeleteTelemetry(appContext: Context, builder: NotificationCompat.Builder, messageId: String?, link: String?) {
             val intent = IntentUtils.genDeleteFirebaseNotificationActionForBroadcastReceiver(appContext, messageId, link)
-            val pendingIntent = PendingIntent.getBroadcast(appContext, RocketMessagingService.REQUEST_CODE_DELETE_NOTIFICATION, intent, PendingIntent.FLAG_ONE_SHOT)
+            val pendingIntent = PendingIntent.getBroadcast(
+                appContext,
+                REQUEST_CODE_DELETE_NOTIFICATION,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
             builder.setDeleteIntent(pendingIntent)
         }
     }

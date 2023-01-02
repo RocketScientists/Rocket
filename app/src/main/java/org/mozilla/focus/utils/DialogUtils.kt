@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mozilla.focus.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.app.PendingIntent
@@ -153,12 +154,13 @@ object DialogUtils {
         }
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     @JvmStatic
     fun showRateAppNotification(context: Context) { // Brings up Rocket and display full screen "Love Rocket" dialog
         val openRocket = IntentUtils.genFeedbackNotificationClickForBroadcastReceiver(context)
         val openRocketPending = PendingIntent.getBroadcast(
             context, REQUEST_RATE_CLICK, openRocket,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         val string = context.getString(
             R.string.rate_app_dialog_text_title,
@@ -172,7 +174,7 @@ object DialogUtils {
         val rateStar = IntentUtils.genRateStarNotificationActionForBroadcastReceiver(context)
         val rateStarPending = PendingIntent.getBroadcast(
             context, REQUEST_RATE_RATE, rateStar,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         builder.addAction(
             R.drawable.notification_rating,
@@ -184,7 +186,7 @@ object DialogUtils {
         val feedback = IntentUtils.genFeedbackNotificationActionForBroadcastReceiver(context)
         val feedbackPending = PendingIntent.getBroadcast(
             context, REQUEST_RATE_FEEDBACK, feedback,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         builder.addAction(
             R.drawable.notification_feedback,
@@ -196,6 +198,7 @@ object DialogUtils {
         Settings.getInstance(context).setRateAppNotificationDidShow()
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     @JvmStatic
     @JvmOverloads
     fun showDefaultSettingNotification(
@@ -206,7 +209,7 @@ object DialogUtils {
             IntentUtils.genDefaultBrowserSettingIntentForBroadcastReceiver(context)
         val openRocketPending = PendingIntent.getBroadcast(
             context, REQUEST_DEFAULT_CLICK, openDefaultBrowserSetting,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         val title: String? = if (TextUtils.isEmpty(message)) {
             context.getString(R.string.preference_default_browser) + "?\uD83D\uDE0A"
@@ -221,13 +224,14 @@ object DialogUtils {
         Settings.getInstance(context).setDefaultBrowserSettingDidShow()
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     @JvmStatic
     fun showPrivacyPolicyUpdateNotification(context: Context) {
         val privacyPolicyUpdateNotice =
             IntentUtils.genPrivacyPolicyUpdateNotificationActionForBroadcastReceiver(context)
         val openRocketPending = PendingIntent.getBroadcast(
             context, REQUEST_PRIVACY_POLICY_CLICK, privacyPolicyUpdateNotice,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         val builder = NotificationUtil.importantBuilder(context)
             .setContentTitle(context.getString(R.string.privacy_policy_update_notification_title))

@@ -1,5 +1,6 @@
 package org.mozilla.rocket.periodic
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.SharedPreferences
@@ -60,11 +61,12 @@ class FirstLaunchWorker(context: Context, workerParams: WorkerParameters) : Work
         return Result.success()
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     private fun showNotification(context: Context, messageId: String, title: String?, message: String, openUrl: String?, command: String?, deepLink: String?) {
         val intent = IntentUtils.genFirstrunNotificationClickForBroadcastReceiver(context, messageId, openUrl, command, deepLink)
         val openRocketPending = PendingIntent.getBroadcast(
             context, REQUEST_CODE_CLICK_NOTIFICATION, intent,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         val builder = NotificationUtil.importantBuilder(context)
             .also {
@@ -87,7 +89,12 @@ class FirstLaunchWorker(context: Context, workerParams: WorkerParameters) : Work
 
     private fun addDeleteTelemetry(appContext: Context, builder: NotificationCompat.Builder, messageId: String, link: String?) {
         val intent = IntentUtils.genDeleteFirstrunNotificationActionForBroadcastReceiver(appContext, messageId, link)
-        val pendingIntent = PendingIntent.getBroadcast(appContext, REQUEST_CODE_DELETE_NOTIFICATION, intent, PendingIntent.FLAG_ONE_SHOT)
+        val pendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            REQUEST_CODE_DELETE_NOTIFICATION,
+            intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+        )
         builder.setDeleteIntent(pendingIntent)
     }
 }

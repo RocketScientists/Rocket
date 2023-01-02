@@ -367,7 +367,7 @@ public class IntentUtils {
 
     public static PendingIntent getLauncherHomePendingIntent(Context context) {
         return PendingIntent.getActivity(context, 0, getLauncherHomeIntent(),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     public interface OpenGooglePlayFallback {

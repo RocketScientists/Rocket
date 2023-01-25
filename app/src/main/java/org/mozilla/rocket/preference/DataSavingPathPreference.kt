@@ -44,7 +44,6 @@ class DataSavingPathPreference @JvmOverloads constructor(
         }
         if (TextUtils.isEmpty(entry)) {
             val entries = context.resources.getStringArray(R.array.data_saving_path_entries)
-            setValueIndex(0)
             return entries[0]
         }
         return entry
@@ -55,6 +54,10 @@ class DataSavingPathPreference @JvmOverloads constructor(
         val values = context.resources.getStringArray(R.array.data_saving_path_values)
         setEntries(entries)
         entryValues = values
+
+        if (TextUtils.isEmpty(entry)) {
+            setValueIndex(0)
+        }
     }
 
     @WorkerThread

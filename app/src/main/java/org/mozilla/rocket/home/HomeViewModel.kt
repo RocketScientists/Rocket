@@ -123,6 +123,9 @@ class HomeViewModel(
                     if (sitePage < sitePages.size && siteInPageIndex < sitePages[sitePage].sites.size) {
                         when (val topSite = sitePages[sitePage].sites[siteInPageIndex]) {
                             is Site.UrlSite -> topSite.highlight = true
+                            // FIXME: find a proper way to handle this
+                            Site.DummySite,
+                            Site.EmptyHintSite -> Unit
                         }
                     }
                 }
@@ -219,6 +222,8 @@ class HomeViewModel(
                 openAddNewTopSitesPage()
                 TelemetryWrapper.addTopSite(TelemetryWrapper.Extra_Value.EMPTY_HINT)
             }
+            // FIXME: find a proper way to handle this
+            Site.DummySite -> Unit
         }
     }
 
@@ -231,6 +236,9 @@ class HomeViewModel(
                     showTopSiteMenu.value =
                         ShowTopSiteMenuData(site, topSitePosition)
                 is Site.DummySite -> showAddTopSiteMenu.call()
+                // FIXME: find a proper way to handle this
+                Site.EmptyHintSite,
+                is Site.UrlSite.FixedSite -> Unit
             }
             true
         } else {
@@ -250,6 +258,9 @@ class HomeViewModel(
                 val title = if (allowToLogTitle) site.title else ""
                 TelemetryWrapper.pinTopSite(title, position, allowToLogTitle)
             }
+            // FIXME: find a proper way to handle this
+            Site.DummySite,
+            Site.EmptyHintSite -> Unit
         }
     }
 
@@ -262,6 +273,10 @@ class HomeViewModel(
                 val title = if (allowToLogTitle) site.title else ""
                 TelemetryWrapper.removeTopSite(site.isDefault, position, title, site.isPinned)
             }
+            // FIXME: find a proper way to handle this
+            Site.DummySite,
+            Site.EmptyHintSite,
+            is Site.UrlSite.FixedSite -> Unit
         }
     }
 
@@ -274,6 +289,8 @@ class HomeViewModel(
             is PinTopSiteUseCase.PinTopSiteResult.Existing -> {
                 addExistingTopSite.value = pinTopSiteResult.position / TOP_SITES_PER_PAGE
             }
+            // FIXME: find a proper way to handle this
+            PinTopSiteUseCase.PinTopSiteResult.FullyPinned -> Unit
         }
     }
 

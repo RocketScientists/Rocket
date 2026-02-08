@@ -38,6 +38,9 @@ class AddNewTopSitesViewModel(
                     TelemetryWrapper.selectToAddTopSite(true, position, site.title)
                 }
             }
+            // FIXME: find a proper way to handle this
+            Site.DummySite,
+            Site.EmptyHintSite -> Unit
         }
     }
 

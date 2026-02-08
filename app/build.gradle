@@ -17,6 +17,7 @@ android {
     namespace 'org.mozilla.focus'
 
     buildFeatures {
+        buildConfig true
         viewBinding true
     }
 

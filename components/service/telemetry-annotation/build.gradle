@@ -1,4 +1,6 @@
 apply plugin: 'kotlin'
+apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
+apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"

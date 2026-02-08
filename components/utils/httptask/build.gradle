@@ -1,4 +1,4 @@
-apply from: '../../../buildSrc/android-library-base.gradle'
+apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
 apply from: '../../../buildSrc/pmd.gradle'
 apply from: '../../../buildSrc/checkstyle.gradle'
 

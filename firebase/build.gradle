@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply from: "$rootProject.projectDir/buildSrc/compile-android.gradle"
+apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
 apply from: '../buildSrc/pmd.gradle'
 apply from: '../buildSrc/checkstyle.gradle'
 
@@ -47,6 +49,7 @@ android {
             manifestPlaceholders = [enablePerfLogs:'false']
         }
     }
+
     flavorDimensions "product", "engine"
 
     productFlavors {

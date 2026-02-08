@@ -9,6 +9,8 @@ apply from: '../buildSrc/checkstyle.gradle'
 apply from: '../buildSrc/ktlint.gradle'
 apply from: 'buildscripts/l10n.gradle'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply from: "$rootProject.projectDir/buildSrc/compile-android.gradle"
+apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
 
 android {
 
@@ -17,6 +19,7 @@ android {
     }
 
     compileSdkVersion Versions.compile_sdk
+
     defaultConfig {
         applicationId "dev.rocketscientists.rocket"
         minSdkVersion Versions.min_sdk
@@ -51,15 +54,6 @@ android {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
-        }
-
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_11
-            targetCompatibility JavaVersion.VERSION_11
-        }
-
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_11
         }
 
         kapt {

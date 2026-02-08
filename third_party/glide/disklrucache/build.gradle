@@ -1,12 +1,5 @@
 apply plugin: 'java'
-
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
-
-
-repositories {
-    mavenCentral()
-}
+apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"
 
 dependencies {
     def junitVersion = hasProperty('JUNIT_VERSION') ? JUNIT_VERSION : "${Versions.junit4}";

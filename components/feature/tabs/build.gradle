@@ -1,7 +1,8 @@
-apply from: '../../../buildSrc/android-library-base.gradle'
 apply plugin: 'kotlin-android'
-apply from: '../../../buildSrc/pmd.gradle'
+apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
+apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
 apply from: '../../../buildSrc/checkstyle.gradle'
+apply from: '../../../buildSrc/pmd.gradle'
 
 
 dependencies {

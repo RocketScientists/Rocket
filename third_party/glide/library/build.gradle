@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
 
 dependencies {
     implementation project(':third_party:glide:annotation')

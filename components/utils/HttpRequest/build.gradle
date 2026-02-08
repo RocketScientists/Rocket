@@ -1,4 +1,5 @@
 apply plugin: 'java-library'
+apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"
 apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
 apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 
@@ -13,6 +14,3 @@ dependencies {
 afterEvaluate {
     check.dependsOn 'pmd', 'checkstyle'
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"

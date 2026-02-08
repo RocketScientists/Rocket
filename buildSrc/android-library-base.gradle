@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply from: "$rootProject.projectDir/buildSrc/compile-android.gradle"
 
 android {
     compileSdkVersion Versions.compile_sdk
@@ -18,10 +18,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
 }

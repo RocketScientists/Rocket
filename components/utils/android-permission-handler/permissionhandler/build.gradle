@@ -1,6 +1,8 @@
 apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
 
 android {
+    namespace 'org.mozilla.rocket.permissionhandler'
+
     compileSdkVersion Versions.compile_sdk
 
     defaultConfig {

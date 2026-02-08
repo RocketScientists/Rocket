@@ -3,6 +3,7 @@ apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
 apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 
 android {
+    namespace 'org.mozilla.urlutils'
     testOptions {
         unitTests.includeAndroidResources = true
     }

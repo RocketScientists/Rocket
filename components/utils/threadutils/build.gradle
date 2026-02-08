@@ -3,6 +3,8 @@ apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
 apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 
 android {
+    namespace 'org.mozilla.threadutils'
+
     testOptions {
         unitTests.includeAndroidResources = true
     }

@@ -3,6 +3,7 @@ apply from: '../../../buildSrc/pmd.gradle'
 apply from: '../../../buildSrc/checkstyle.gradle'
 
 android {
+    namespace 'org.mozilla.httptask'
     testOptions {
         unitTests.includeAndroidResources = true
     }

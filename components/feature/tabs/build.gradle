@@ -4,6 +4,9 @@ apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
 apply from: '../../../buildSrc/checkstyle.gradle'
 apply from: '../../../buildSrc/pmd.gradle'
 
+android {
+    namespace 'org.mozilla.rocket.tabs'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

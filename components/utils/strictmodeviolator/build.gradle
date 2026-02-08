@@ -5,6 +5,7 @@ apply from: "$rootProject.projectDir/buildSrc/pmd.gradle"
 apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 
 android {
+    namespace 'org.mozilla.strictmodeviolator'
     testOptions {
         unitTests.includeAndroidResources = true
     }

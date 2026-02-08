@@ -1,5 +1,9 @@
 apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
 
+android {
+    namespace 'com.davemorrissey.labs.subscaleview'
+}
+
 dependencies {
     implementation "androidx.annotation:annotation:${Versions.annotation}"
 }

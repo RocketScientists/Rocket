@@ -97,6 +97,3 @@ dependencies {
 afterEvaluate {
     check.dependsOn 'pmd', 'checkstyle'
 }
-repositories {
-    mavenCentral()
-}

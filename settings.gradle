@@ -1,3 +1,20 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://maven.mozilla.org/maven2" }
+    }
+}
 
 include ':feature-tabs'
 project(':feature-tabs').projectDir = new File(rootDir, 'components/feature/tabs')

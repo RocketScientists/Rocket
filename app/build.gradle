@@ -179,11 +179,6 @@ android {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
-
 dependencies {
     implementation project(':telemetry-annotation')
     kapt project(':telemetry-compiler')

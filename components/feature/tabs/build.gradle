@@ -10,17 +10,17 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    implementation libs.kotlin.stdlib.jdk8
 
-    testImplementation "org.robolectric:robolectric:${Versions.robolectric}"
-    testImplementation "org.mockito:mockito-core:${Versions.mockito}"
-    testImplementation "junit:junit:${Versions.junit4}"
+    testImplementation libs.robolectric
+    testImplementation libs.mockito.core
+    testImplementation libs.junit
 
-    androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
-    androidTestImplementation "androidx.test.espresso:espresso-idling-resource:${Versions.espresso}"
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.espresso.idling.resource
 
-    implementation "org.mozilla.components:browser-session:${Versions.android_components}"
-    implementation "org.mozilla.components:concept-engine:${Versions.android_components}"
+    implementation libs.mozilla.components.browser.session
+    implementation libs.mozilla.components.concept.engine
 }
 
 afterEvaluate {

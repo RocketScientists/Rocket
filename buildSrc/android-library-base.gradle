@@ -2,14 +2,13 @@ apply plugin: 'com.android.library'
 apply from: "$rootProject.projectDir/buildSrc/compile-android.gradle"
 
 android {
-    compileSdkVersion Versions.compile_sdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion Versions.min_sdk
-        targetSdkVersion Versions.target_sdk
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {

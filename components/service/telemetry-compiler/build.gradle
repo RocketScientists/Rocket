@@ -4,15 +4,15 @@ apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"
 
 dependencies {
     implementation project(path: ':telemetry-annotation')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    implementation libs.kotlin.stdlib.jdk8
 
     // KSP dependencies - this module provides processors, doesn't use them
-    implementation "com.google.devtools.ksp:symbol-processing-api:${Versions.ksp}"
+    implementation libs.google.devtools.ksp
 
     // Use regular annotation processing for AutoService
-    implementation "com.google.auto.service:auto-service-annotations:1.0-rc6"
-    annotationProcessor "com.google.auto.service:auto-service:1.0-rc6"
+    implementation libs.google.auto.service.annotations
+    annotationProcessor libs.google.auto.service
 
-    testImplementation "junit:junit:${Versions.junit4}"
-    testImplementation 'com.google.testing.compile:compile-testing:0.15'
+    testImplementation libs.junit
+    testImplementation libs.google.testing.compile
 }

@@ -13,10 +13,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':urlutils')
-    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
-    testImplementation "junit:junit:${Versions.junit4}"
-    androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    implementation libs.androidx.appcompat
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.espresso.core
 }
 
 afterEvaluate {

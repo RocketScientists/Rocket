@@ -3,10 +3,10 @@ apply from: "$rootProject.projectDir/buildSrc/android-library-base.gradle"
 android {
     namespace 'org.mozilla.rocket.permissionhandler'
 
-    compileSdkVersion Versions.compile_sdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion Versions.min_sdk
+        minSdkVersion libs.versions.minSdk.get().toInteger()
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -21,9 +21,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
-    implementation "com.google.android.material:material:${Versions.material}"
-    testImplementation "junit:junit:${Versions.junit4}"
-    androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    implementation libs.androidx.appcompat
+    implementation libs.google.android.material
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.espresso.core
 }

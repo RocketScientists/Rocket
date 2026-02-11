@@ -21,14 +21,14 @@ android {
         viewBinding true
     }
 
-    compileSdkVersion Versions.compile_sdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "dev.rocketscientists.rocket"
-        minSdkVersion Versions.min_sdk
-        targetSdkVersion Versions.target_sdk
-        versionCode Versions.version_code
-        versionName Versions.version_name
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.versionCode.get().toInteger()
+        versionName libs.versions.versionName.get()
         if (SystemEnv.auto_screenshot == "1") {
             testInstrumentationRunner "org.mozilla.focus.test.runner.ScreenshotTestRunner"
             testInstrumentationRunnerArguments clearPackageData: 'true'
@@ -182,9 +182,8 @@ dependencies {
     ksp project(':telemetry-compiler')
 
     implementation project(':third_party:subsampling-scale-image-view')
-
-    implementation "com.github.bumptech.glide:glide:${Versions.glide}"
-    ksp "com.github.bumptech.glide:ksp:${Versions.glide}"
+    implementation libs.glide
+    ksp libs.glide.ksp
 
     implementation project(':firebase')
     implementation project(':feature-tabs')
@@ -199,87 +198,87 @@ dependencies {
     implementation project(':permissionhandler')
     implementation project(':strictmodeviolator')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinXCoroutine}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinXCoroutine}"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinXCoroutine}"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
+    implementation libs.kotlin.stdlib.jdk8
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.kotlin.test.junit
 
-    implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
-    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
-    implementation "com.google.android.material:material:${Versions.material}"
-    implementation "androidx.cardview:cardview:${Versions.cardview}"
-    implementation "androidx.recyclerview:recyclerview:${Versions.recyclerview}"
-    implementation "androidx.constraintlayout:constraintlayout:${Versions.android_x_constraint}"
-    implementation "androidx.viewpager2:viewpager2:${Versions.viewpager2}"
-    implementation "androidx.preference:preference-ktx:${Versions.android_x_preference}"
-    implementation "androidx.palette:palette-ktx:${Versions.palette}"
-    implementation "androidx.core:core-ktx:${Versions.android_x_core_ktx}"
+    implementation libs.google.android.material
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.cardview
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.viewpager2
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.palette.ktx
+    implementation libs.androidx.core.ktx
 
     // Architecture components
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.android_x_lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-process:${Versions.android_x_lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.android_x_lifecycle}"
-    implementation "androidx.navigation:navigation-fragment-ktx:${Versions.android_x_navigation}"
-    implementation "androidx.navigation:navigation-ui-ktx:${Versions.android_x_navigation}"
-    implementation "androidx.room:room-runtime:${Versions.room}"
-    ksp "androidx.room:room-compiler:${Versions.room}"
-    implementation "androidx.paging:paging-runtime-ktx:${Versions.paging}"
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.process
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
+    implementation libs.androidx.paging.runtime.ktx
+    implementation libs.androidx.work.runtime
+    implementation libs.androidx.room.runtime
+    ksp libs.androidx.room.compiler
 
-    implementation("androidx.work:work-runtime:${Versions.arch_work}")
 
-    implementation "org.mozilla.components:browser-session:${Versions.android_components}"
-    implementation "org.mozilla.components:browser-domains:${Versions.android_components}"
-    implementation "org.mozilla.components:ui-autocomplete:${Versions.android_components}"
-    implementation "org.mozilla.components:lib-fetch-httpurlconnection:${Versions.android_components}"
-    implementation "org.mozilla.components:concept-fetch:${Versions.android_components}"
-    implementation "org.mozilla.components:concept-engine:${Versions.android_components}"
-    implementation "org.mozilla.components:browser-engine-system:${Versions.android_components}"
+    implementation libs.mozilla.components.browser.session
+    implementation libs.mozilla.components.browser.domains
+    implementation libs.mozilla.components.ui.autocomplete
+    implementation libs.mozilla.components.lib.fetch.httpurlconnection
+    implementation libs.mozilla.components.concept.fetch
+    implementation libs.mozilla.components.concept.engine
+    implementation libs.mozilla.components.browser.engine.system
 
-    implementation "com.airbnb.android:lottie:${Versions.lottie}"
+    implementation libs.lottie
 
     // Dagger 2
-    implementation "com.google.dagger:dagger:${Versions.dagger}"
-    ksp "com.google.dagger:dagger-compiler:${Versions.dagger}"
+    implementation libs.google.dagger
+    ksp libs.google.dagger.compiler
 
-    implementation "org.mozilla.components:concept-awesomebar:${Versions.android_components_awesomebar}"
-    implementation "org.mozilla.components:browser-awesomebar:${Versions.android_components_awesomebar}"
+    implementation libs.mozilla.components.concept.awesomebar
+    implementation libs.mozilla.components.browser.awesomebar
 
-    testImplementation "junit:junit:${Versions.junit4}"
-    testImplementation "org.robolectric:robolectric:${Versions.robolectric}"
-    testImplementation "org.mockito:mockito-core:${Versions.mockito}"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
+    testImplementation libs.junit
+    testImplementation libs.robolectric
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.kotlin
 
-    testImplementation "org.json:json:${Versions.json}"
-    testImplementation "androidx.test:core:${Versions.test_core}"
-    testImplementation "androidx.arch.core:core-testing:${Versions.arch_core_testing}"
+    testImplementation libs.json
+    testImplementation libs.androidx.test.core
+    testImplementation libs.androidx.arch.core.testing
 
-    androidTestImplementation "org.mockito:mockito-android:${Versions.mockito}"
+    androidTestImplementation libs.mockito.core
 
-    androidTestImplementation "androidx.annotation:annotation:${Versions.annotation}"
-    androidTestImplementation "androidx.room:room-testing:${Versions.room}"
-    androidTestImplementation "androidx.arch.core:core-testing:${Versions.arch_core_testing}"
-    androidTestImplementation "androidx.test.ext:junit:${Versions.test_ext}"
-    androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
-    androidTestImplementation "androidx.test.uiautomator:uiautomator:${Versions.uiautomator}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:${Versions.espresso}") {
+    androidTestImplementation libs.androidx.annotation
+    androidTestImplementation libs.androidx.room.testing
+    androidTestImplementation libs.androidx.arch.core.testing
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.uiautomator
+    androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation(libs.androidx.test.espresso.contrib) {
         exclude module: "protobuf-lite"
     }
-    androidTestImplementation "androidx.test.espresso:espresso-idling-resource:${Versions.espresso}"
-    androidTestImplementation "androidx.test.espresso:espresso-intents:${Versions.espresso}"
-    androidTestImplementation "androidx.test.espresso:espresso-web:${Versions.espresso}"
-    androidTestImplementation "com.squareup.okhttp3:mockwebserver:${Versions.mockwebserver}"
-    androidTestImplementation "com.jraska:falcon:${Versions.jraska_falcon}"
-    androidTestImplementation("tools.fastlane:screengrab:${Versions.fastlane_screengrab}", {
+    androidTestImplementation libs.androidx.test.espresso.idling.resource
+    androidTestImplementation libs.androidx.test.espresso.intents
+    androidTestImplementation libs.androidx.test.espresso.web
+    androidTestImplementation libs.mockwebserver
+    androidTestImplementation libs.falcon
+    androidTestImplementation(libs.screengrab) {
         exclude group: 'com.android.support.test.uiautomator', module: 'uiautomator-v18'
-    })
+    }
 
     // LeakCanary
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:${Versions.leakcanary}"
-    firebaseImplementation "com.squareup.leakcanary:leakcanary-android:${Versions.leakcanary}"
+    debugImplementation libs.leakcanary.android
+    firebaseImplementation libs.leakcanary.android
 
-    implementation "com.google.android.play:core:${Versions.play}"
+    implementation libs.google.playCore
 }
 
 // There is a issue with Appcompat 1.1.0 which has the WebView crash on Android 5 devices.
@@ -287,7 +286,7 @@ dependencies {
 // We downgraded the libraries to 1.1.0-rc1 and need to check and upgrade to 1.2.0 in the future.
 configurations.all {
     resolutionStrategy {
-        force "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
+        force "androidx.appcompat:appcompat:${libs.versions.android.x.appcompat.get()}"
     }
 }
 

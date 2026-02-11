@@ -9,9 +9,9 @@ android {
 
     namespace 'org.mozilla.focus.utils.internals'
 
-    compileSdkVersion Versions.compile_sdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
     defaultConfig {
-        minSdkVersion Versions.min_sdk
+        minSdkVersion libs.versions.minSdk.get().toInteger()
     }
 
     buildTypes {
@@ -77,26 +77,24 @@ android {
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    implementation libs.kotlin.stdlib.jdk8
 
     // release and firebase build type need firebase modules, others will use fake implementations.
-    releaseImplementation platform("com.google.firebase:firebase-bom:29.0.0")
-    releaseImplementation 'com.google.firebase:firebase-analytics'
-    releaseImplementation 'com.google.firebase:firebase-config'
-    releaseImplementation 'com.google.firebase:firebase-messaging:23.0.0'
-    releaseImplementation 'com.google.firebase:firebase-crashlytics'
-    releaseImplementation 'com.google.firebase:firebase-auth'
-    releaseImplementation 'com.google.firebase:firebase-perf'
-    releaseImplementation 'com.google.firebase:firebase-perf'
+    releaseImplementation platform(libs.google.firebase.bom)
+    releaseImplementation libs.firebase.analytics
+    releaseImplementation libs.firebase.config
+    releaseImplementation libs.firebase.messaging
+    releaseImplementation libs.firebase.crashlytics
+    releaseImplementation libs.firebase.auth
+    releaseImplementation libs.firebase.perf
 
-    firebaseImplementation platform("com.google.firebase:firebase-bom:29.0.0")
-    firebaseImplementation 'com.google.firebase:firebase-analytics'
-    firebaseImplementation 'com.google.firebase:firebase-config'
-    firebaseImplementation 'com.google.firebase:firebase-messaging:23.0.0'
-    firebaseImplementation 'com.google.firebase:firebase-crashlytics'
-    firebaseImplementation 'com.google.firebase:firebase-auth'
-    firebaseImplementation 'com.google.firebase:firebase-perf'
-    firebaseImplementation 'com.google.firebase:firebase-perf'
+    firebaseImplementation platform(libs.google.firebase.bom)
+    firebaseImplementation libs.firebase.analytics
+    firebaseImplementation libs.firebase.config
+    firebaseImplementation libs.firebase.messaging
+    firebaseImplementation libs.firebase.crashlytics
+    firebaseImplementation libs.firebase.auth
+    firebaseImplementation libs.firebase.perf
 }
 
 

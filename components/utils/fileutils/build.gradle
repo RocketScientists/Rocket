@@ -5,16 +5,15 @@ apply from: "$rootProject.projectDir/buildSrc/checkstyle.gradle"
 android {
     namespace 'org.mozilla.fileutils'
 
-    compileSdkVersion Versions.compile_sdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion Versions.min_sdk
-        targetSdkVersion Versions.target_sdk
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     testOptions {
@@ -33,11 +32,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "androidx.appcompat:appcompat:${Versions.android_x_appcompat}"
+    implementation libs.androidx.appcompat
     implementation project(':threadutils')
-    testImplementation "junit:junit:${Versions.junit4}"
-    androidTestImplementation "androidx.test:runner:${Versions.test_runner}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.espresso.core
 }
 
 afterEvaluate {

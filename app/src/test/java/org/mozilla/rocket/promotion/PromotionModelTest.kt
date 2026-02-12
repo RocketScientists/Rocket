@@ -5,7 +5,7 @@ import org.junit.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mozilla.focus.utils.FirebaseHelper
-import org.mozilla.focus.utils.FirebaseNoOpImp
+import org.mozilla.focus.utils.FirebaseFakeImpl
 import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.utils.NewFeatureNotice
 import org.mozilla.focus.utils.SafeIntent
@@ -20,7 +20,7 @@ class PromotionModelTest {
         val eventHistory = mock(Settings.EventHistory::class.java)
         val newFeatureNotice = mock(NewFeatureNotice::class.java)
 
-        FirebaseHelper.replaceContract(FirebaseNoOpImp())
+        FirebaseHelper.replaceContract(FirebaseFakeImpl())
 
         `when`(safeIntent.getBooleanExtra(IntentUtils.EXTRA_SHOW_RATE_DIALOG, false)).thenReturn(true)
         `when`(newFeatureNotice.shouldShowPrivacyPolicyUpdate()).thenReturn(false)

@@ -24,7 +24,7 @@ class AppConfigWrapperTest {
             this[SHARE_APP_DIALOG_THRESHOLD] = shareDialog
         }
 
-        FirebaseHelper.replaceContract(FirebaseNoOpImp(map))
+        FirebaseHelper.replaceContract(FirebaseFakeImpl(map))
 
         assertEquals(rateDialog, AppConfigWrapper.getRateDialogLaunchTimeThreshold().toInt())
 

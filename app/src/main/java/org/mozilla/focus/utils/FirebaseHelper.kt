@@ -86,12 +86,10 @@ object FirebaseHelper {
     fun init(context: Context, enabled: Boolean) {
 
         if (AppConstants.isBuiltWithFirebase()) {
-            firebaseContract = provideFirebaseImpl(context)
-            Log.d(TAG, "We are using FirebaseImp")
-        } else {
-            firebaseContract = provideFirebaseNoOpImpl(context)
-            Log.d(TAG, "We are using FirebaseNoOpImp")
+            Log.d(TAG, "Using real Firebase implementation")
+            verifyFirebaseMandatoryVariables(context)
         }
+        firebaseContract = FirebaseImp(provideDefaultValues(context))
 
         // if firebaseContract is only used to initialized Firebase Helper once. It
         // doesn't make sense to use the new contract to initialize again.
@@ -132,22 +130,12 @@ object FirebaseHelper {
     }
 
     /**
-     * provider dummy Firebase implementation
-     *
-     * @param context Context used to start Firebase
-     * @return FirebaseContract that defines Firebase behavior
-     */
-    private fun provideFirebaseNoOpImpl(context: Context): FirebaseContract {
-        return FirebaseNoOpImp(provideDefaultValues(context))
-    }
-
-    /**
      * Provider actual Firebase implementation
      *
      * @param context Context used to start Firebase
      * @return FirebaseContract that defines Firebase behavior
      */
-    private fun provideFirebaseImpl(context: Context): FirebaseContract {
+    private fun verifyFirebaseMandatoryVariables(context: Context) {
         val webId = getStringResourceByName(context, FIREBASE_WEB_ID)
         val dbUrl = getStringResourceByName(context, FIREBASE_DB_URL)
         val crashReport = getStringResourceByName(context, FIREBASE_CRASH_REPORT)
@@ -160,8 +148,6 @@ object FirebaseHelper {
         ) {
             throw IllegalStateException("Firebase related keys are not set")
         }
-
-        return FirebaseImp(provideDefaultValues(context))
     }
 
     /**
@@ -218,10 +204,16 @@ object FirebaseHelper {
         val map = HashMap<String, Any>()
         if (context != null) {
             map[RATE_APP_DIALOG_TEXT_TITLE] =
-                context.getString(R.string.rate_app_dialog_text_title, context.getString(R.string.app_name))
-            map[RATE_APP_DIALOG_TEXT_CONTENT] = context.getString(R.string.rate_app_dialog_text_content)
-            map[RATE_APP_DIALOG_TEXT_POSITIVE] = context.getString(R.string.rate_app_dialog_btn_go_rate)
-            map[RATE_APP_DIALOG_TEXT_NEGATIVE] = context.getString(R.string.rate_app_dialog_btn_feedback)
+                context.getString(
+                    R.string.rate_app_dialog_text_title,
+                    context.getString(R.string.app_name)
+                )
+            map[RATE_APP_DIALOG_TEXT_CONTENT] =
+                context.getString(R.string.rate_app_dialog_text_content)
+            map[RATE_APP_DIALOG_TEXT_POSITIVE] =
+                context.getString(R.string.rate_app_dialog_btn_go_rate)
+            map[RATE_APP_DIALOG_TEXT_NEGATIVE] =
+                context.getString(R.string.rate_app_dialog_btn_feedback)
             map[FIRST_LAUNCH_NOTIFICATION] =
                 context.getString(R.string.preference_default_browser) + "?\uD83D\uDE0A"
             // Share App
@@ -229,16 +221,19 @@ object FirebaseHelper {
                 R.string.share_app_dialog_text_title,
                 context.getString(R.string.app_name)
             )
-            map[STR_SHARE_APP_DIALOG_CONTENT] = context.getString(R.string.share_app_dialog_text_content)
+            map[STR_SHARE_APP_DIALOG_CONTENT] =
+                context.getString(R.string.share_app_dialog_text_content)
             val shareAppDialogMsg = context.getString(
                 R.string.share_app_promotion_text,
-                context.getString(R.string.app_name), context.getString(R.string.share_app_google_play_url),
+                context.getString(R.string.app_name),
+                context.getString(R.string.share_app_google_play_url),
                 context.getString(R.string.mozilla)
             )
             map[STR_SHARE_APP_DIALOG_MSG] = shareAppDialogMsg
         }
         map[RATE_APP_DIALOG_THRESHOLD] = DialogUtils.APP_CREATE_THRESHOLD_FOR_RATE_DIALOG
-        map[RATE_APP_NOTIFICATION_THRESHOLD] = DialogUtils.APP_CREATE_THRESHOLD_FOR_RATE_NOTIFICATION
+        map[RATE_APP_NOTIFICATION_THRESHOLD] =
+            DialogUtils.APP_CREATE_THRESHOLD_FOR_RATE_NOTIFICATION
         map[SHARE_APP_DIALOG_THRESHOLD] = DialogUtils.APP_CREATE_THRESHOLD_FOR_SHARE_DIALOG
         map[SCREENSHOT_CATEGORY_MANIFEST] = ScreenshotManager.SCREENSHOT_CATEGORY_MANIFEST_DEFAULT
         map[FIRST_LAUNCH_TIMER_MINUTES] = FirstLaunchWorker.TIMER_DISABLED

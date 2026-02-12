@@ -7,14 +7,16 @@ package org.mozilla.focus.utils
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import java.util.HashMap
 
 /**
- * It's a wrapper to communicate with Firebase
+ * NoOp for FirebaseContract, used when we don't want to use Firebase in the build.
  */
-open class FirebaseNoOpImp(remoteConfigDefault: HashMap<String, Any> = HashMap()) : FirebaseContract(remoteConfigDefault) {
+open class FirebaseImp(remoteConfigDefault: HashMap<String, Any> = HashMap()) : FirebaseContract(remoteConfigDefault) {
 
     override fun init(context: Context) {
+        Log.d(TAG, "We are using FirebaseNoOpImp")
     }
 
     // get Remote Config string

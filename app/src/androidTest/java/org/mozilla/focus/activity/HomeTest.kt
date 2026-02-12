@@ -135,7 +135,7 @@ class HomeTest {
         Espresso.pressBack()
 
         // Check menu panel not exist
-        onView(withId(R.id.menu)).check(doesNotExist())
+        onView(withId(R.id.container)).check(doesNotExist())
 
         // Tap menu
         AndroidTestUtils.tapHomeMenuButton()
@@ -144,10 +144,10 @@ class HomeTest {
         val displayMetrics = activityRule.activity.resources.displayMetrics
         val displayWidth = displayMetrics.widthPixels
         val displayHeight = displayMetrics.heightPixels
-        onView(withId(R.id.menu)).perform(AndroidTestUtils.clickXY(displayWidth / 2, -displayHeight / 2, Tap.SINGLE))
+        onView(withId(R.id.container)).perform(AndroidTestUtils.clickXY(displayWidth / 2, -displayHeight / 2, Tap.SINGLE))
 
         //  Check menu panel not exist
-        onView(withId(R.id.menu)).check(doesNotExist())
+        onView(withId(R.id.container)).check(doesNotExist())
     }
 }
 

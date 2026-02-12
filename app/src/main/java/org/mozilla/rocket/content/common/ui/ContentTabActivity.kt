@@ -289,6 +289,8 @@ class ContentTabActivity : BaseActivity(), TabsSessionProvider.SessionHost, Cont
                     if (!downloadState.isStartFromContextMenu) {
                         Toast.makeText(this, R.string.download_started, Toast.LENGTH_LONG).show()
                     }
+                DownloadsRepository.DownloadState.GeneralError ->
+                    Toast.makeText(this, "Downloading general error", Toast.LENGTH_LONG).show()
             }
         }
 

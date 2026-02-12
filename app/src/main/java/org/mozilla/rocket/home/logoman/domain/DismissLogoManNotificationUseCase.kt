@@ -11,6 +11,8 @@ class DismissLogoManNotificationUseCase(
     operator fun invoke(notification: LogoManNotification.Notification) {
         when (notification) {
             is RemoteNotification -> logoManNotificationRepo.saveLastReadNotificationId(notification.id)
+            // FIXME: find a proper way to handle this
+            is LogoManNotification.Notification.MissionNotification -> Unit
         }
     }
 }

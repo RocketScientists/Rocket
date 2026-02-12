@@ -47,6 +47,9 @@ class RecommendedSiteViewHolder(
 
                 itemView.setOnClickListener { topSiteClickListener.onTopSiteClicked(site, adapterPosition) }
             }
+            // FIXME: find a proper way to handle this
+            Site.DummySite,
+            Site.EmptyHintSite -> Unit
         }
     }
 

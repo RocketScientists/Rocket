@@ -17,6 +17,7 @@ class RocketLauncherActivity : AppCompatActivity() {
             LaunchIntentDispatcher.Action.HANDLED -> finish()
             LaunchIntentDispatcher.Action.NORMAL -> dispatchNormalIntent()
             LaunchIntentDispatcher.Action.PRIVATE -> dispatchPrivateIntent()
+            null -> finish()
         }
     }
 

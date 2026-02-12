@@ -23,6 +23,10 @@ class DownloadsRepository(
                         TelemetryWrapper.startDownloadFile(result.downloadId.toString(), fileSize, headerInfo.isValidSSL, headerInfo.isSupportRange)
                     }
                 }
+                // FIXME: find a proper way to handle this
+                DownloadState.FileNotSupported,
+                DownloadState.GeneralError,
+                DownloadState.StorageUnavailable -> Unit
             }
         }
         return result

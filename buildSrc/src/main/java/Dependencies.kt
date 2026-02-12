@@ -17,7 +17,7 @@ object Versions {
     const val guava_android = "28.2-android"
     const val room = "2.4.3"
     const val glide = "4.0.0"
-    const val kotlin = "1.6.0"
+    const val kotlin = "1.7.20"
     const val kotlinXCoroutine = "1.6.0"
     const val ktlint = "0.41.0"
     const val gms = "11.8.0"

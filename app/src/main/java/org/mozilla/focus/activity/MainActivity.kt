@@ -427,6 +427,13 @@ class MainActivity :
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
+                        DownloadsRepository.DownloadState.GeneralError -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Downloading general error",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             )

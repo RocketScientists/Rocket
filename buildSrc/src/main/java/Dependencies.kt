@@ -49,7 +49,7 @@ object Versions {
     const val fabric_plugin = "1.25.1"
     const val fastlane_screengrab = "2.1.0"
     const val jraska_falcon = "2.2.0"
-    const val dagger = "2.38.1"
+    const val dagger = "2.48"
     const val play = "1.10.2"
 }
 

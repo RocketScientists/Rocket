@@ -22,19 +22,7 @@ We encourage you to participate in this open source project. We love Pull Reques
     git submodule update
     ```
 
-
 3. Open Android Studio and select File->Open and select Rocket to open the project. Make sure to select the right build variant in Android Studio: **focusWebkitDebug**
-
-
-## IDE / Android Studio
-
-When compiling this project by command line, please ensure you are using JDK 17. Android Studio also bundles JDK and its version might be 21. In that case, please manually change **Gradle JDK** version.
-
-1. Go to `Settings / Build, Execution, Deployment / Build Tools / Gradle / Gradle JDK`
-1. Change the JDK version to JDK 17 where you had installed.
-
-Although this project had already specified Java toolchain to 17, we still cannot build code with JDK 21 for some unknown reason. It might due to some `kapt` modules that does not respect the toolchain version configuration. If we migrate to `ksp`, this issue might be resolved.
-
 
 ## Build instructions regarding Firebase
 

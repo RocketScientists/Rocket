@@ -5,7 +5,7 @@
 package org.mozilla.telemetry.annotation
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.SOURCE)
 annotation class TelemetryDoc(
     val name: String,
     val value: String,

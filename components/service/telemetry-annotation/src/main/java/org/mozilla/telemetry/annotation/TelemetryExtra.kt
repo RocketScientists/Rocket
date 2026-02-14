@@ -10,5 +10,5 @@ package org.mozilla.telemetry.annotation
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.VALUE_PARAMETER
 )
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.SOURCE)
 annotation class TelemetryExtra(val name: String, val value: String)

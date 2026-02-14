@@ -7,7 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.LayoutDefaultBrowserTutorialDialogBinding
-import org.mozilla.focus.glide.GlideApp
+import com.bumptech.glide.Glide
 
 class DefaultBrowserTutorialDialog(
     private val context: Context,
@@ -100,7 +100,7 @@ class DefaultBrowserTutorialDialog(
 
             when {
                 data.firstStepImageUrl.isNotEmpty() -> {
-                    GlideApp.with(context)
+                    Glide.with(context)
                         .asBitmap()
                         .placeholder(data.firstStepImageDefaultResId)
                         .load(data.firstStepImageUrl)
@@ -131,7 +131,7 @@ class DefaultBrowserTutorialDialog(
 
             when {
                 data.secondStepImageUrl.isNotEmpty() -> {
-                    GlideApp.with(context)
+                    Glide.with(context)
                         .asBitmap()
                         .placeholder(data.secondStepImageDefaultResId)
                         .load(data.secondStepImageUrl)

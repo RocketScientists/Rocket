@@ -14,7 +14,7 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.TelemetryWrapper.isTelemetryEnabled
@@ -189,13 +189,17 @@ class RocketMessagingService : FirebaseMessagingServiceWrapper() {
                     Glide.with(applicationContext)
                         .asBitmap()
                         .load(imageUrl)
-                        .into(object : SimpleTarget<Bitmap?>() {
-                            override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap?>?) {
+                        .into(object : CustomTarget<Bitmap?>() {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
                                 builder.setLargeIcon(resource)
                                 builder.setStyle(NotificationCompat.BigPictureStyle().bigPicture(resource))
 
                                 NotificationUtil.sendNotification(applicationContext, NotificationId.FIREBASE_AD_HOC, builder)
                                 TelemetryWrapper.showNotification(link, messageId)
+                            }
+
+                            override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
+                                // Called when the load is cleared or cancelled
                             }
                         })
                 }

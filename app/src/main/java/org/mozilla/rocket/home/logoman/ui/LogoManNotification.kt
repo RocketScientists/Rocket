@@ -21,11 +21,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.LogoManNotificationBinding
-import org.mozilla.focus.glide.GlideApp
 import org.mozilla.focus.utils.DrawableUtils
 import org.mozilla.rocket.adapter.AdapterDelegate
 import org.mozilla.rocket.adapter.AdapterDelegatesManager
@@ -257,7 +256,7 @@ class LogoManNotification : FrameLayout {
 
             if (uiModel.imageUrl != null) {
                 notificationIcon.isVisible = true
-                GlideApp.with(itemView.context)
+                Glide.with(itemView.context)
                     .asBitmap()
                     .centerCrop()
                     .load(uiModel.imageUrl)
@@ -301,10 +300,10 @@ class LogoManNotification : FrameLayout {
                 .asBitmap()
                 .load(uiModel.imageUrl)
                 .apply(RequestOptions().transform(CircleCrop()))
-                .into(object : SimpleTarget<Bitmap>() {
+                .into(object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
-                        transition: Transition<in Bitmap>
+                        transition: Transition<in Bitmap>?
                     ) {
                         notificationIcon.setImageBitmap(
                             getRewardImage(
@@ -314,6 +313,10 @@ class LogoManNotification : FrameLayout {
                                 resource
                             )
                         )
+                    }
+
+                    override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
+                        // Called when the load is cleared or cancelled
                     }
                 })
         }

@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
@@ -11,6 +10,7 @@ apply from: 'buildscripts/l10n.gradle'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply from: "$rootProject.projectDir/buildSrc/compile-android.gradle"
 apply from: "$rootProject.projectDir/buildSrc/compile-kotlin.gradle"
+apply plugin: 'com.google.devtools.ksp'
 
 android {
 
@@ -59,10 +59,8 @@ android {
             }
         }
 
-        kapt {
-            arguments {
-                arg("projectRootDir", project.rootDir.toString())
-            }
+        ksp {
+            arg("projectRootDir", project.rootDir.toString())
         }
     }
 
@@ -181,12 +179,12 @@ android {
 
 dependencies {
     implementation project(':telemetry-annotation')
-    kapt project(':telemetry-compiler')
+    ksp project(':telemetry-compiler')
 
     implementation project(':third_party:subsampling-scale-image-view')
     implementation project(':third_party:glide:annotation')
     implementation project(':third_party:glide:library')
-    kapt "com.github.bumptech.glide:compiler:${Versions.glide}"
+    ksp "com.github.bumptech.glide:compiler:${Versions.glide}"
 
     implementation project(':firebase')
     implementation project(':feature-tabs')
@@ -225,7 +223,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:${Versions.android_x_navigation}"
     implementation "androidx.navigation:navigation-ui-ktx:${Versions.android_x_navigation}"
     implementation "androidx.room:room-runtime:${Versions.room}"
-    kapt "androidx.room:room-compiler:${Versions.room}"
+    ksp "androidx.room:room-compiler:${Versions.room}"
     implementation "androidx.paging:paging-runtime-ktx:${Versions.paging}"
 
     implementation("androidx.work:work-runtime:${Versions.arch_work}")
@@ -242,7 +240,7 @@ dependencies {
 
     // Dagger 2
     implementation "com.google.dagger:dagger:${Versions.dagger}"
-    kapt "com.google.dagger:dagger-compiler:${Versions.dagger}"
+    ksp "com.google.dagger:dagger-compiler:${Versions.dagger}"
 
     implementation "org.mozilla.components:concept-awesomebar:${Versions.android_components_awesomebar}"
     implementation "org.mozilla.components:browser-awesomebar:${Versions.android_components_awesomebar}"
@@ -345,7 +343,7 @@ android.applicationVariants.all { variant ->
 }
 
 tasks.whenTaskAdded { task ->
-    if (name.contains("compile")) {
+    if (name.contains("compile") || name.contains("ksp")) {
         task.dependsOn generatePreviewLocaleList
         task.dependsOn generateFocusLocaleList
     }

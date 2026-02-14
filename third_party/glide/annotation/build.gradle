@@ -1,2 +1,0 @@
-apply plugin: 'java'
-apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"

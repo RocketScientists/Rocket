@@ -58,6 +58,4 @@ project(':strictmodeviolator').projectDir = new File(rootDir, 'components/utils/
 include ':app'
 include ':firebase'
 include ':third_party:subsampling-scale-image-view'
-include ':third_party:glide:library'
-include ':third_party:glide:annotation'
 include ':third_party:glide:disklrucache'

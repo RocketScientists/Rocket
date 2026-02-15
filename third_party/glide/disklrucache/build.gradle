@@ -1,9 +1,0 @@
-apply plugin: 'java'
-apply from: "$rootProject.projectDir/buildSrc/compile-java.gradle"
-
-dependencies {
-    def junitVersion = hasProperty('JUNIT_VERSION') ? JUNIT_VERSION : "${Versions.junit4}";
-    testImplementation "junit:junit:${junitVersion}"
-    testImplementation 'commons-io:commons-io:2.6'
-    testImplementation 'org.easytesting:fest-assert-core:2.0M10'
-}

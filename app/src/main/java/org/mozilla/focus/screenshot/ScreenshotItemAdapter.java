@@ -18,7 +18,7 @@ import android.widget.TextView;
 import org.mozilla.focus.R;
 import org.mozilla.focus.fragment.PanelFragment;
 import org.mozilla.focus.fragment.PanelFragmentStatusListener;
-import org.mozilla.focus.glide.GlideApp;
+import com.bumptech.glide.Glide;
 import org.mozilla.focus.history.model.DateSection;
 import org.mozilla.focus.provider.QueryHandler;
 import org.mozilla.focus.screenshot.model.Screenshot;
@@ -85,7 +85,7 @@ public class ScreenshotItemAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             final GirdItemViewHolder gridVH = (GirdItemViewHolder) holder;
             gridVH.rootView.setOnClickListener(this);
             final Screenshot item = (Screenshot) mItems.get(position);
-            GlideApp
+            Glide
                     .with(mActivity)
                     .asBitmap()
                     .placeholder(R.drawable.placeholder)

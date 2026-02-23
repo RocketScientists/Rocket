@@ -25,7 +25,6 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import org.mozilla.focus.R
 import org.mozilla.focus.databinding.LogoManNotificationBinding
-import org.mozilla.focus.glide.GlideApp
 import org.mozilla.focus.utils.DrawableUtils
 import org.mozilla.rocket.adapter.AdapterDelegate
 import org.mozilla.rocket.adapter.AdapterDelegatesManager
@@ -257,7 +256,7 @@ class LogoManNotification : FrameLayout {
 
             if (uiModel.imageUrl != null) {
                 notificationIcon.isVisible = true
-                GlideApp.with(itemView.context)
+                Glide.with(itemView.context)
                     .asBitmap()
                     .centerCrop()
                     .load(uiModel.imageUrl)
@@ -304,7 +303,7 @@ class LogoManNotification : FrameLayout {
                 .into(object : SimpleTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
-                        transition: Transition<in Bitmap>
+                        transition: Transition<in Bitmap?>?
                     ) {
                         notificationIcon.setImageBitmap(
                             getRewardImage(

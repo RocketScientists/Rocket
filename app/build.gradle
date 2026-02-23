@@ -182,9 +182,10 @@ dependencies {
     ksp project(':telemetry-compiler')
 
     implementation project(':third_party:subsampling-scale-image-view')
-    implementation project(':third_party:glide:annotation')
-    implementation project(':third_party:glide:library')
-    ksp "com.github.bumptech.glide:compiler:${Versions.glide}"
+
+    implementation "com.github.bumptech.glide:glide:${Versions.glide}"
+    ksp "com.github.bumptech.glide:ksp:${Versions.glide}"
+
 
     implementation project(':firebase')
     implementation project(':feature-tabs')

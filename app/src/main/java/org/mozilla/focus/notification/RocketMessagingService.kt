@@ -190,7 +190,7 @@ class RocketMessagingService : FirebaseMessagingServiceWrapper() {
                         .asBitmap()
                         .load(imageUrl)
                         .into(object : SimpleTarget<Bitmap?>() {
-                            override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap?>?) {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
                                 builder.setLargeIcon(resource)
                                 builder.setStyle(NotificationCompat.BigPictureStyle().bigPicture(resource))
 

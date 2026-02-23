@@ -18,6 +18,7 @@ object Versions {
     const val room = "2.4.3"
     const val glide = "4.0.0"
     const val kotlin = "1.7.20"
+    const val ksp = "1.7.20-1.0.8"
     const val kotlinXCoroutine = "1.6.0"
     const val ktlint = "0.41.0"
     const val gms = "11.8.0"
